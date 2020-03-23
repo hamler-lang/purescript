@@ -33,3 +33,4 @@ TAGS
 *.ps
 *.svg
 tests/purs/make/
+stack.yaml.lock
