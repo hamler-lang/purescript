@@ -35,6 +35,8 @@ import Language.PureScript.PSString (mkString)
 import qualified Language.PureScript.Types as T
 import Language.PureScript.CST.Positions
 import Language.PureScript.CST.Types
+import Data.Text(Text)
+import qualified Data.Text as TT
 
 comment :: Comment a -> Maybe C.Comment
 comment = \case
@@ -483,20 +485,20 @@ convertDeclaration fileName decl = case decl of
       (goSig <$> maybe [] (NE.toList . snd) bd)
   DeclInstanceChain _ insts -> do
     let
-      instName (Instance (InstanceHead _ a _ _ _ _) _) = ident $ nameValue a
+      instName (Instance (InstanceHead _ _ b c) _) = ident $ cname b c
       chainId = instName <$> toList insts
-      goInst ix inst@(Instance (InstanceHead _ name _ ctrs cls args) bd) = do
+      goInst ix inst@(Instance (InstanceHead _  ctrs cls args) bd) = do
         let ann' = uncurry (sourceAnnCommented fileName) $ instanceRange inst
         AST.TypeInstanceDeclaration ann' chainId ix
-          (ident $ nameValue name)
+          (ident $ cname cls args)
           (convertConstraint fileName <$> maybe [] (toList . fst) ctrs)
           (qualified cls)
           (convertType fileName <$> args)
           (AST.ExplicitInstance $ goInstanceBinding <$> maybe [] (NE.toList . snd) bd)
     uncurry goInst <$> zip [0..] (toList insts)
-  DeclDerive _ _ new (InstanceHead _ name _ ctrs cls args) -> do
+  DeclDerive _ _ new (InstanceHead _ ctrs cls args) -> do
     let
-      name' = ident $ nameValue name
+      name' = ident $ cname cls args
       instTy
         | isJust new = AST.NewtypeInstance
         | otherwise = AST.DerivedInstance
@@ -637,3 +639,27 @@ convertModule fileName module'@(Module _ _ modName exps _ imps decls _) = do
 
 ctrFields :: [N.Ident]
 ctrFields = [N.Ident ("value" <> Text.pack (show (n :: Integer))) | n <- [0..]]
+
+
+
+cname :: QualifiedName (N.ProperName 'N.ClassName) -> [Type a] -> Ident
+cname (QualifiedName _ _ (N.ProperName t)) x = Ident $  t1 <> t2
+  where t1 = TT.toLower t
+        t2 = tType x
+
+tType :: [Type a] -> Text
+tType [] = error $ "error position: Convert.hs line,651"
+tType [x] = tT x
+-- tType x = error $ show x
+tType _ = error $ "error position: Convert.hs line,653"
+
+tT :: Type a -> Text
+tT (TypeVar _ (Name _ (Ident x))) = x
+tT (TypeApp _ a _) = tT a
+-- tT x = error $ show x
+tT _ = error $ "error position: Convert.hs line,657"
+
+
+
+
+
