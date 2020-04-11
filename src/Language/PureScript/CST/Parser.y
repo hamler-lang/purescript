@@ -695,7 +695,7 @@ classHead :: { ClassHead () }
       }
 
 classSuper
-  : constraints '<=' {%^ revert $ pure ($1, $2) }
+  : constraints '=>' {%^ revert $ pure ($1, $2) }
 
 classNameAndFundeps :: { (Name (N.ProperName 'N.ClassName), [TypeVarBinding ()], Maybe (SourceToken, Separated ClassFundep)) }
   : properName manyOrEmpty(typeVarBinding) fundeps {%^ revert $ pure ($1, $2, $3) }
