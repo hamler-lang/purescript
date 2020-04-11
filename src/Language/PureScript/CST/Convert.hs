@@ -444,7 +444,7 @@ convertBinder fileName = go
           binder' -> k binder'
       positioned ann $ loop go binder
 
-convertDeclaration :: String -> Declaration a -> [AST.Declaration]
+convertDeclaration :: Show a =>  String -> Declaration a -> [AST.Declaration]
 convertDeclaration fileName decl = case decl of
   DeclData _ (DataHead _ a vars) bd -> do
     let
@@ -626,7 +626,7 @@ convertExport fileName export = case export of
   where
   ann = sourceSpan fileName . toSourceRange $ exportRange export
 
-convertModule :: String -> Module a -> AST.Module
+convertModule ::Show a => String -> Module a -> AST.Module
 convertModule fileName module'@(Module _ _ modName exps _ imps decls _) = do
   let
     ann = uncurry (sourceAnnCommented fileName) $ moduleRange module'
@@ -642,24 +642,20 @@ ctrFields = [N.Ident ("value" <> Text.pack (show (n :: Integer))) | n <- [0..]]
 
 
 
-cname :: QualifiedName (N.ProperName 'N.ClassName) -> [Type a] -> Ident
+cname ::Show a => QualifiedName (N.ProperName 'N.ClassName) -> [Type a] -> Ident
 cname (QualifiedName _ _ (N.ProperName t)) x = Ident $  t1 <> t2
   where t1 = TT.toLower t
         t2 = tType x
 
-tType :: [Type a] -> Text
+tType ::Show a => [Type a] -> Text
 tType [] = error $ "error position: Convert.hs line,651"
 tType [x] = tT x
--- tType x = error $ show x
-tType _ = error $ "error position: Convert.hs line,653"
+tType x = error $ show x
 
-tT :: Type a -> Text
-tT (TypeVar _ (Name _ (Ident x))) = x
+tT ::Show a => Type a -> Text
 tT (TypeApp _ a _) = tT a
--- tT x = error $ show x
-tT _ = error $ "error position: Convert.hs line,657"
-
-
-
-
+tT (TypeConstructor _ (QualifiedName _ _ (N.ProperName t))) = t
+tT (TypeVar _ (Name _ (Ident x))) = x
+tT (TypeParens _ (Wrapped _ a _)) = tT a
+tT x = error $ show x
 
