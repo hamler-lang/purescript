@@ -329,7 +329,7 @@ tyChar = primTy "Char"
 
 -- | Type constructor for numbers
 tyNumber :: SourceType
-tyNumber = primTy "Number"
+tyNumber = primTy "Float"
 
 -- | Type constructor for integers
 tyInt :: SourceType
@@ -414,7 +414,7 @@ primTypes = M.fromList
   , (primName "Record",   (kindRow kindType -:> kindType, ExternData))
   , (primName "String",   (kindType, ExternData))
   , (primName "Char",     (kindType, ExternData))
-  , (primName "Number",   (kindType, ExternData))
+  , (primName "Float",   (kindType, ExternData))
   , (primName "Integer",      (kindType, ExternData))
   , (primName "Boolean",  (kindType, ExternData))
   , (primName "Partial",  (kindConstraint, ExternData))
