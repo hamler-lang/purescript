@@ -637,8 +637,8 @@ testCases =
 
   , ("ExplicitTypeSignatures",
       [ ValueShouldHaveTypeSignature (n "ExplicitTypeSignatures") "explicit" (hasTypeVar "something")
-      , ValueShouldHaveTypeSignature (n "ExplicitTypeSignatures") "anInt"    (P.tyInt `P.eqType`)
-      , ValueShouldHaveTypeSignature (n "ExplicitTypeSignatures") "aNumber"  (P.tyNumber `P.eqType`)
+      , ValueShouldHaveTypeSignature (n "ExplicitTypeSignatures") "anInt"    (P.tyInteger `P.eqType`)
+      , ValueShouldHaveTypeSignature (n "ExplicitTypeSignatures") "aNumber"  (P.tyFloat `P.eqType`)
       ])
 
   , ("ConstrainedArgument",

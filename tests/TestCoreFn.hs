@@ -97,7 +97,7 @@ spec = context "CoreFnFromJsonTest" $ do
                 , NonRec ann (Ident "x3") $ Literal ann (StringLiteral (mkString "abc"))
                 , NonRec ann (Ident "x4") $ Literal ann (CharLiteral 'c')
                 , NonRec ann (Ident "x5") $ Literal ann (BooleanLiteral True)
-                , NonRec ann (Ident "x6") $ Literal ann (ArrayLiteral [Literal ann (CharLiteral 'a')])
+                , NonRec ann (Ident "x6") $ Literal ann (ListLiteral [Literal ann (CharLiteral 'a')])
                 , NonRec ann (Ident "x7") $ Literal ann (ObjectLiteral [(mkString "a", Literal ann (CharLiteral 'a'))])
                 ]
       parseMod m `shouldSatisfy` isSuccess

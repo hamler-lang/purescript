@@ -347,19 +347,19 @@ infer'
    . (MonadSupply m, MonadState CheckState m, MonadError MultipleErrors m, MonadWriter MultipleErrors m)
   => Expr
   -> m TypedValue'
-infer' v@(Literal _ (NumericLiteral (Left _))) = return $ TypedValue' True v tyInt
-infer' v@(Literal _ (NumericLiteral (Right _))) = return $ TypedValue' True v tyNumber
+infer' v@(Literal _ (NumericLiteral (Left _))) = return $ TypedValue' True v tyInteger
+infer' v@(Literal _ (NumericLiteral (Right _))) = return $ TypedValue' True v tyFloat
 infer' v@(Literal _ (StringLiteral _)) = return $ TypedValue' True v tyString
 infer' v@(Literal _ (CharLiteral _)) = return $ TypedValue' True v tyChar
 infer' v@(Literal _ (BooleanLiteral _)) = return $ TypedValue' True v tyBoolean
-infer' (Literal ss (ArrayLiteral vals)) = do
+infer' (Literal ss (ListLiteral vals)) = do
   ts <- traverse infer vals
   els <- freshType
   ts' <- forM ts $ \(TypedValue' ch val t) -> do
     (val', t') <- instantiatePolyTypeWithUnknowns val t
     unifyTypes els t'
     return (TypedValue ch val' t')
-  return $ TypedValue' True (Literal ss (ArrayLiteral ts')) (srcTypeApp tyArray els)
+  return $ TypedValue' True (Literal ss (ListLiteral ts')) (srcTypeApp tyList els)
 infer' (Literal ss (ObjectLiteral ps)) = do
   ensureNoDuplicateProperties ps
   -- We make a special case for Vars in record labels, since these are the
@@ -515,8 +515,8 @@ inferBinder
 inferBinder _ NullBinder = return M.empty
 inferBinder val (LiteralBinder _ (StringLiteral _)) = unifyTypes val tyString >> return M.empty
 inferBinder val (LiteralBinder _ (CharLiteral _)) = unifyTypes val tyChar >> return M.empty
-inferBinder val (LiteralBinder _ (NumericLiteral (Left _))) = unifyTypes val tyInt >> return M.empty
-inferBinder val (LiteralBinder _ (NumericLiteral (Right _))) = unifyTypes val tyNumber >> return M.empty
+inferBinder val (LiteralBinder _ (NumericLiteral (Left _))) = unifyTypes val tyInteger >> return M.empty
+inferBinder val (LiteralBinder _ (NumericLiteral (Right _))) = unifyTypes val tyFloat >> return M.empty
 inferBinder val (LiteralBinder _ (BooleanLiteral _)) = unifyTypes val tyBoolean >> return M.empty
 inferBinder val (VarBinder _ name) = return $ M.singleton name val
 inferBinder val (ConstructorBinder ss ctor binders) = do
@@ -552,10 +552,10 @@ inferBinder val (LiteralBinder _ (ObjectLiteral props)) = do
     m1 <- inferBinder propTy binder
     m2 <- inferRowProperties nrow (srcRCons (Label name) propTy row) binders
     return $ m1 `M.union` m2
-inferBinder val (LiteralBinder _ (ArrayLiteral binders)) = do
+inferBinder val (LiteralBinder _ (ListLiteral binders)) = do
   el <- freshType
   m1 <- M.unions <$> traverse (inferBinder el) binders
-  unifyTypes val (srcTypeApp tyArray el)
+  unifyTypes val (srcTypeApp tyList el)
   return m1
 inferBinder val (NamedBinder ss name binder) =
   warnAndRethrowWithPositionTC ss $ do
@@ -681,9 +681,9 @@ check' val u@(TUnknown _ _) = do
   (val'', ty') <- instantiatePolyTypeWithUnknowns (tvToExpr val') ty
   unifyTypes ty' u
   return $ TypedValue' True val'' ty'
-check' v@(Literal _ (NumericLiteral (Left _))) t | t == tyInt =
+check' v@(Literal _ (NumericLiteral (Left _))) t | t == tyInteger =
   return $ TypedValue' True v t
-check' v@(Literal _ (NumericLiteral (Right _))) t | t == tyNumber =
+check' v@(Literal _ (NumericLiteral (Right _))) t | t == tyFloat =
   return $ TypedValue' True v t
 check' v@(Literal _ (StringLiteral _)) t | t == tyString =
   return $ TypedValue' True v t
@@ -691,9 +691,9 @@ check' v@(Literal _ (CharLiteral _)) t | t == tyChar =
   return $ TypedValue' True v t
 check' v@(Literal _ (BooleanLiteral _)) t | t == tyBoolean =
   return $ TypedValue' True v t
-check' (Literal ss (ArrayLiteral vals)) t@(TypeApp _ a ty) = do
-  unifyTypes a tyArray
-  array <- Literal ss . ArrayLiteral . map tvToExpr <$> forM vals (`check` ty)
+check' (Literal ss (ListLiteral vals)) t@(TypeApp _ a ty) = do
+  unifyTypes a tyList
+  array <- Literal ss . ListLiteral . map tvToExpr <$> forM vals (`check` ty)
   return $ TypedValue' True array t
 check' (Abs binder ret) ty@(TypeApp _ (TypeApp _ t argTy) retTy)
   | VarBinder ss arg <- binder = do
