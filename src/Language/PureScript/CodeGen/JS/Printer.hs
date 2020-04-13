@@ -37,7 +37,7 @@ literals = mkPattern' match'
   match (StringLiteral _ s) = return $ emit $ prettyPrintStringJS s
   match (BooleanLiteral _ True) = return $ emit "true"
   match (BooleanLiteral _ False) = return $ emit "false"
-  match (ArrayLiteral _ xs) = mconcat <$> sequence
+  match (ListLiteral _ xs) = mconcat <$> sequence
     [ return $ emit "[ "
     , intercalate (emit ", ") <$> forM xs prettyPrintJS'
     , return $ emit " ]"

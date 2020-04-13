@@ -56,8 +56,8 @@ data AST
   -- ^ A unary operator application
   | Binary (Maybe SourceSpan) BinaryOperator AST AST
   -- ^ A binary operator application
-  | ArrayLiteral (Maybe SourceSpan) [AST]
-  -- ^ An array literal
+  | ListLiteral (Maybe SourceSpan) [AST]
+  -- ^ A list literal
   | Indexer (Maybe SourceSpan) AST AST
   -- ^ An array indexer expression
   | ObjectLiteral (Maybe SourceSpan) [(PSString, AST)]
@@ -105,7 +105,7 @@ withSourceSpan withSpan = go where
   go (BooleanLiteral _ b) = BooleanLiteral ss b
   go (Unary _ op j) = Unary ss op j
   go (Binary _ op j1 j2) = Binary ss op j1 j2
-  go (ArrayLiteral _ js) = ArrayLiteral ss js
+  go (ListLiteral _ js) = ListLiteral ss js
   go (Indexer _ j1 j2) = Indexer ss j1 j2
   go (ObjectLiteral _ js) = ObjectLiteral ss js
   go (Function _ name args j) = Function ss name args j
@@ -132,7 +132,7 @@ getSourceSpan = go where
   go (BooleanLiteral ss _) = ss
   go (Unary ss _ _) = ss
   go (Binary ss _ _ _) = ss
-  go (ArrayLiteral ss _) = ss
+  go (ListLiteral ss _) = ss
   go (Indexer ss _ _) = ss
   go (ObjectLiteral ss _) = ss
   go (Function ss _ _ _) = ss
@@ -156,7 +156,7 @@ everywhere f = go where
   go :: AST -> AST
   go (Unary ss op j) = f (Unary ss op (go j))
   go (Binary ss op j1 j2) = f (Binary ss op (go j1) (go j2))
-  go (ArrayLiteral ss js) = f (ArrayLiteral ss (map go js))
+  go (ListLiteral ss js) = f (ListLiteral ss (map go js))
   go (Indexer ss j1 j2) = f (Indexer ss (go j1) (go j2))
   go (ObjectLiteral ss js) = f (ObjectLiteral ss (map (fmap go) js))
   go (Function ss name args j) = f (Function ss name args (go j))
@@ -182,7 +182,7 @@ everywhereTopDownM f = f >=> go where
   f' = f >=> go
   go (Unary ss op j) = Unary ss op <$> f' j
   go (Binary ss op j1 j2) = Binary ss op <$> f' j1 <*> f' j2
-  go (ArrayLiteral ss js) = ArrayLiteral ss <$> traverse f' js
+  go (ListLiteral ss js) = ListLiteral ss <$> traverse f' js
   go (Indexer ss j1 j2) = Indexer ss <$> f' j1 <*> f' j2
   go (ObjectLiteral ss js) = ObjectLiteral ss <$> traverse (sndM f') js
   go (Function ss name args j) = Function ss name args <$> f' j
@@ -204,7 +204,7 @@ everything :: (r -> r -> r) -> (AST -> r) -> AST -> r
 everything (<>.) f = go where
   go j@(Unary _ _ j1) = f j <>. go j1
   go j@(Binary _ _ j1 j2) = f j <>. go j1 <>. go j2
-  go j@(ArrayLiteral _ js) = foldl (<>.) (f j) (map go js)
+  go j@(ListLiteral _ js) = foldl (<>.) (f j) (map go js)
   go j@(Indexer _ j1 j2) = f j <>. go j1 <>. go j2
   go j@(ObjectLiteral _ js) = foldl (<>.) (f j) (map (go . snd) js)
   go j@(Function _ _ _ j1) = f j <>. go j1

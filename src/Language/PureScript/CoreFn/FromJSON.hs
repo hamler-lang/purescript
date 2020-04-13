@@ -71,19 +71,19 @@ literalFromJSON t = withObject "Literal" literalFromObj
   literalFromObj o = do
     type_ <- o .: "literalType" :: Parser Text
     case type_ of
-      "IntLiteral"      -> NumericLiteral . Left <$> o .: "value"
-      "NumberLiteral"   -> NumericLiteral . Right <$> o .: "value"
-      "StringLiteral"   -> StringLiteral <$> o .: "value"
-      "CharLiteral"     -> CharLiteral <$> o .: "value"
-      "BooleanLiteral"  -> BooleanLiteral <$> o .: "value"
-      "ArrayLiteral"    -> parseArrayLiteral o
-      "ObjectLiteral"   -> parseObjectLiteral o
-      _                 -> fail ("error parsing Literal: " ++ show o)
+      "BooleanLiteral" -> BooleanLiteral <$> o .: "value"
+      "IntegerLiteral" -> NumericLiteral . Left <$> o .: "value"
+      "FloatLiteral"   -> NumericLiteral . Right <$> o .: "value"
+      "StringLiteral"  -> StringLiteral <$> o .: "value"
+      "CharLiteral"    -> CharLiteral <$> o .: "value"
+      "ListLiteral"    -> parseListLiteral o
+      "ObjectLiteral"  -> parseObjectLiteral o
+      _                -> fail ("error parsing Literal: " ++ show o)
 
-  parseArrayLiteral o = do
+  parseListLiteral o = do
     val <- o .: "value"
     as <- mapM t (V.toList val)
-    return $ ArrayLiteral as
+    return $ ListLiteral as
 
   parseObjectLiteral o = do
     val <- o .: "value"

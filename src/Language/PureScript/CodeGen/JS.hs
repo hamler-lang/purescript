@@ -275,7 +275,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
   literalToValueJS ss (StringLiteral s) = return $ AST.StringLiteral (Just ss) s
   literalToValueJS ss (CharLiteral c) = return $ AST.StringLiteral (Just ss) (fromString [c])
   literalToValueJS ss (BooleanLiteral b) = return $ AST.BooleanLiteral (Just ss) b
-  literalToValueJS ss (ArrayLiteral xs) = AST.ArrayLiteral (Just ss) <$> mapM valueToJs xs
+  literalToValueJS ss (ListLiteral xs) = AST.ListLiteral (Just ss) <$> mapM valueToJs xs
   literalToValueJS ss (ObjectLiteral ps) = AST.ObjectLiteral (Just ss) <$> mapM (sndM valueToJs) ps
 
   -- | Shallow copy an object.
@@ -334,7 +334,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
       go _ _ _ = internalError "Invalid arguments to bindersToJs"
 
       failedPatternError :: [Text] -> AST
-      failedPatternError names = AST.Unary Nothing AST.New $ AST.App Nothing (AST.Var Nothing "Error") [AST.Binary Nothing AST.Add (AST.StringLiteral Nothing $ mkString failedPatternMessage) (AST.ArrayLiteral Nothing $ zipWith valueError names vals)]
+      failedPatternError names = AST.Unary Nothing AST.New $ AST.App Nothing (AST.Var Nothing "Error") [AST.Binary Nothing AST.Add (AST.StringLiteral Nothing $ mkString failedPatternMessage) (AST.ListLiteral Nothing $ zipWith valueError names vals)]
 
       failedPatternMessage :: Text
       failedPatternMessage = "Failed pattern match at " <> runModuleName mn <> " " <> displayStartEndPos ss <> ": "
@@ -413,7 +413,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
       done'' <- go done' bs'
       js <- binderToJs propVar done'' binder
       return (AST.VariableIntroduction Nothing propVar (Just (accessorString prop (AST.Var Nothing varName))) : js)
-  literalToBinderJS varName done (ArrayLiteral bs) = do
+  literalToBinderJS varName done (ListLiteral bs) = do
     js <- go done 0 bs
     return [AST.IfElse Nothing (AST.Binary Nothing AST.EqualTo (accessorString "length" (AST.Var Nothing varName)) (AST.NumericLiteral Nothing (Left (fromIntegral $ length bs)))) (AST.Block Nothing js) Nothing]
     where

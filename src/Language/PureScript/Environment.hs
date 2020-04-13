@@ -327,21 +327,21 @@ tyString = primTy "String"
 tyChar :: SourceType
 tyChar = primTy "Char"
 
--- | Type constructor for numbers
-tyNumber :: SourceType
-tyNumber = primTy "Float"
-
 -- | Type constructor for integers
-tyInt :: SourceType
-tyInt = primTy "Integer"
+tyInteger :: SourceType
+tyInteger = primTy "Integer"
+
+-- | Type constructor for floats
+tyFloat :: SourceType
+tyFloat = primTy "Float"
 
 -- | Type constructor for booleans
 tyBoolean :: SourceType
 tyBoolean = primTy "Boolean"
 
--- | Type constructor for arrays
-tyArray :: SourceType
-tyArray = primTy "List"
+-- | Type constructor for lists
+tyList :: SourceType
+tyList = primTy "List"
 
 -- | Type constructor for records
 tyRecord :: SourceType
@@ -410,12 +410,12 @@ allPrimKinds = fold
 primTypes :: M.Map (Qualified (ProperName 'TypeName)) (SourceKind, TypeKind)
 primTypes = M.fromList
   [ (primName "Function", (kindType -:> kindType -:> kindType, ExternData))
-  , (primName "List",    (kindType -:> kindType, ExternData))
+  , (primName "List",     (kindType -:> kindType, ExternData))
   , (primName "Record",   (kindRow kindType -:> kindType, ExternData))
   , (primName "String",   (kindType, ExternData))
   , (primName "Char",     (kindType, ExternData))
-  , (primName "Float",   (kindType, ExternData))
-  , (primName "Integer",      (kindType, ExternData))
+  , (primName "Float",    (kindType, ExternData))
+  , (primName "Integer",  (kindType, ExternData))
   , (primName "Boolean",  (kindType, ExternData))
   , (primName "Partial",  (kindConstraint, ExternData))
   ]

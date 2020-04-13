@@ -53,12 +53,12 @@ annToJSON (ss, _, _, m) = object [ T.pack "sourceSpan"  .= sourceSpanToJSON ss
 literalToJSON :: (a -> Value) -> Literal a -> Value
 literalToJSON _ (NumericLiteral (Left n))
   = object
-    [ T.pack "literalType" .= "IntLiteral"
+    [ T.pack "literalType" .= "IntegerLiteral"
     , T.pack "value"       .= n
     ]
 literalToJSON _ (NumericLiteral (Right n))
   = object
-      [ T.pack "literalType"  .= "NumberLiteral"
+      [ T.pack "literalType"  .= "FloatLiteral"
       , T.pack "value"        .= n
       ]
 literalToJSON _ (StringLiteral s)
@@ -76,9 +76,9 @@ literalToJSON _ (BooleanLiteral b)
     [ T.pack "literalType"  .= "BooleanLiteral"
     , T.pack "value"        .= b
     ]
-literalToJSON t (ArrayLiteral xs)
+literalToJSON t (ListLiteral xs)
   = object
-    [ T.pack "literalType"  .= "ArrayLiteral"
+    [ T.pack "literalType"  .= "ListLiteral"
     , T.pack "value"        .= map t xs
     ]
 literalToJSON t (ObjectLiteral xs)

@@ -291,7 +291,7 @@ convertExpr fileName = go
         vals = case bs of
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
-      positioned ann . AST.Literal (fst ann) $ AST.ArrayLiteral vals
+      positioned ann . AST.Literal (fst ann) $ AST.ListLiteral vals
     ExprRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
@@ -414,7 +414,7 @@ convertBinder fileName = go
         vals = case bs of
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
-      positioned ann . AST.LiteralBinder (fst ann) $ AST.ArrayLiteral vals
+      positioned ann . AST.LiteralBinder (fst ann) $ AST.ListLiteral vals
     BinderRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c

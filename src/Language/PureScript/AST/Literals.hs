@@ -12,25 +12,25 @@ import Language.PureScript.PSString (PSString)
 --
 data Literal a
   -- |
+  -- A boolean literal
+  --
+  = BooleanLiteral Bool
+  -- |
   -- A numeric literal
   --
-  = NumericLiteral (Either Integer Double)
-  -- |
-  -- A string literal
-  --
-  | StringLiteral PSString
+  | NumericLiteral (Either Integer Double)
   -- |
   -- A character literal
   --
   | CharLiteral Char
   -- |
-  -- A boolean literal
+  -- A string literal
   --
-  | BooleanLiteral Bool
+  | StringLiteral PSString
   -- |
-  -- An array literal
+  -- An list literal
   --
-  | ArrayLiteral [a]
+  | ListLiteral [a]
   -- |
   -- An object literal
   --
