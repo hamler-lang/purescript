@@ -195,6 +195,14 @@ convertType fileName = go
         arr' = Env.tyFunction $> sourceAnnCommented fileName arr arr
         ann = Pos.widenSourceAnn (T.getAnnForType a') (T.getAnnForType b')
       T.TypeApp ann (T.TypeApp ann arr' a') b'
+    TypeTuple _ a b -> do
+      let
+        a' = go a
+        b' = go b
+        arr' = Env.tyTuple $> Pos.nullSourceAnn      --sourceAnnCommented fileName arr arr
+        ann = Pos.widenSourceAnn (T.getAnnForType a') (T.getAnnForType b')
+      T.TypeApp ann (T.TypeApp ann arr' a') b'
+
     TypeArrName _ a ->
       Env.tyFunction $> sourceAnnCommented fileName a a
     TypeConstrained _ a _ b -> do
@@ -292,6 +300,13 @@ convertExpr fileName = go
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
       positioned ann . AST.Literal (fst ann) $ AST.ArrayLiteral vals
+    ExprTuple _ (Wrapped a bs c) -> do
+      let
+        ann = sourceAnnCommented fileName a c
+        [m,n] = case bs of
+          Just (Separated x xs) -> go x : (go . snd <$> xs)
+          Nothing -> []
+      positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral m n
     ExprRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c

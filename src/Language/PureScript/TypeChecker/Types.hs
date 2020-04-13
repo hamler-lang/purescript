@@ -360,6 +360,18 @@ infer' (Literal ss (ArrayLiteral vals)) = do
     unifyTypes els t'
     return (TypedValue ch val' t')
   return $ TypedValue' True (Literal ss (ArrayLiteral ts')) (srcTypeApp tyArray els)
+infer' (Literal ss (TupleLiteral a b)) = do
+
+  a' <- infer a
+  b' <- infer b
+  els <- freshType
+  ts' <- forM [a',b'] $ \(TypedValue' ch val t) -> do
+    (val', t') <- instantiatePolyTypeWithUnknowns val t
+    return (TypedValue ch val' t')
+
+  let [a'',b''] = ts'
+  return $ TypedValue' True (Literal ss (TupleLiteral a'' b'')) (srcTypeApp tyTuple els)
+
 infer' (Literal ss (ObjectLiteral ps)) = do
   ensureNoDuplicateProperties ps
   -- We make a special case for Vars in record labels, since these are the
@@ -557,6 +569,13 @@ inferBinder val (LiteralBinder _ (ArrayLiteral binders)) = do
   m1 <- M.unions <$> traverse (inferBinder el) binders
   unifyTypes val (srcTypeApp tyArray el)
   return m1
+
+inferBinder val (LiteralBinder _ (TupleLiteral a b)) = do
+  el <- freshType
+  m1 <- M.unions <$> traverse (inferBinder el) [a,b]
+  -- unifyTypes val (srcTypeApp tyTuple el)
+  return m1
+
 inferBinder val (NamedBinder ss name binder) =
   warnAndRethrowWithPositionTC ss $ do
     m <- inferBinder val binder
@@ -695,6 +714,16 @@ check' (Literal ss (ArrayLiteral vals)) t@(TypeApp _ a ty) = do
   unifyTypes a tyArray
   array <- Literal ss . ArrayLiteral . map tvToExpr <$> forM vals (`check` ty)
   return $ TypedValue' True array t
+
+check' (Literal ss (TupleLiteral m n)) t@(TypeApp _ (TypeApp _ _ argTy) retTy) = do
+  array <- do
+    -- Literal ss . ArrayLiteral . map tvToExpr <$> forM vals (`check` ty)
+    m' <-fmap tvToExpr $ m `check` argTy
+    n' <-fmap tvToExpr $ n `check` retTy
+    return $ Literal ss $ TupleLiteral m' n'
+  return $ TypedValue' True array t
+
+
 check' (Abs binder ret) ty@(TypeApp _ (TypeApp _ t argTy) retTy)
   | VarBinder ss arg <- binder = do
       unifyTypes t tyFunction

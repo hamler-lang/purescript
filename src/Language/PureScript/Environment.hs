@@ -343,6 +343,9 @@ tyBoolean = primTy "Boolean"
 tyArray :: SourceType
 tyArray = primTy "List"
 
+tyTuple :: SourceType
+tyTuple = primTy "Tuple"
+
 -- | Type constructor for records
 tyRecord :: SourceType
 tyRecord = primTy "Record"
@@ -411,6 +414,7 @@ primTypes :: M.Map (Qualified (ProperName 'TypeName)) (SourceKind, TypeKind)
 primTypes = M.fromList
   [ (primName "Function", (kindType -:> kindType -:> kindType, ExternData))
   , (primName "List",    (kindType -:> kindType, ExternData))
+  , (primName "Tuple",    (kindType -:> kindType -:> kindType, ExternData))
   , (primName "Record",   (kindRow kindType -:> kindType, ExternData))
   , (primName "String",   (kindType, ExternData))
   , (primName "Char",     (kindType, ExternData))

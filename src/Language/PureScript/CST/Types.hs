@@ -151,6 +151,7 @@ data Type a
   | TypeOp a (Type a) (QualifiedName (N.OpName 'N.TypeOpName)) (Type a)
   | TypeOpName a (QualifiedName (N.OpName 'N.TypeOpName))
   | TypeArr a (Type a) SourceToken (Type a)
+  | TypeTuple a  (Type a) (Type a)
   | TypeArrName a SourceToken
   | TypeConstrained a (Constraint a) SourceToken (Type a)
   | TypeParens a (Wrapped (Type a))
@@ -325,6 +326,7 @@ data Expr a
   | ExprString a SourceToken PSString
   | ExprNumber a SourceToken (Either Integer Double)
   | ExprArray a (Delimited (Expr a))
+  | ExprTuple a (Delimited (Expr a))
   | ExprRecord a (Delimited (RecordLabeled (Expr a)))
   | ExprParens a (Wrapped (Expr a))
   | ExprTyped a (Expr a) SourceToken (Type a)
