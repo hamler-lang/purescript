@@ -333,7 +333,7 @@ tyNumber = primTy "Number"
 
 -- | Type constructor for integers
 tyInt :: SourceType
-tyInt = primTy "Int"
+tyInt = primTy "Integer"
 
 -- | Type constructor for booleans
 tyBoolean :: SourceType
@@ -341,7 +341,7 @@ tyBoolean = primTy "Boolean"
 
 -- | Type constructor for arrays
 tyArray :: SourceType
-tyArray = primTy "Array"
+tyArray = primTy "List"
 
 -- | Type constructor for records
 tyRecord :: SourceType
@@ -410,12 +410,12 @@ allPrimKinds = fold
 primTypes :: M.Map (Qualified (ProperName 'TypeName)) (SourceKind, TypeKind)
 primTypes = M.fromList
   [ (primName "Function", (kindType -:> kindType -:> kindType, ExternData))
-  , (primName "Array",    (kindType -:> kindType, ExternData))
+  , (primName "List",    (kindType -:> kindType, ExternData))
   , (primName "Record",   (kindRow kindType -:> kindType, ExternData))
   , (primName "String",   (kindType, ExternData))
   , (primName "Char",     (kindType, ExternData))
   , (primName "Number",   (kindType, ExternData))
-  , (primName "Int",      (kindType, ExternData))
+  , (primName "Integer",      (kindType, ExternData))
   , (primName "Boolean",  (kindType, ExternData))
   , (primName "Partial",  (kindConstraint, ExternData))
   ]
