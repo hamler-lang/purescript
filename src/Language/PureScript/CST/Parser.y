@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 98
+%expect 100
 
 %name parseKind kind
 %name parseType type
@@ -293,6 +293,7 @@ type1 :: { Type () }
 type2 :: { Type () }
   : type3 { $1 }
   | type3 '->' type1 { TypeArr () $1 $2 $3 }
+  | '(' type3 ',' type1 ')' { TypeTuple () $2 $4  }
   | type3 '=>' type1 {% do cs <- toConstraint $1; pure $ TypeConstrained () cs $2 $3 }
 
 type3 :: { Type () }
@@ -422,6 +423,7 @@ exprAtom :: { Expr () }
   | string { uncurry (ExprString ()) $1 }
   | number { uncurry (ExprNumber ()) $1 }
   | delim('[', expr, ',', ']') { ExprArray () $1 }
+  | delim('(', expr, ',', ')') { ExprTuple () $1 }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
   | '(' expr ')' { ExprParens () (Wrapped $1 $2 $3) }
 
@@ -570,6 +572,7 @@ binderAtom :: { Binder () }
   | number { uncurry (BinderNumber () Nothing) $1 }
   | '-' number { uncurry (BinderNumber () (Just $1)) $2 }
   | delim('[', binder, ',', ']') { BinderArray () $1 }
+  | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
   | '(' binder ')' { BinderParens () (Wrapped $1 $2 $3) }
 

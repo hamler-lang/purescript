@@ -183,6 +183,7 @@ binderNames = go []
   go ns _ = ns
   lit ns (ObjectLiteral bs) = foldl go ns (map snd bs)
   lit ns (ListLiteral bs) = foldl go ns bs
+  lit ns (TupleLiteral a b) = foldl go ns [a,b]
   lit ns _ = ns
 
 isIrrefutable :: Binder -> Bool

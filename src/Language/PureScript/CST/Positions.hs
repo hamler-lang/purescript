@@ -265,6 +265,7 @@ typeRange = \case
   TypeOp _ a _ b -> (fst $ typeRange a, snd $ typeRange b)
   TypeOpName _ a -> qualRange a
   TypeArr _ a _ b -> (fst $ typeRange a, snd $ typeRange b)
+  TypeTuple _ a b -> (fst $ typeRange a, snd $ typeRange b)
   TypeArrName _ a -> (a, a)
   TypeConstrained _ a _ b -> (fst $ constraintRange a, snd $ typeRange b)
   TypeParens _ a -> wrappedRange a
@@ -292,6 +293,7 @@ exprRange = \case
   ExprString _ a _ -> (a, a)
   ExprNumber _ a _ -> (a, a)
   ExprArray _ a -> wrappedRange a
+  ExprTuple _ a -> wrappedRange a
   ExprRecord _ a -> wrappedRange a
   ExprParens _ a -> wrappedRange a
   ExprTyped _ a _ b -> (fst $ exprRange a, snd $ typeRange b)
@@ -336,6 +338,7 @@ binderRange = \case
     | Just a' <- a -> (a', b)
     | otherwise -> (b, b)
   BinderArray _ a -> wrappedRange a
+  BinderTuple _ a -> wrappedRange a
   BinderRecord _ a -> wrappedRange a
   BinderParens _ a -> wrappedRange a
   BinderTyped _ a _ b -> (fst $ binderRange a, snd $ typeRange b)

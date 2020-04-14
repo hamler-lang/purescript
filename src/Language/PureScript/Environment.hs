@@ -343,6 +343,9 @@ tyBoolean = primTy "Boolean"
 tyList :: SourceType
 tyList = primTy "List"
 
+tyTuple :: SourceType
+tyTuple = primTy "Tuple"
+
 -- | Type constructor for records
 tyRecord :: SourceType
 tyRecord = primTy "Record"
@@ -410,12 +413,13 @@ allPrimKinds = fold
 primTypes :: M.Map (Qualified (ProperName 'TypeName)) (SourceKind, TypeKind)
 primTypes = M.fromList
   [ (primName "Function", (kindType -:> kindType -:> kindType, ExternData))
-  , (primName "List",     (kindType -:> kindType, ExternData))
-  , (primName "Record",   (kindRow kindType -:> kindType, ExternData))
-  , (primName "String",   (kindType, ExternData))
-  , (primName "Char",     (kindType, ExternData))
-  , (primName "Float",    (kindType, ExternData))
-  , (primName "Integer",  (kindType, ExternData))
+  , (primName "List",    (kindType -:> kindType, ExternData))
+  , (primName "Tuple",   (kindType -:> kindType -:> kindType, ExternData))
+  , (primName "Record",  (kindRow kindType -:> kindType, ExternData))
+  , (primName "String",  (kindType, ExternData))
+  , (primName "Char",    (kindType, ExternData))
+  , (primName "Float",   (kindType, ExternData))
+  , (primName "Integer", (kindType, ExternData))
   , (primName "Boolean",  (kindType, ExternData))
   , (primName "Partial",  (kindConstraint, ExternData))
   ]

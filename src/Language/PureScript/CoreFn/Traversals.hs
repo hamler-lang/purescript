@@ -41,6 +41,7 @@ everywhereOnValues f g h = (f', g', h')
 
   handleLiteral :: (a -> a) -> Literal a -> Literal a
   handleLiteral i (ListLiteral ls) = ListLiteral (map i ls)
+  handleLiteral i (TupleLiteral a b) = TupleLiteral  (i a) (i b)   --(map i [a,b])
   handleLiteral i (ObjectLiteral ls) = ObjectLiteral (map (fmap i) ls)
   handleLiteral _ other = other
 
@@ -73,5 +74,6 @@ everythingOnValues (<>.) f g h i = (f', g', h', i')
   i' ca@(CaseAlternative bs (Left gs)) = foldl (<>.) (i ca) (map h' bs ++ concatMap (\(grd, val) -> [g' grd, g' val]) gs)
 
   extractLiteral (ListLiteral xs) = xs
+  extractLiteral (TupleLiteral a b) = [a,b]
   extractLiteral (ObjectLiteral xs) = map snd xs
   extractLiteral _ = []

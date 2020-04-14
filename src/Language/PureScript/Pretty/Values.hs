@@ -127,6 +127,7 @@ prettyPrintLiteralValue _ (CharLiteral c) = text $ show c
 prettyPrintLiteralValue _ (BooleanLiteral True) = text "true"
 prettyPrintLiteralValue _ (BooleanLiteral False) = text "false"
 prettyPrintLiteralValue d (ListLiteral xs) = list '[' ']' (prettyPrintValue (d - 1)) xs
+prettyPrintLiteralValue d (TupleLiteral a b) = list '(' ')' (prettyPrintValue (d - 1)) [a,b]
 prettyPrintLiteralValue d (ObjectLiteral ps) = prettyPrintObject (d - 1) $ second Just `map` ps
 
 prettyPrintDeclaration :: Int -> Declaration -> Box
@@ -220,6 +221,10 @@ prettyPrintLiteralBinder (ListLiteral bs) =
   "[ "
   Monoid.<> T.intercalate ", " (map prettyPrintBinder bs)
   Monoid.<> " ]"
+prettyPrintLiteralBinder (TupleLiteral a b) =
+  "( "
+  Monoid.<> T.intercalate ", " (map prettyPrintBinder [a,b])
+  Monoid.<> " )"
 
 -- |
 -- Generate a pretty-printed string representing a Binder

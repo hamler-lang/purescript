@@ -35,4 +35,5 @@ data Literal a
   -- An object literal
   --
   | ObjectLiteral [(PSString, a)]
+  | TupleLiteral a a
   deriving (Eq, Ord, Show, Functor)

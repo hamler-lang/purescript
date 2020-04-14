@@ -22,6 +22,7 @@ everythingOnTypes op k = goTy
     TypeOp _ ty2 _ ty3 -> k ty `op` (goTy ty2 `op` goTy ty3)
     TypeOpName _ _ -> k ty
     TypeArr _ ty2 _ ty3 -> k ty `op` (goTy ty2 `op` goTy ty3)
+    TypeTuple _ ty2 ty3 -> k ty `op` (goTy ty2 `op` goTy ty3)
     TypeArrName _ _ -> k ty
     TypeConstrained _ (constraintTys -> ty2) _ ty3
       | null ty2 -> k ty `op` goTy ty3
