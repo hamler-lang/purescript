@@ -338,6 +338,7 @@ binderRange = \case
     | Just a' <- a -> (a', b)
     | otherwise -> (b, b)
   BinderArray _ a -> wrappedRange a
+  BinderTuple _ a -> wrappedRange a
   BinderRecord _ a -> wrappedRange a
   BinderParens _ a -> wrappedRange a
   BinderTyped _ a _ b -> (fst $ binderRange a, snd $ typeRange b)

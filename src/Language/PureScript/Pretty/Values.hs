@@ -221,6 +221,10 @@ prettyPrintLiteralBinder (ArrayLiteral bs) =
   "[ "
   Monoid.<> T.intercalate ", " (map prettyPrintBinder bs)
   Monoid.<> " ]"
+prettyPrintLiteralBinder (TupleLiteral a b) =
+  "( "
+  Monoid.<> T.intercalate ", " (map prettyPrintBinder [a,b])
+  Monoid.<> " )"
 
 -- |
 -- Generate a pretty-printed string representing a Binder

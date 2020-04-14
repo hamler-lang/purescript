@@ -165,6 +165,10 @@ renameInValue (Let ann ds v) =
 --
 renameInLiteral :: (a -> Rename a) -> Literal a -> Rename (Literal a)
 renameInLiteral rename (ArrayLiteral bs) = ArrayLiteral <$> traverse rename bs
+renameInLiteral rename (TupleLiteral a b) =do
+  a' <- rename a
+  b' <- rename b
+  return $ TupleLiteral a' b'
 renameInLiteral rename (ObjectLiteral bs) = ObjectLiteral <$> traverse (sndM rename) bs
 renameInLiteral _ l = return l
 

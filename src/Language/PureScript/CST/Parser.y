@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 99
+%expect 100
 
 %name parseKind kind
 %name parseType type
@@ -572,6 +572,7 @@ binderAtom :: { Binder () }
   | number { uncurry (BinderNumber () Nothing) $1 }
   | '-' number { uncurry (BinderNumber () (Just $1)) $2 }
   | delim('[', binder, ',', ']') { BinderArray () $1 }
+  | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
   | '(' binder ')' { BinderParens () (Wrapped $1 $2 $3) }
 

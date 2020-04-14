@@ -564,17 +564,31 @@ inferBinder val (LiteralBinder _ (ObjectLiteral props)) = do
     m1 <- inferBinder propTy binder
     m2 <- inferRowProperties nrow (srcRCons (Label name) propTy row) binders
     return $ m1 `M.union` m2
+
 inferBinder val (LiteralBinder _ (ArrayLiteral binders)) = do
   el <- freshType
   m1 <- M.unions <$> traverse (inferBinder el) binders
   unifyTypes val (srcTypeApp tyArray el)
+
   return m1
 
+------------------------------------------------------------------
 inferBinder val (LiteralBinder _ (TupleLiteral a b)) = do
-  el <- freshType
-  m1 <- M.unions <$> traverse (inferBinder el) [a,b]
-  -- unifyTypes val (srcTypeApp tyTuple el)
+  el1 <- freshType
+  a' <- do
+    at <- inferBinder el1 a
+    return at
+
+  el2 <- freshType
+  b' <- do
+    att <- inferBinder el2 b
+    return att
+
+  unifyTypes val (srcTypeApp (srcTypeApp tyTuple el1) el2)
+
+  let m1 = M.unions [a',b']
   return m1
+------------------------------------------------------------------
 
 inferBinder val (NamedBinder ss name binder) =
   warnAndRethrowWithPositionTC ss $ do

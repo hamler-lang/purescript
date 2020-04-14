@@ -430,6 +430,16 @@ convertBinder fileName = go
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
       positioned ann . AST.LiteralBinder (fst ann) $ AST.ArrayLiteral vals
+
+    BinderTuple _ (Wrapped a bs c) -> do
+      let
+        ann = sourceAnnCommented fileName a c
+        [m,n] = case bs of
+          Just (Separated x xs) -> go x : (go . snd <$> xs)
+          Nothing -> []
+      positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral m n
+
+
     BinderRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
