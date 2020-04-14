@@ -276,7 +276,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
   literalToValueJS ss (CharLiteral c) = return $ AST.StringLiteral (Just ss) (fromString [c])
   literalToValueJS ss (BooleanLiteral b) = return $ AST.BooleanLiteral (Just ss) b
   literalToValueJS ss (ListLiteral xs) = AST.ListLiteral (Just ss) <$> mapM valueToJs xs
-  literalToValueJS ss (TupleLiteral a b) = AST.ArrayLiteral (Just ss) <$> mapM valueToJs [a,b]
+  literalToValueJS ss (TupleLiteral a b) = AST.ListLiteral (Just ss) <$> mapM valueToJs [a,b]
   literalToValueJS ss (ObjectLiteral ps) = AST.ObjectLiteral (Just ss) <$> mapM (sndM valueToJs) ps
 
   -- | Shallow copy an object.
