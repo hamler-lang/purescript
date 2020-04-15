@@ -293,11 +293,11 @@ type1 :: { Type () }
 type2 :: { Type () }
   : type3 { $1 }
   | type3 '->' type1 { TypeArr () $1 $2 $3 }
-  | '(' type3 ',' type1 ')' { TypeTuple () $2 $4  }
   | type3 '=>' type1 {% do cs <- toConstraint $1; pure $ TypeConstrained () cs $2 $3 }
 
 type3 :: { Type () }
   : type4 { $1 }
+  | '(' type4 ',' type1 ')' {TypeTuple () $2 $4 }
   | type3 qualOp type4 { TypeOp () $1 $2 $3 }
 
 type4 :: { Type () }
