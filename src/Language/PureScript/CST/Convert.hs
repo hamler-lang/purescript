@@ -674,8 +674,7 @@ cname (QualifiedName _ _ (N.ProperName t)) x = Ident $  t1 <> t2
 tType ::Show a => [Type a] -> Text
 tType [] = error $ "error position: Convert.hs line,651"
 tType [x] = tT x
-tType xs = TT.concat $ fmap tT xs
-tType x = error $ show x
+tType xs =TT.concat $ fmap tT xs
 
 tT ::Show a => Type a -> Text
 tT (TypeApp _ a _) = tT a

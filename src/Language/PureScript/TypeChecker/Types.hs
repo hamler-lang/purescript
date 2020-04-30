@@ -361,16 +361,21 @@ infer' (Literal ss (ListLiteral vals)) = do
     return (TypedValue ch val' t')
   return $ TypedValue' True (Literal ss (ListLiteral ts')) (srcTypeApp tyList els)
 infer' (Literal ss (TupleLiteral a b)) = do
-
   a' <- infer a
-  b' <- infer b
-  els <- freshType
-  ts' <- forM [a',b'] $ \(TypedValue' ch val t) -> do
+  els1 <- freshType
+  ta' <- forM [a'] $ \(TypedValue' ch val t) -> do
     (val', t') <- instantiatePolyTypeWithUnknowns val t
+    unifyTypes els1 t'
     return (TypedValue ch val' t')
 
-  let [a'',b''] = ts'
-  return $ TypedValue' True (Literal ss (TupleLiteral a'' b'')) (srcTypeApp tyTuple els)
+  b' <- infer b
+  els2 <- freshType
+  tb' <- forM [b'] $ \(TypedValue' ch val t) -> do
+    (val', t') <- instantiatePolyTypeWithUnknowns val t
+    unifyTypes els2 t'
+    return (TypedValue ch val' t')
+
+  return $ TypedValue' True (Literal ss (TupleLiteral (head ta') (head tb'))) (srcTypeApp (srcTypeApp tyTuple els1) els2)
 
 infer' (Literal ss (ObjectLiteral ps)) = do
   ensureNoDuplicateProperties ps
