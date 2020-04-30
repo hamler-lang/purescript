@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 100
+%expect 102
 
 %name parseKind kind
 %name parseType type
@@ -312,6 +312,7 @@ typeAtom :: { Type ()}
   | hole { TypeHole () $1 }
   | '(->)' { TypeArrName () $1 }
   | '{' row '}' { TypeRecord () (Wrapped $1 $2 $3) }
+  | '[' type4 ']' { TypeList () $2 }
   | '(' type4 ',' type1 ')' {TypeTuple () $2 $4 }
   | '(' row ')' { TypeRow () (Wrapped $1 $2 $3) }
   | '(' type1 ')' { TypeParens () (Wrapped $1 $2 $3) }

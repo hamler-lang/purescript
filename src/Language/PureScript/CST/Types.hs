@@ -152,6 +152,7 @@ data Type a
   | TypeOpName a (QualifiedName (N.OpName 'N.TypeOpName))
   | TypeArr a (Type a) SourceToken (Type a)
   | TypeTuple a  (Type a) (Type a)
+  | TypeList a  (Type a)
   | TypeArrName a SourceToken
   | TypeConstrained a (Constraint a) SourceToken (Type a)
   | TypeParens a (Wrapped (Type a))

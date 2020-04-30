@@ -115,7 +115,7 @@ convertKind fileName = go
     KindParens _ (Wrapped _ a _) ->
       go a
 
-convertType :: String -> Type a -> T.SourceType
+convertType ::Show a => String -> Type a -> T.SourceType
 convertType fileName = go
   where
   goRow (Row labels tl) b = do
@@ -202,7 +202,12 @@ convertType fileName = go
         arr' = Env.tyTuple $> Pos.nullSourceAnn      --sourceAnnCommented fileName arr arr
         ann = Pos.widenSourceAnn (T.getAnnForType a') (T.getAnnForType b')
       T.TypeApp ann (T.TypeApp ann arr' a') b'
-
+    TypeList _ a -> do
+      let
+        a' = go a
+        arr' = Env.tyList $> Pos.nullSourceAnn      --sourceAnnCommented fileName arr arr
+        ann = Pos.widenSourceAnn (T.getAnnForType a') (T.getAnnForType a')
+      T.TypeApp ann arr' a'
     TypeArrName _ a ->
       Env.tyFunction $> sourceAnnCommented fileName a a
     TypeConstrained _ a _ b -> do
@@ -214,7 +219,7 @@ convertType fileName = go
     TypeParens _ (Wrapped a ty b) ->
       T.ParensInType (sourceAnnCommented fileName a b) $ go ty
 
-convertConstraint :: String -> Constraint a -> T.SourceConstraint
+convertConstraint :: Show a => String -> Constraint a -> T.SourceConstraint
 convertConstraint fileName = go
   where
   go = \case
@@ -223,7 +228,7 @@ convertConstraint fileName = go
       T.Constraint ann (qualified name) (convertType fileName <$> args) Nothing
     ConstraintParens _ (Wrapped _ c _) -> go c
 
-convertGuarded :: String -> Guarded a -> [AST.GuardedExpr]
+convertGuarded :: Show a => String -> Guarded a -> [AST.GuardedExpr]
 convertGuarded fileName = \case
   Unconditional _ x -> [AST.GuardedExpr [] (convertWhere fileName x)]
   Guarded gs -> (\(GuardedExpr _ ps _ x) -> AST.GuardedExpr (p <$> toList ps) (convertWhere fileName x)) <$> NE.toList gs
@@ -232,14 +237,14 @@ convertGuarded fileName = \case
   p (PatternGuard Nothing x) = AST.ConditionGuard (go x)
   p (PatternGuard (Just (b, _)) x) = AST.PatternGuard (convertBinder fileName b) (go x)
 
-convertWhere :: String -> Where a -> AST.Expr
+convertWhere :: Show a => String -> Where a -> AST.Expr
 convertWhere fileName = \case
   Where expr Nothing -> convertExpr fileName expr
   Where expr (Just (_, bs)) -> do
     let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
     uncurry AST.PositionedValue ann . AST.Let AST.FromWhere (convertLetBinding fileName <$> NE.toList bs) $ convertExpr fileName expr
 
-convertLetBinding :: String -> LetBinding a -> AST.Declaration
+convertLetBinding :: Show a => String -> LetBinding a -> AST.Declaration
 convertLetBinding fileName = \case
   LetBindingSignature _ lbl ->
     convertSignature fileName lbl
@@ -250,7 +255,7 @@ convertLetBinding fileName = \case
     let ann = uncurry (sourceAnnCommented fileName) $ letBindingRange binding
     AST.BoundValueDeclaration ann (convertBinder fileName a) (convertWhere fileName b)
 
-convertExpr :: forall a. String -> Expr a -> AST.Expr
+convertExpr :: forall a. Show a => String -> Expr a -> AST.Expr
 convertExpr fileName = go
   where
   positioned =
@@ -389,7 +394,7 @@ convertExpr fileName = go
       let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
       positioned ann . AST.Ado (moduleName $ tokValue kw) (goDoStatement <$> stms) $ go a
 
-convertBinder :: String -> Binder a -> AST.Binder
+convertBinder ::Show a => String -> Binder a -> AST.Binder
 convertBinder fileName = go
   where
   positioned =
@@ -472,7 +477,7 @@ convertDeclaration :: Show a =>  String -> Declaration a -> [AST.Declaration]
 convertDeclaration fileName decl = case decl of
   DeclData _ (DataHead _ a vars) bd -> do
     let
-      ctrs :: SourceToken -> DataCtor a -> [(SourceToken, DataCtor a)] -> [AST.DataConstructorDeclaration]
+      ctrs ::Show a =>  SourceToken -> DataCtor a -> [(SourceToken, DataCtor a)] -> [AST.DataConstructorDeclaration]
       ctrs st (DataCtor _ name fields) tl
         = AST.DataConstructorDeclaration (sourceAnnCommented fileName st (nameTok name)) (nameValue name) (zip ctrFields $ convertType fileName <$> fields)
         : (case tl of
@@ -570,14 +575,14 @@ convertDeclaration fileName decl = case decl of
       let ann' = uncurry (sourceAnnCommented fileName) $ instanceBindingRange binding
       convertValueBindingFields fileName ann' fields
 
-convertSignature :: String -> Labeled (Name Ident) (Type a) -> AST.Declaration
+convertSignature :: Show a => String -> Labeled (Name Ident) (Type a) -> AST.Declaration
 convertSignature fileName (Labeled a _ b) = do
   let
     b' = convertType fileName b
     ann = widenLeft (tokAnn $ nameTok a) $ T.getAnnForType b'
   AST.TypeDeclaration $ AST.TypeDeclarationData ann (ident $ nameValue a) b'
 
-convertValueBindingFields :: String -> Pos.SourceAnn -> ValueBindingFields a -> AST.Declaration
+convertValueBindingFields :: Show a => String -> Pos.SourceAnn -> ValueBindingFields a -> AST.Declaration
 convertValueBindingFields fileName ann (ValueBindingFields a bs c) = do
   let
     bs' = convertBinder fileName <$> bs
@@ -585,7 +590,7 @@ convertValueBindingFields fileName ann (ValueBindingFields a bs c) = do
   AST.ValueDeclaration $ AST.ValueDeclarationData ann (ident $ nameValue a) Env.Public bs' cs'
 
 convertImportDecl
-  :: String
+  :: Show a => String
   -> ImportDecl a
   -> (Pos.SourceAnn, N.ModuleName, AST.ImportDeclarationType, Maybe N.ModuleName)
 convertImportDecl fileName decl@(ImportDecl _ _ modName mbNames mbQual) = do
@@ -600,7 +605,7 @@ convertImportDecl fileName decl@(ImportDecl _ _ modName mbNames mbQual) = do
           else AST.Explicit imps'
   (ann, nameValue modName, importTy, nameValue . snd <$> mbQual)
 
-convertImport :: String -> Import a -> AST.DeclarationRef
+convertImport :: Show a => String -> Import a -> AST.DeclarationRef
 convertImport fileName imp = case imp of
   ImportValue _ a ->
     AST.ValueRef ann . ident $ nameValue a
@@ -624,7 +629,7 @@ convertImport fileName imp = case imp of
   where
   ann = sourceSpan fileName . toSourceRange $ importRange imp
 
-convertExport :: String -> Export a -> AST.DeclarationRef
+convertExport :: Show a => String -> Export a -> AST.DeclarationRef
 convertExport fileName export = case export of
   ExportValue _ a ->
     AST.ValueRef ann . ident $ nameValue a
