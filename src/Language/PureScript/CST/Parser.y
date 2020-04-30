@@ -297,7 +297,6 @@ type2 :: { Type () }
 
 type3 :: { Type () }
   : type4 { $1 }
-  | '(' type4 ',' type1 ')' {TypeTuple () $2 $4 }
   | type3 qualOp type4 { TypeOp () $1 $2 $3 }
 
 type4 :: { Type () }
@@ -313,6 +312,7 @@ typeAtom :: { Type ()}
   | hole { TypeHole () $1 }
   | '(->)' { TypeArrName () $1 }
   | '{' row '}' { TypeRecord () (Wrapped $1 $2 $3) }
+  | '(' type4 ',' type1 ')' {TypeTuple () $2 $4 }
   | '(' row ')' { TypeRow () (Wrapped $1 $2 $3) }
   | '(' type1 ')' { TypeParens () (Wrapped $1 $2 $3) }
   | '(' typeKindedAtom '::' kind ')' { TypeParens () (Wrapped $1 (TypeKinded () $2 $3 $4) $5) }
