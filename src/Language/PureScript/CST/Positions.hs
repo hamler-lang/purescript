@@ -266,6 +266,7 @@ typeRange = \case
   TypeOpName _ a -> qualRange a
   TypeArr _ a _ b -> (fst $ typeRange a, snd $ typeRange b)
   TypeTuple _ a b -> (fst $ typeRange a, snd $ typeRange b)
+  TypeList _ a -> (typeRange a)
   TypeArrName _ a -> (a, a)
   TypeConstrained _ a _ b -> (fst $ constraintRange a, snd $ typeRange b)
   TypeParens _ a -> wrappedRange a
