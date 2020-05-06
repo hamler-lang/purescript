@@ -51,8 +51,11 @@ import Language.PureScript.PSString (PSString)
 %partial parseQualIdentP qualIdentP
 %partial parseModuleHeader moduleHeader
 %partial parseDoStatement doStatement
+%partial parseDoListStatement doListStatement
 %partial parseDoExpr doExpr
+%partial parseDoListExpr doListExpr
 %partial parseDoNext doNext
+%partial parseDoListNext doListNext
 %partial parseGuardExpr guardExpr
 %partial parseGuardNext guardNext
 %partial parseGuardStatement guardStatement
@@ -387,6 +390,7 @@ expr5 :: { Expr () }
   : expr6 { $1 }
   | 'if' expr 'then' expr 'else' expr { ExprIf () (IfThenElse $1 $2 $3 $4 $5 $6) }
   | doBlock { ExprDo () $1 }
+  | doListBlock { ExprListComp () $1 }
   | adoBlock 'in' expr { ExprAdo () $ uncurry AdoBlock $1 $2 $3 }
   | '\\' many(binderAtom) '->' expr { ExprLambda () (Lambda $1 $2 $3 $4) }
   | 'let' '\{' manySep(letBinding, '\;') '\}' 'in' expr { ExprLet () (LetIn $1 $3 $5 $6) }
@@ -530,6 +534,35 @@ doExpr :: { Expr () }
 doNext :: { [DoStatement ()] }
   : '\;' {%^ revert parseDoStatement }
   | '\}' {%^ revert $ pure [] }
+
+-----------------------------------------------------------------
+doListBlock :: { ListComp () }
+  : '[' expr '|'
+      {%% revert $ do
+        res <- parseDoListStatement
+        when (null res) $ addFailure [$3] ErrEmptyDo
+        pure $ ListComp $1 (NE.fromList res) $2
+      }
+
+doListStatement :: { [DoStatement ()] }
+  : {%^ revert $ do
+        stmt <- tryPrefix parseBinderAndArrow parseDoListExpr
+        let
+          ctr = case stmt of
+            (Just (binder, sep), expr) ->
+              (DoBind binder sep expr :)
+            (Nothing, expr) ->
+              (DoDiscard expr :)
+        fmap ctr parseDoListNext
+      }
+
+doListExpr :: { Expr () }
+  : expr {%^ revert $ pure $1 }
+
+doListNext :: { [DoStatement ()] }
+  : ',' {%^ revert parseDoListStatement }
+  | ']' {%^ revert $ pure [] }
+-----------------------------------------------------------------
 
 guard :: { (SourceToken, Separated (PatternGuard ())) }
   : '|' {%% revert $ fmap (($1,) . uncurry Separated) parseGuardStatement }

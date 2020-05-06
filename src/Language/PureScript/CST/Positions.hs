@@ -310,6 +310,7 @@ exprRange = \case
   ExprCase _ (CaseOf a _ _ c) -> (a, snd . guardedRange . snd $ NE.last c)
   ExprLet _ (LetIn a _ _ b) -> (a, snd $ exprRange b)
   ExprDo _ (DoBlock a b) -> (a,  snd . doStatementRange $ NE.last b)
+  ExprListComp _ (ListComp a b c) -> (a,  snd . doStatementRange $ NE.last b)
   ExprAdo _ (AdoBlock a _ _ b) -> (a, snd $ exprRange b)
 
 letBindingRange :: LetBinding a -> TokenRange

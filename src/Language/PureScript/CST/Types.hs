@@ -343,6 +343,7 @@ data Expr a
   | ExprCase a (CaseOf a)
   | ExprLet a (LetIn a)
   | ExprDo a (DoBlock a)
+  | ExprListComp a (ListComp a)
   | ExprAdo a (AdoBlock a)
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
@@ -407,6 +408,13 @@ data DoBlock a = DoBlock
   { doKeyword :: SourceToken
   , doStatements :: NonEmpty (DoStatement a)
   } deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+
+data ListComp a = ListComp
+  { listKeyword :: SourceToken
+  , listStatements :: NonEmpty (DoStatement a)
+  , listExpr  :: Expr a
+  } deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+
 
 data DoStatement a
   = DoLet SourceToken (NonEmpty (LetBinding a))

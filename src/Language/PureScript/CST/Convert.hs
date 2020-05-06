@@ -35,6 +35,7 @@ import Language.PureScript.PSString (mkString)
 import qualified Language.PureScript.Types as T
 import Language.PureScript.CST.Positions
 import Language.PureScript.CST.Types
+import Language.PureScript.CST.Utils (placeholder)
 import Data.Text(Text)
 import qualified Data.Text as TT
 
@@ -390,6 +391,13 @@ convertExpr fileName = go
     expr@(ExprDo _ (DoBlock kw stmts)) -> do
       let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
       positioned ann . AST.Do (moduleName $ tokValue kw) $ goDoStatement <$> NE.toList stmts
+
+    expr@(ExprListComp _ (ListComp kw stmts lexpr)) -> do
+      let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
+      positioned ann . AST.Do (moduleName $ tokValue kw) $ goDoStatement <$>
+        (NE.toList stmts <> [DoDiscard $ ExprApp undefined
+                             (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "pure"))) lexpr ])
+
     expr@(ExprAdo _ (AdoBlock kw stms _ a)) -> do
       let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
       positioned ann . AST.Ado (moduleName $ tokValue kw) (goDoStatement <$> stms) $ go a
