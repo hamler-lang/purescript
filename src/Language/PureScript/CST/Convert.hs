@@ -395,12 +395,17 @@ convertExpr fileName = go
     expr@(ExprListComp _ (ListComp kw stmts lexpr)) -> do
       let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
       positioned ann . AST.Do (moduleName $ tokValue kw) $ goDoStatement <$>
-        (NE.toList stmts <> [DoDiscard $ ExprApp undefined
+        ((fmap warpGuard $ NE.toList stmts) <> [DoDiscard $ ExprApp undefined
                              (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "pure"))) lexpr ])
 
     expr@(ExprAdo _ (AdoBlock kw stms _ a)) -> do
       let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
       positioned ann . AST.Ado (moduleName $ tokValue kw) (goDoStatement <$> stms) $ go a
+
+
+warpGuard :: DoStatement a -> DoStatement a
+warpGuard (DoDiscard  expr) = DoDiscard $ ExprApp undefined (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "guardF"))) expr
+warpGuard  x = x
 
 convertBinder ::Show a => String -> Binder a -> AST.Binder
 convertBinder fileName = go
