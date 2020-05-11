@@ -300,12 +300,17 @@ convertExpr fileName = go
       let ann = sourceAnnCommented fileName a a
       positioned ann . AST.Literal (fst ann) $ AST.NumericLiteral b
     ExprArray _ (Wrapped a bs c) -> do
-      let
-        ann = sourceAnnCommented fileName a c
-        vals = case bs of
-          Just (Separated x xs) -> go x : (go . snd <$> xs)
-          Nothing -> []
-      positioned ann . AST.Literal (fst ann) $ AST.ListLiteral vals
+      case bs of
+        Just (Separated (ExprOp _ e1 e2 e3) []) | qualName e2 == (N.OpName "..")
+              -> go $ ExprApp undefined (ExprApp undefined (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "range"))) e1) e3
+        Just (Separated e0 [(_,(ExprOp _ e1 e2 e3))]) | qualName e2 == (N.OpName "..")
+              -> go $ ExprApp undefined (ExprApp undefined (ExprApp undefined (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "rangeStep"))) e0) e1) e3
+        _ -> do
+          let ann = sourceAnnCommented fileName a c
+              vals = case bs of
+                       Just (Separated x xs) -> go x : (go . snd <$> xs)
+                       Nothing -> []
+          positioned ann . AST.Literal (fst ann) $ AST.ListLiteral vals
     ExprTuple _ (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
