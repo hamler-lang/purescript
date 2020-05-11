@@ -431,8 +431,8 @@ prettyPrintSingleError (PPEOptions codeColor full level showDocs relPath) e = fl
       ] ++
       maybe [] (return . Box.moveDown 1) typeInformation ++
       [ Box.moveDown 1 $ paras
-          [ line $ "See " <> errorDocUri e <> " for more information, "
-          , line $ "or to contribute content related to this " <> levelText <> "."
+          -- [ line $ "See " <> errorDocUri e <> " for more information, "
+          [ line $ "or to contribute content related to this " <> levelText <> "."
           ]
       | showDocs
       ]
