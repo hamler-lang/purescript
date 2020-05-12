@@ -313,10 +313,10 @@ convertExpr fileName = go
           positioned ann . AST.Literal (fst ann) $ AST.ListLiteral vals
     ExprMapSuger t (Wrapped a bs c) -> do
       case bs of
-        Nothing -> go (ExprIdent undefined (QualifiedName placeholder (Just (N.moduleNameFromString "Data.Map")) (Ident "empty")))
+        Nothing -> go (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "empty")))
         Just bb -> do
           let exprArray = ExprArray t (Wrapped a (Just $ fmap toTuple bb) c)
-          go $ ExprApp undefined (ExprIdent undefined (QualifiedName placeholder (Just (N.moduleNameFromString "Data.Map")) (Ident "fromList"))) exprArray
+          go $ ExprApp undefined (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "fromList"))) exprArray
     ExprTuple _ (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
