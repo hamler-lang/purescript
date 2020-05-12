@@ -72,6 +72,10 @@ separated = go []
   go accum (x : xs) = go (x : accum) xs
   go _ [] = internalError "Separated should not be empty"
 
+toTuple :: (Expr a, Expr a) -> Expr a
+toTuple (a,b) = ExprTuple undefined (Wrapped undefined (Just (Separated a [(undefined,b)])) undefined)
+
+
 consSeparated :: a -> SourceToken -> Separated a -> Separated a
 consSeparated x sep (Separated {..}) = Separated x ((sep, sepHead) : sepTail)
 
@@ -313,3 +317,6 @@ isValidModuleNamespace = Text.null . snd . Text.span (\c -> c /= '_' && c /= '\'
 -- Related GHC issue: https://gitlab.haskell.org/ghc/ghc/issues/8167
 isLeftFatArrow :: Text -> Bool
 isLeftFatArrow str = str == "<=" || str == "⇐"
+
+
+

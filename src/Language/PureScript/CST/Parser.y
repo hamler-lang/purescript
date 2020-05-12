@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 102
+%expect 104
 
 %name parseKind kind
 %name parseType type
@@ -82,6 +82,7 @@ import Language.PureScript.PSString (PSString)
   '<='            { SourceToken _ (TokOperator [] sym) | isLeftFatArrow sym }
   '=>'            { SourceToken _ (TokRightFatArrow _) }
   ':'             { SourceToken _ (TokOperator [] ":") }
+  ':='            { SourceToken _ (TokOperator [] ":=") }
   '::'            { SourceToken _ (TokDoubleColon _) }
   '='             { SourceToken _ TokEquals }
   '|'             { SourceToken _ TokPipe }
@@ -431,11 +432,17 @@ exprAtom :: { Expr () }
   | delim('(', expr, ',', ')') { ExprTuple () $1 }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
   | '(' expr ')' { ExprParens () (Wrapped $1 $2 $3) }
+  | '#' delim('{', kvPair, ',', '}') { ExprMapSuger () $2 }
+
+kvPair :: {(Expr (), Expr ())}
+  : expr '=>' expr { ( $1, $3 ) }
+
 
 recordLabel :: { RecordLabeled (Expr ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }
   | label '=' expr {% addFailure [$2] ErrRecordUpdateInCtr *> pure (RecordPun $ unexpectedName $ lblTok $1) }
   | label ':' expr { RecordField $1 $2 $3 }
+  | label '=>' expr { RecordField $1 $2 $3 }
 
 recordUpdateOrLabel :: { Either (RecordLabeled (Expr ())) (RecordUpdate ()) }
   : label ':' expr { Left (RecordField $1 $2 $3) }
@@ -614,6 +621,7 @@ recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }
   | label '=' binder {% addFailure [$2] ErrRecordUpdateInCtr *> pure (RecordPun $ unexpectedName $ lblTok $1) }
   | label ':' binder { RecordField $1 $2 $3 }
+  | label ':=' binder { RecordField $1 $2 $3 }
 
 -- By splitting up the module header from the body, we can incrementally parse
 -- just the header, and then continue parsing the body while still sharing work.

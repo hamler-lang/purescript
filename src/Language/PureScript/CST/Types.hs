@@ -344,6 +344,7 @@ data Expr a
   | ExprLet a (LetIn a)
   | ExprDo a (DoBlock a)
   | ExprListComp a (ListComp a)
+  | ExprMapSuger a (Delimited (Expr a , Expr a))
   | ExprAdo a (AdoBlock a)
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
@@ -414,7 +415,6 @@ data ListComp a = ListComp
   , listStatements :: NonEmpty (DoStatement a)
   , listExpr  :: Expr a
   } deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
-
 
 data DoStatement a
   = DoLet SourceToken (NonEmpty (LetBinding a))

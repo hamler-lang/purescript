@@ -35,7 +35,7 @@ import Language.PureScript.PSString (mkString)
 import qualified Language.PureScript.Types as T
 import Language.PureScript.CST.Positions
 import Language.PureScript.CST.Types
-import Language.PureScript.CST.Utils (placeholder)
+import Language.PureScript.CST.Utils (placeholder,toTuple)
 import Data.Text(Text)
 import qualified Data.Text as TT
 
@@ -311,6 +311,12 @@ convertExpr fileName = go
                        Just (Separated x xs) -> go x : (go . snd <$> xs)
                        Nothing -> []
           positioned ann . AST.Literal (fst ann) $ AST.ListLiteral vals
+    ExprMapSuger t (Wrapped a bs c) -> do
+      case bs of
+        Nothing -> go (ExprIdent undefined (QualifiedName placeholder (Just (N.moduleNameFromString "Data.Map")) (Ident "empty")))
+        Just bb -> do
+          let exprArray = ExprArray t (Wrapped a (Just $ fmap toTuple bb) c)
+          go $ ExprApp undefined (ExprIdent undefined (QualifiedName placeholder (Just (N.moduleNameFromString "Data.Map")) (Ident "fromList"))) exprArray
     ExprTuple _ (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
@@ -705,4 +711,6 @@ tT (TypeConstructor _ (QualifiedName _ _ (N.ProperName t))) = t
 tT (TypeVar _ (Name _ (Ident x))) = x
 tT (TypeParens _ (Wrapped _ a _)) = tT a
 tT x = error $ show x
+
+
 

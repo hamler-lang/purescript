@@ -294,6 +294,7 @@ exprRange = \case
   ExprString _ a _ -> (a, a)
   ExprNumber _ a _ -> (a, a)
   ExprArray _ a -> wrappedRange a
+  ExprMapSuger _ a -> wrappedRange a
   ExprTuple _ a -> wrappedRange a
   ExprRecord _ a -> wrappedRange a
   ExprParens _ a -> wrappedRange a
