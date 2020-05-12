@@ -73,7 +73,7 @@ separated = go []
   go _ [] = internalError "Separated should not be empty"
 
 toTuple :: (Expr a, Expr a) -> Expr a
-toTuple (a,b) = ExprTuple undefined (Wrapped undefined (Just (Separated a [(undefined,b)])) undefined)
+toTuple (a,b) = ExprTuple undefined (Wrapped placeholder (Just (Separated a [(placeholder,b)])) placeholder)
 
 
 consSeparated :: a -> SourceToken -> Separated a -> Separated a
