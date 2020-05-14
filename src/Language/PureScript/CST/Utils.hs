@@ -319,4 +319,38 @@ isLeftFatArrow :: Text -> Bool
 isLeftFatArrow str = str == "<=" || str == "⇐"
 
 
+myUpper1 :: SourceToken -> Parser Text
+myUpper1 tok = case tokValue tok of
+  TokUpperName q a -> return a
+  _                -> internalError $ "Invalid  name " <> show tok
+
+myTres ::Separated (BinaryE a) -> [(Binder a, Integer, [Text])]
+myTres (Separated b0 bs ) =fmap be2t $ b0 : fmap snd bs
+
+
+myTres1 :: Delimited (BinaryE a) -> [(Binder a, Integer, [Text])]
+myTres1 (Wrapped _ (Nothing) _) = []
+myTres1 (Wrapped _ (Just (Separated b0 bs ) ) _) = fmap be2t $ b0 : fmap snd bs
+
+-- myTres ::(BinaryE a) -> (Binder a, Integer, [Text])
+-- myTres b = be2t b
+
+
+
+be2t :: BinaryE a -> (Binder a, Integer, [Text])
+be2t (BinaryE t a (_,b) d) = let temp = myt1 d
+                             in  (dType a temp,b,temp)
+
+myt1 :: MyList a -> [Text]
+myt1 (MyList _ (Separated x xs)) = x : fmap snd xs
+
+dType :: Binder a ->[Text]-> Binder a
+dType b xs = if "Integer" `elem` xs
+             then t "Prim" "Integer"
+             else if "Binary" `elem` xs
+                  then t "Data.Binary" "Binary"
+                  else t "Prim" "Integer"
+  where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)
+                                                         (QualifiedName placeholder (Just $ N.moduleNameFromString m) (N.ProperName n)) )
+
 

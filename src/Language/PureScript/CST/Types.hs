@@ -445,4 +445,33 @@ data Binder a
   | BinderParens a (Wrapped (Binder a))
   | BinderTyped a (Binder a) SourceToken (Type a)
   | BinderOp a (Binder a) (QualifiedName (N.OpName 'N.ValueOpName)) (Binder a)
+  | BinderBinary a [(Binder a, Integer,  [Text])]
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+
+data BinaryE a = BinaryE a (Binder a)
+                           (SourceToken,Integer) (MyList a)
+  deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+
+data MyList a = MyList a (Separated Text)
+  deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+
+extraBinder :: Binder a -> a
+extraBinder (BinderWildcard a _) = a
+extraBinder (BinderVar a _) = a
+extraBinder (BinderNamed a _ _ _) = a
+extraBinder (BinderConstructor a _ _) = a
+extraBinder (BinderBoolean a _ _) = a
+extraBinder (BinderChar a _ _) = a
+extraBinder (BinderString a _ _) = a
+extraBinder (BinderNumber a _ _ _) = a
+extraBinder (BinderArray a _ ) = a
+extraBinder (BinderTuple a _) = a
+extraBinder (BinderRecord a _ ) = a
+extraBinder (BinderParens a _) = a
+extraBinder (BinderTyped a _ _ _) = a
+extraBinder (BinderBinary a _) = a
+extraBinder (BinderOp a _ _ _) = a
+
+
+
+

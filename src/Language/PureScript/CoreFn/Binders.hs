@@ -7,7 +7,7 @@ import Prelude.Compat
 
 import Language.PureScript.AST.Literals
 import Language.PureScript.Names
-
+import Data.Text(Text)
 -- |
 -- Data type for binders
 --
@@ -33,6 +33,7 @@ data Binder a
   --
   | NamedBinder a Ident (Binder a)
   | MapBinder a [(Binder a ,Binder a)]
+  | BinaryBinder a [(Binder a ,Integer,[Text])]
   deriving (Show, Functor)
 
 
@@ -43,3 +44,4 @@ extractBinderAnn (VarBinder a _) = a
 extractBinderAnn (ConstructorBinder a _ _ _) = a
 extractBinderAnn (NamedBinder a _ _) = a
 extractBinderAnn (MapBinder a _) = a
+extractBinderAnn (BinaryBinder a _) = a
