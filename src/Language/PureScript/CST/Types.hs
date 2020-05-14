@@ -439,6 +439,7 @@ data Binder a
   | BinderString a SourceToken PSString
   | BinderNumber a (Maybe SourceToken) SourceToken (Either Integer Double)
   | BinderArray a (Delimited (Binder a))
+  | BinderMap a (Delimited (Binder a,Binder a))
   | BinderTuple a (Delimited (Binder a))
   | BinderRecord a (Delimited (RecordLabeled (Binder a)))
   | BinderParens a (Wrapped (Binder a))

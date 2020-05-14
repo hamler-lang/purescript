@@ -393,6 +393,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
   binderToJs' varName done (NamedBinder _ ident binder) = do
     js <- binderToJs varName done binder
     return (AST.VariableIntroduction Nothing (identToJs ident) (Just (AST.Var Nothing varName)) : js)
+  binderToJs' _ _ b = error $ show b
 
   literalToBinderJS :: Text -> [AST] -> Literal (Binder Ann) -> m [AST]
   literalToBinderJS varName done (NumericLiteral num) =

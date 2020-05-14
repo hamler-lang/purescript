@@ -149,6 +149,8 @@ moduleToCoreFn env (A.Module modSS coms mn decls (Just exps)) =
     in ConstructorBinder (ss, com, Nothing, Just $ getConstructorMeta dctor) (Qualified mn' tctor) dctor (fmap (binderToCoreFn ss []) bs)
   binderToCoreFn _ com (A.NamedBinder ss name b) =
     NamedBinder (ss, com, Nothing, Nothing) name (binderToCoreFn ss [] b)
+  binderToCoreFn ss com (A.MapBinder xs) =
+    MapBinder (ss, com, Nothing, Nothing)  (fmap (\(x,y) -> (binderToCoreFn ss [] x, binderToCoreFn ss [] y)) xs)
   binderToCoreFn _ com (A.PositionedBinder ss com1 b) =
     binderToCoreFn ss (com ++ com1) b
   binderToCoreFn ss com (A.TypedBinder _ b) =

@@ -193,3 +193,9 @@ renameInBinder (ConstructorBinder ann tctor dctor bs) =
   ConstructorBinder ann tctor dctor <$> traverse renameInBinder bs
 renameInBinder (NamedBinder ann name b) =
   NamedBinder ann <$> updateScope name <*> renameInBinder b
+renameInBinder (MapBinder ann xs) =
+  MapBinder ann <$> (forM xs $ \(x,y) -> do
+                        x' <- renameInBinder x
+                        y' <- renameInBinder y
+                        return (x',y')
+                    )
