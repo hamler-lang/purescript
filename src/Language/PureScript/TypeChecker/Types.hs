@@ -589,7 +589,7 @@ inferBinder val (MapBinder xs) = do
   m2 <- M.unions <$> traverse (inferBinder e2) bs2
 
 
-  unifyTypes val (srcTypeApp ( srcTypeApp (srcTypeConstructor $ Qualified (Just $ moduleNameFromString "Test") (ProperName "Map"))  e1) e2)
+  unifyTypes val (srcTypeApp ( srcTypeApp (srcTypeConstructor $ Qualified (Just $ moduleNameFromString "Data.Map") (ProperName "Map"))  e1) e2)
 
   return (M.unions [m1,m2])
 
@@ -612,6 +612,15 @@ inferBinder val (LiteralBinder _ (TupleLiteral a b)) = do
   let m1 = M.unions [a',b']
   return m1
 ------------------------------------------------------------------
+
+
+inferBinder val (BinaryBinder xs) = do
+  m1 <- M.unions <$> (traverse ( \x -> do
+                         v <- freshType
+                         inferBinder v x ) $ fmap gfst xs)
+  unifyTypes val (srcTypeConstructor $ Qualified (Just $ moduleNameFromString "Data.Binary") (ProperName "Binary"))
+  return (M.unions [m1])
+
 
 inferBinder val (NamedBinder ss name binder) =
   warnAndRethrowWithPositionTC ss $ do

@@ -460,13 +460,15 @@ convertBinder fileName = go
           Nothing -> []
       positioned ann . AST.LiteralBinder (fst ann) $ AST.ListLiteral vals
 
-    BinderMap _ (Wrapped a bs c) -> do
+    BinderMap _ (Wrapped _ bs _) -> do
       let
         vals = case bs of
-          Just (Separated (a,b) xs) -> (go a, go b) : ((\(_,(x,y)) -> (go x, go y)) <$> xs)
+          Just (Separated (a0,b0) xs) -> (go a0, go b0) : ((\(_,(x,y)) -> (go x, go y)) <$> xs)
           Nothing -> []
       AST.MapBinder $ vals
 
+    BinderBinary _ bs -> do
+      AST.BinaryBinder  $ fmap (\(b,i,s) -> (go b , i ,s) ) bs
 
     BinderTuple _ (Wrapped a bs c) -> do
       let

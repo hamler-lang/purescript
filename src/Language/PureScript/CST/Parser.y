@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 106
+%expect 107
 
 %name parseKind kind
 %name parseType type
@@ -83,6 +83,8 @@ import Language.PureScript.PSString (PSString)
   '=>'            { SourceToken _ (TokRightFatArrow _) }
   ':'             { SourceToken _ (TokOperator [] ":") }
   ':='            { SourceToken _ (TokOperator [] ":=") }
+  '<<'            { SourceToken _ (TokOperator [] "<<") }
+  '>>'            { SourceToken _ (TokOperator [] ">>") }
   '::'            { SourceToken _ (TokDoubleColon _) }
   '='             { SourceToken _ TokEquals }
   '|'             { SourceToken _ TokPipe }
@@ -617,9 +619,23 @@ binderAtom :: { Binder () }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
   | '(' binder ')' { BinderParens () (Wrapped $1 $2 $3) }
   | '#' delim('{', kvPatPair, ',', '}') { BinderMap () $2 }
+  | delim('<<', binderBinayE, '|', '>>') { BinderBinary () (myTres1 $1) }
 
 kvPatPair :: {(Binder (), Binder ())}
  : binder ':=' binder { ( $1, $3 ) }
+
+
+
+myUpper :: { Text }
+  : UPPER {% myUpper1 $1}
+
+myPSString :: { MyList () }
+  :  sep(myUpper,'-')  { MyList () $1 }
+
+binderBinayE :: { BinaryE () }
+  : '(' binder ')' ':'  int  ':' myPSString {BinaryE () $2 $5 $7 }
+
+
 
 
 recordBinder :: { RecordLabeled (Binder ()) }

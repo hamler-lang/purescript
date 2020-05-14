@@ -10,6 +10,7 @@ import Language.PureScript.AST.Literals
 import Language.PureScript.Names
 import Language.PureScript.Comments
 import Language.PureScript.Types
+import Data.Text(Text)
 
 -- |
 -- Data type for binders
@@ -62,6 +63,7 @@ data Binder
   --
   | TypedBinder SourceType Binder
   | MapBinder [(Binder,Binder)]
+  | BinaryBinder [(Binder,Integer,[Text])]
   deriving (Show)
 
 -- Manual Eq and Ord instances for `Binder` were added on 2018-03-05. Comparing
@@ -113,6 +115,9 @@ instance Eq Binder where
     (==) xs ys
   (==) MapBinder{} _ = False
 
+  (==) (BinaryBinder xs) (BinaryBinder ys) =
+    (==) xs ys
+  (==) BinaryBinder{} _ = False
 
 
 instance Ord Binder where
@@ -177,13 +182,13 @@ instance Ord Binder where
     compare xs ys
   compare MapBinder{} _ = GT
 
+  compare (BinaryBinder xs) (BinaryBinder ys) =
+    compare xs ys
+  compare BinaryBinder{} _ = GT
 
 
-
--- |
--- Collect all names introduced in binders in an expression
---
-
+gfst :: (a,b,c) -> a
+gfst (a,_,_) = a
 
 
 
@@ -194,6 +199,7 @@ binderNames = go []
   go ns (VarBinder _ name) = name : ns
   go ns (ConstructorBinder _ _ bs) = foldl go ns bs
   go ns (MapBinder xs) = foldl go ns (concat $ fmap (\(a,b) -> [a,b]) xs)
+  go ns (BinaryBinder xs) = foldl go ns (fmap gfst xs)
   go ns (BinaryNoParensBinder b1 b2 b3) = foldl go ns [b1, b2, b3]
   go ns (ParensInBinder b) = go ns b
   go ns (NamedBinder _ name b) = go (name : ns) b

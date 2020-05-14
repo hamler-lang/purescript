@@ -199,3 +199,8 @@ renameInBinder (MapBinder ann xs) =
                         y' <- renameInBinder y
                         return (x',y')
                     )
+renameInBinder (BinaryBinder ann xs) =
+  BinaryBinder ann <$> (forM xs $ \(x,y,z) -> do
+                        x' <- renameInBinder x
+                        return (x',y,z)
+                    )
