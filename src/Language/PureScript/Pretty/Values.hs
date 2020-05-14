@@ -197,6 +197,13 @@ prettyPrintBinderAtom (VarBinder _ ident) = showIdent ident
 prettyPrintBinderAtom (ConstructorBinder _ ctor []) = runProperName (disqualify ctor)
 prettyPrintBinderAtom b@ConstructorBinder{} = parensT (prettyPrintBinder b)
 prettyPrintBinderAtom (NamedBinder _ ident binder) = showIdent ident Monoid.<> "@" Monoid.<> prettyPrintBinder binder
+
+prettyPrintBinderAtom (MapBinder xs) = "~{" Monoid.<> T.intercalate "," (map (\(x,y) -> prettyPrintBinderAtom x
+                                                                               Monoid.<> " := "
+                                                                               Monoid.<> prettyPrintBinderAtom y
+                                                                             ) xs)
+                                       Monoid.<>  "}~"
+
 prettyPrintBinderAtom (PositionedBinder _ _ binder) = prettyPrintBinderAtom binder
 prettyPrintBinderAtom (TypedBinder _ binder) = prettyPrintBinderAtom binder
 prettyPrintBinderAtom (OpBinder _ op) = runOpName (disqualify op)

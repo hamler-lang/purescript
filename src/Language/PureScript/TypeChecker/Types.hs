@@ -63,6 +63,7 @@ import Language.PureScript.Types
 import Language.PureScript.Label (Label(..))
 import Language.PureScript.PSString (PSString)
 
+
 data BindingGroupType
   = RecursiveBindingGroup
   | NonRecursiveBindingGroup
@@ -576,6 +577,23 @@ inferBinder val (LiteralBinder _ (ListLiteral  binders)) = do
   unifyTypes val (srcTypeApp tyList el)
 
   return m1
+
+inferBinder val (MapBinder xs) = do
+  let (bs1,bs2) = unzip xs
+
+  e1 <- freshType
+  m1 <- M.unions <$> traverse (inferBinder e1) bs1
+
+
+  e2 <- freshType
+  m2 <- M.unions <$> traverse (inferBinder e2) bs2
+
+
+  unifyTypes val (srcTypeApp ( srcTypeApp (srcTypeConstructor $ Qualified (Just $ moduleNameFromString "Test") (ProperName "Map"))  e1) e2)
+
+  return (M.unions [m1,m2])
+
+
 
 ------------------------------------------------------------------
 inferBinder val (LiteralBinder _ (TupleLiteral a b)) = do

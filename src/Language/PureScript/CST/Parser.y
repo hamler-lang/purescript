@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 104
+%expect 106
 
 %name parseKind kind
 %name parseType type
@@ -616,6 +616,11 @@ binderAtom :: { Binder () }
   | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
   | '(' binder ')' { BinderParens () (Wrapped $1 $2 $3) }
+  | '#' delim('{', kvPatPair, ',', '}') { BinderMap () $2 }
+
+kvPatPair :: {(Binder (), Binder ())}
+ : binder ':=' binder { ( $1, $3 ) }
+
 
 recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }

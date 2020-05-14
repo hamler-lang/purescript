@@ -61,6 +61,7 @@ data Binder
   -- A binder with a type annotation
   --
   | TypedBinder SourceType Binder
+  | MapBinder [(Binder,Binder)]
   deriving (Show)
 
 -- Manual Eq and Ord instances for `Binder` were added on 2018-03-05. Comparing
@@ -107,6 +108,12 @@ instance Eq Binder where
   (==) (TypedBinder ty b) (TypedBinder ty' b') =
     (==) ty ty' && (==) b b'
   (==) TypedBinder{} _ = False
+
+  (==) (MapBinder xs) (MapBinder ys) =
+    (==) xs ys
+  (==) MapBinder{} _ = False
+
+
 
 instance Ord Binder where
   compare NullBinder NullBinder = EQ
@@ -166,15 +173,27 @@ instance Ord Binder where
     compare ty ty' <> compare b b'
   compare TypedBinder{} _ = GT
 
+  compare (MapBinder xs) (MapBinder ys) =
+    compare xs ys
+  compare MapBinder{} _ = GT
+
+
+
+
 -- |
 -- Collect all names introduced in binders in an expression
 --
+
+
+
+
 binderNames :: Binder -> [Ident]
 binderNames = go []
   where
   go ns (LiteralBinder _ b) = lit ns b
   go ns (VarBinder _ name) = name : ns
   go ns (ConstructorBinder _ _ bs) = foldl go ns bs
+  go ns (MapBinder xs) = foldl go ns (concat $ fmap (\(a,b) -> [a,b]) xs)
   go ns (BinaryNoParensBinder b1 b2 b3) = foldl go ns [b1, b2, b3]
   go ns (ParensInBinder b) = go ns b
   go ns (NamedBinder _ name b) = go (name : ns) b
