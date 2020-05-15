@@ -11,6 +11,7 @@ import Data.Function (on)
 
 import Language.PureScript.AST
 import Language.PureScript.Crash
+import Language.PureScript.Names
 
 -- | Replace every @BoundValueDeclaration@ in @Let@ expressions with @Case@
 -- expressions.
@@ -36,8 +37,23 @@ desugarLetPattern decl =
      -> Expr
   go _ [] e = e
   go w (Right ((pos, com), binder, boundE) : ds) e =
-    PositionedValue pos com $ Case [boundE] [CaseAlternative [binder] [MkUnguarded $ go w ds e]]
+    PositionedValue pos com $ Case [boundE] [ CaseAlternative [binder] [ MkUnguarded $ go w ds e]
+                                            , CaseAlternative [VarBinder nullSourceSpan (Ident "letCaseAlternativeVar")]
+                                              [MkUnguarded $ App myerror (App showAny varN) ]
+                                            ]
   go w (Left ds:dss) e = Let w ds (go w dss e)
+
+myerror :: Expr
+myerror   = Var nullSourceSpan $ Qualified  Nothing (Ident "error")
+
+showAny :: Expr
+showAny = Var nullSourceSpan $ Qualified Nothing (Ident "showAny")
+
+
+varN :: Expr
+varN    = Var nullSourceSpan $ Qualified Nothing (Ident "letCaseAlternativeVar")
+
+
 
 partitionDecls :: [Declaration] -> [Either [Declaration] (SourceAnn, Binder, Expr)]
 partitionDecls = concatMap f . groupBy ((==) `on` isBoundValueDeclaration)
