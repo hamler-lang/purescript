@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 111
+%expect 110
 
 %name parseKind kind
 %name parseType type
@@ -432,7 +432,7 @@ exprAtom :: { Expr () }
   | char { uncurry (ExprChar ()) $1 }
   | string { uncurry (ExprString ()) $1 }
   | number { uncurry (ExprNumber ()) $1 }
-  | '()' {ExprConstructor () (QualifiedName placeholder Nothing (N.ProperName "unit") )}
+  | '()' {ExprIdent () (QualifiedName placeholder Nothing (Ident "unit") )}
   | delim('[', expr, ',', ']') { ExprArray () $1 }
   | delim('(', expr, ',', ')') { ExprTuple () $1 }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
@@ -617,7 +617,6 @@ binderAtom :: { Binder () }
   | string { uncurry (BinderString ()) $1 }
   | number { uncurry (BinderNumber () Nothing) $1 }
   | '-' number { uncurry (BinderNumber () (Just $1)) $2 }
-  | '()' {BinderConstructor () (QualifiedName placeholder Nothing (N.ProperName "unit")) [] }
   | delim('[', binder, ',', ']') { BinderArray () $1 }
   | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
