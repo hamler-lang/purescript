@@ -20,6 +20,7 @@ printToken = \case
   TokLeftParen             -> "("
   TokRightParen            -> ")"
   TokLeftBrace             -> "{"
+  TokUnit                  -> "()"
   TokRightBrace            -> "}"
   TokLeftSquare            -> "["
   TokRightSquare           -> "]"

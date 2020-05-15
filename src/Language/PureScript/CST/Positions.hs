@@ -34,6 +34,7 @@ tokenDelta = \case
   TokRightBrace            -> (0, 1)
   TokLeftSquare            -> (0, 1)
   TokRightSquare           -> (0, 1)
+  TokUnit                  -> (0, 2)
   TokLeftArrow ASCII       -> (0, 2)
   TokLeftArrow Unicode     -> (0, 1)
   TokRightArrow ASCII      -> (0, 2)
