@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 107
+%expect 111
 
 %name parseKind kind
 %name parseType type
@@ -77,6 +77,7 @@ import Language.PureScript.PSString (PSString)
   '\{'            { SourceToken _ TokLayoutStart }
   '\}'            { SourceToken _ TokLayoutEnd }
   '\;'            { SourceToken _ TokLayoutSep }
+  '()'            { SourceToken _ TokUnit }
   '<-'            { SourceToken _ (TokLeftArrow _) }
   '->'            { SourceToken _ (TokRightArrow _) }
   '<='            { SourceToken _ (TokOperator [] sym) | isLeftFatArrow sym }
@@ -316,6 +317,7 @@ typeAtom :: { Type ()}
   | qualSymbol { TypeOpName () $1 }
   | string { uncurry (TypeString ()) $1 }
   | hole { TypeHole () $1 }
+  | '()' { TypeConstructor () (QualifiedName placeholder Nothing (N.ProperName "Unit")) }
   | '(->)' { TypeArrName () $1 }
   | '{' row '}' { TypeRecord () (Wrapped $1 $2 $3) }
   | '[' type4 ']' { TypeList () $2 }
@@ -430,6 +432,7 @@ exprAtom :: { Expr () }
   | char { uncurry (ExprChar ()) $1 }
   | string { uncurry (ExprString ()) $1 }
   | number { uncurry (ExprNumber ()) $1 }
+  | '()' {ExprConstructor () (QualifiedName placeholder Nothing (N.ProperName "Unit") )}
   | delim('[', expr, ',', ']') { ExprArray () $1 }
   | delim('(', expr, ',', ')') { ExprTuple () $1 }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
@@ -614,6 +617,7 @@ binderAtom :: { Binder () }
   | string { uncurry (BinderString ()) $1 }
   | number { uncurry (BinderNumber () Nothing) $1 }
   | '-' number { uncurry (BinderNumber () (Just $1)) $2 }
+  | '()' {BinderConstructor () (QualifiedName placeholder Nothing (N.ProperName "Unit")) [] }
   | delim('[', binder, ',', ']') { BinderArray () $1 }
   | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }

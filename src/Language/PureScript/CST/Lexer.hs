@@ -292,10 +292,12 @@ token = peek >>= maybe (pure TokEof) k0
   -}
   leftParen :: Lexer Token
   leftParen = Parser $ \inp kerr ksucc ->
-    case Text.span isSymbolChar inp of
-      (chs, inp2)
-        | Text.null chs -> ksucc inp TokLeftParen
-        | otherwise ->
+    case Text.uncons inp of
+      Just (tc,inp') | tc == ')' -> ksucc inp' $ TokUnit
+      _ -> case Text.span isSymbolChar inp of
+        (chs, inp2)
+          | Text.null chs -> ksucc inp TokLeftParen
+          | otherwise ->
             case Text.uncons inp2 of
               Just (')', inp3) ->
                 case chs of

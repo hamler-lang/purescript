@@ -50,6 +50,7 @@ data Token
   | TokLeftBrace
   | TokRightBrace
   | TokLeftSquare
+  | TokUnit
   | TokRightSquare
   | TokLeftArrow !SourceStyle
   | TokRightArrow !SourceStyle
