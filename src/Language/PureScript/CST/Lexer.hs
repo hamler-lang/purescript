@@ -236,7 +236,7 @@ token = peek >>= maybe (pure TokEof) k0
     '<'  -> next *> orOperator2 (TokLeftArrow ASCII) ch1 '-'
     '-'  -> next *> orOperator2 (TokRightArrow ASCII) ch1 '>'
     '='  -> next *> orOperator2' TokEquals (TokRightFatArrow ASCII) ch1 '>'
-    ':'  -> next *> orOperator2' (TokOperator [] ":") (TokDoubleColon ASCII) ch1 ':'
+    ':'  -> next *> orOperator3' (TokOperator [] ":") (TokDoubleColon ASCII) ch1 ':'
     '?'  -> next *> hole
     '\'' -> next *> char
     '"'  -> next *> string
@@ -271,6 +271,21 @@ token = peek >>= maybe (pure TokEof) k0
   {-# INLINE orOperator2' #-}
   orOperator2' :: Token -> Token -> Char -> Char -> Lexer Token
   orOperator2' tok1 tok2 ch1 ch2 = join $ Parser $ \inp _ ksucc ->
+    case Text.uncons inp of
+      Just (ch2', inp2) | ch2 == ch2' ->
+        case Text.uncons inp2 of
+          Just (ch3, inp3) | isSymbolChar ch3 ->
+            ksucc inp3 $ operator [] [ch1, ch2, ch3]
+          _ ->
+            ksucc inp2 $ pure tok2
+      Just (ch2', inp2) | isSymbolChar ch2' ->
+        ksucc inp2 $ operator [] [ch1, ch2']
+      _ ->
+        ksucc inp $ pure tok1
+
+  {-# INLINE orOperator3' #-}
+  orOperator3' :: Token -> Token -> Char -> Char -> Lexer Token
+  orOperator3' tok1 tok2 ch1 ch2 = join $ Parser $ \inp _ ksucc ->
     case Text.uncons inp of
       Just (ch2', inp2) | ch2 == ch2' ->
         case Text.uncons inp2 of
