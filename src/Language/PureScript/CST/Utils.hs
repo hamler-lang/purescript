@@ -26,12 +26,6 @@ placeholder = SourceToken
   , tokValue = TokLowerName [] "<placeholder>"
   }
 
-placeholdernice :: SourceToken
-placeholdernice = SourceToken
-  { tokAnn = TokenAnn (SourceRange (SourcePos 0 0) (SourcePos 0 0)) [] []
-  , tokValue = TokLowerName ["nice"] "nice"
-  }
-
 unexpectedName :: SourceToken -> Name Ident
 unexpectedName tok = Name tok (Ident "<unexpected>")
 
