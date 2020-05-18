@@ -51,6 +51,7 @@ data Token
   | TokRightBrace
   | TokLeftSquare
   | TokUnit
+  | TokAtom !Text
   | TokRightSquare
   | TokLeftArrow !SourceStyle
   | TokRightArrow !SourceStyle

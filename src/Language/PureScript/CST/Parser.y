@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 110
+%expect 111
 
 %name parseKind kind
 %name parseType type
@@ -97,6 +97,7 @@ import Language.PureScript.PSString (PSString)
   '-'             { SourceToken _ (TokOperator [] "-") }
   '@'             { SourceToken _ (TokOperator [] "@") }
   '#'             { SourceToken _ (TokOperator [] "#") }
+  'myAtom'        { SourceToken _ (TokAtom _ ) }
   'ado'           { SourceToken _ (TokLowerName _ "ado") }
   'as'            { SourceToken _ (TokLowerName [] "as") }
   'case'          { SourceToken _ (TokLowerName [] "case") }
@@ -437,6 +438,7 @@ exprAtom :: { Expr () }
   | delim('(', expr, ',', ')') { ExprTuple () $1 }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
   | '(' expr ')' { ExprParens () (Wrapped $1 $2 $3) }
+  | 'myAtom' { ptoExpr $1 }
   | '#' delim('{', kvPair, ',', '}') { ExprMapSuger () $2 }
 
 kvPair :: {(Expr (), Expr ())}

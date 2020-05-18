@@ -26,6 +26,12 @@ placeholder = SourceToken
   , tokValue = TokLowerName [] "<placeholder>"
   }
 
+placeholdernice :: SourceToken
+placeholdernice = SourceToken
+  { tokAnn = TokenAnn (SourceRange (SourcePos 0 0) (SourcePos 0 0)) [] []
+  , tokValue = TokLowerName ["nice"] "nice"
+  }
+
 unexpectedName :: SourceToken -> Name Ident
 unexpectedName tok = Name tok (Ident "<unexpected>")
 
@@ -332,10 +338,6 @@ myTres1 :: Delimited (BinaryE a) -> [(Binder a, Integer, [Text])]
 myTres1 (Wrapped _ (Nothing) _) = []
 myTres1 (Wrapped _ (Just (Separated b0 bs ) ) _) = fmap be2t $ b0 : fmap snd bs
 
--- myTres ::(BinaryE a) -> (Binder a, Integer, [Text])
--- myTres b = be2t b
-
-
 
 be2t :: BinaryE a -> (Binder a, Integer, [Text])
 be2t (BinaryE t a (_,b) d) = let temp = myt1 d
@@ -353,4 +355,11 @@ dType b xs = if "Integer" `elem` xs
   where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)
                                                          (QualifiedName placeholder (Just $ N.moduleNameFromString m) (N.ProperName n)) )
 
+
+ptoExpr :: SourceToken -> Expr ()
+ptoExpr (SourceToken _ (TokAtom t)) =
+  let p =  mkString t
+  in ExprApp () (ExprIdent () (QualifiedName placeholder Nothing (Ident "atom") ))
+       (ExprString () placeholder p)
+ptoExpr x = error $ show x
 
