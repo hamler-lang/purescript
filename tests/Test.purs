@@ -10,11 +10,22 @@ module Test where
 -- t1 :: Binary -> Integer
 -- t1 <<(a):23:Big-Integer | (b):45:Littel-Binary | (c):32:Binary>> = a
 -- t1 _ = 1
-data Unit = Unit
+-- data Unit = Unit
 
-ty :: ((),()) -> ()
-ty ((),()) = ()
-ty _ = ()
+-- ty :: ((),()) -> ()
+-- ty ((),()) = ()
+-- ty _ = ()
 
 
-t1 = ty ((),())
+-- t1 = ty ((),())
+
+-- t = {name : :yangmiao ,age : 12}
+
+atom :: String -> String
+atom s = s
+
+t :: String
+t = :1231
+
+
+-- t = :+

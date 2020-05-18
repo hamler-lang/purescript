@@ -21,6 +21,7 @@ printToken = \case
   TokRightParen            -> ")"
   TokLeftBrace             -> "{"
   TokUnit                  -> "()"
+  TokAtom raw              -> ":" <> raw
   TokRightBrace            -> "}"
   TokLeftSquare            -> "["
   TokRightSquare           -> "]"
