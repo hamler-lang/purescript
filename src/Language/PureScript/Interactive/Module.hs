@@ -86,7 +86,7 @@ indexFile :: FilePath
 indexFile = ".psci_modules" ++ pathSeparator : "index.js"
 
 modulesDir :: FilePath
-modulesDir = ".psci_modules" ++ pathSeparator : "node_modules"
+modulesDir = "ebin"
 
 internalSpan :: P.SourceSpan
 internalSpan = P.internalModuleSourceSpan "<internal>"
