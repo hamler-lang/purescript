@@ -339,10 +339,52 @@ checkExhaustiveExpr initSS env mn = onExpr initSS
   onExpr :: SourceSpan -> Expr -> m Expr
   onExpr _ (UnaryMinus ss e) = UnaryMinus ss <$> onExpr ss e
   onExpr _ (Literal ss (ListLiteral es)) = Literal ss . ListLiteral <$> mapM (onExpr ss) es
-  onExpr _ (Literal ss (TupleLiteral a b)) = do
-    a' <- onExpr ss a
-    b' <- onExpr ss b
-    return $ Literal ss $ TupleLiteral a' b'
+
+  onExpr _ (Literal ss (TupleLiteral m1 m2)) = do
+    m1' <- onExpr ss m1
+    m2' <- onExpr ss m2
+    return $ Literal ss $ TupleLiteral m1' m2'
+
+  onExpr _ (Literal ss (TupleLiteral3 m1 m2 m3)) = do
+    m1' <- onExpr ss m1
+    m2' <- onExpr ss m2
+    m3' <- onExpr ss m3
+    return $ Literal ss $ TupleLiteral3 m1' m2' m3'
+
+  onExpr _ (Literal ss (TupleLiteral4 m1 m2 m3 m4)) = do
+    m1' <- onExpr ss m1
+    m2' <- onExpr ss m2
+    m3' <- onExpr ss m3
+    m4' <- onExpr ss m4
+    return $ Literal ss $ TupleLiteral4 m1' m2' m3' m4'
+
+  onExpr _ (Literal ss (TupleLiteral5 m1 m2 m3 m4 m5)) = do
+    m1' <- onExpr ss m1
+    m2' <- onExpr ss m2
+    m3' <- onExpr ss m3
+    m4' <- onExpr ss m4
+    m5' <- onExpr ss m5
+    return $ Literal ss $ TupleLiteral5 m1' m2' m3' m4' m5'
+
+  onExpr _ (Literal ss (TupleLiteral6 m1 m2 m3 m4 m5 m6)) = do
+    m1' <- onExpr ss m1
+    m2' <- onExpr ss m2
+    m3' <- onExpr ss m3
+    m4' <- onExpr ss m4
+    m5' <- onExpr ss m5
+    m6' <- onExpr ss m6
+    return $ Literal ss $ TupleLiteral6 m1' m2' m3' m4' m5' m6'
+
+  onExpr _ (Literal ss (TupleLiteral7 m1 m2 m3 m4 m5 m6 m7)) = do
+    m1' <- onExpr ss m1
+    m2' <- onExpr ss m2
+    m3' <- onExpr ss m3
+    m4' <- onExpr ss m4
+    m5' <- onExpr ss m5
+    m6' <- onExpr ss m6
+    m7' <- onExpr ss m7
+    return $ Literal ss $ TupleLiteral7 m1' m2' m3' m4' m5' m6' m7'
+
   onExpr _ (Literal ss (ObjectLiteral es)) = Literal ss . ObjectLiteral <$> mapM (sndM (onExpr ss)) es
   onExpr ss (TypeClassDictionaryConstructorApp x e) = TypeClassDictionaryConstructorApp x <$> onExpr ss e
   onExpr ss (Accessor x e) = Accessor x <$> onExpr ss e

@@ -46,24 +46,12 @@ createTemporaryModule exec st val =
     imports       = psciImportedModules st
     lets          = psciLetBindings st
     moduleName    = P.ModuleName [P.ProperName "$PSCI"]
-    effModuleName = P.moduleNameFromString "Effect"
-    effImport     = (effModuleName, P.Implicit, Just (P.ModuleName [P.ProperName "$Effect"]))
-    supportImport = (fst (psciInteractivePrint st), P.Implicit, Just (P.ModuleName [P.ProperName "$Support"]))
-    eval          = P.Var internalSpan (P.Qualified (Just (P.ModuleName [P.ProperName "$Support"])) (snd (psciInteractivePrint st)))
-    mainValue     = P.App eval (P.Var internalSpan (P.Qualified Nothing (P.Ident "it")))
     itDecl        = P.ValueDecl (internalSpan, []) (P.Ident "it") P.Public [] [P.MkUnguarded val]
-    typeDecl      = P.TypeDeclaration
-                      (P.TypeDeclarationData (internalSpan, []) (P.Ident "$main")
-                        (P.srcTypeApp
-                          (P.srcTypeConstructor
-                            (P.Qualified (Just (P.ModuleName [P.ProperName "$Effect"])) (P.ProperName "Effect")))
-                                  P.srcTypeWildcard))
-    mainDecl      = P.ValueDecl (internalSpan, []) (P.Ident "$main") P.Public [] [P.MkUnguarded mainValue]
-    decls         = if exec then [itDecl, typeDecl, mainDecl] else [itDecl]
+    decls         =  [itDecl]
   in
     P.Module internalSpan
              [] moduleName
-             ((importDecl `map` (effImport : supportImport : imports)) ++ lets ++ decls)
+             ((importDecl `map` (imports)) ++ lets ++ decls)
              Nothing
 
 
@@ -98,7 +86,7 @@ indexFile :: FilePath
 indexFile = ".psci_modules" ++ pathSeparator : "index.js"
 
 modulesDir :: FilePath
-modulesDir = ".psci_modules" ++ pathSeparator : "node_modules"
+modulesDir = ".tmp"
 
 internalSpan :: P.SourceSpan
 internalSpan = P.internalModuleSourceSpan "<internal>"

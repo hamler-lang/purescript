@@ -237,7 +237,7 @@ inferForeignModules =
     inferForeignModule :: Either RebuildPolicy FilePath -> m (Maybe FilePath)
     inferForeignModule (Left _) = return Nothing
     inferForeignModule (Right path) = do
-      let jsFile = replaceExtension path "js"
+      let jsFile = replaceExtension path "core"
       exists <- liftIO $ doesFileExist jsFile
       if exists
         then return (Just jsFile)

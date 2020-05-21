@@ -196,13 +196,31 @@ convertType fileName = go
         arr' = Env.tyFunction $> sourceAnnCommented fileName arr arr
         ann = Pos.widenSourceAnn (T.getAnnForType a') (T.getAnnForType b')
       T.TypeApp ann (T.TypeApp ann arr' a') b'
-    TypeTuple _ a b -> do
+
+    TypeTuple _ (Wrapped a bs c)-> do
       let
-        a' = go a
-        b' = go b
-        arr' = Env.tyTuple $> Pos.nullSourceAnn      --sourceAnnCommented fileName arr arr
-        ann = Pos.widenSourceAnn (T.getAnnForType a') (T.getAnnForType b')
-      T.TypeApp ann (T.TypeApp ann arr' a') b'
+        res = case bs of
+          Nothing -> []
+          Just (Separated x xs) -> go x : (go .snd <$> xs)
+        t = head res
+        e = last res
+        ann = Pos.widenSourceAnn (T.getAnnForType t) (T.getAnnForType e)
+      case res of
+        [] -> error $ show bs
+        [x] -> error $ show bs
+        [m1,m2] -> T.TypeApp ann (T.TypeApp ann (Env.tyTuple $> Pos.nullSourceAnn) m1) m2
+        [m1,m2,m3] -> T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (Env.tyTuple3 $> Pos.nullSourceAnn) m1) m2) m3
+        [m1,m2,m3,m4] -> T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (Env.tyTuple4 $> Pos.nullSourceAnn) m1) m2) m3) m4
+        [m1,m2,m3,m4,m5] -> T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (Env.tyTuple5 $> Pos.nullSourceAnn) m1) m2) m3) m4) m5
+        [m1,m2,m3,m4,m5,m6] -> T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (Env.tyTuple6 $> Pos.nullSourceAnn) m1) m2) m3) m4) m5) m6
+        [m1,m2,m3,m4,m5,m6,m7] -> T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (T.TypeApp ann (Env.tyTuple7 $> Pos.nullSourceAnn) m1) m2) m3) m4) m5) m6) m7
+
+
+        -- arr' = Env.tyTuple $> Pos.nullSourceAnn
+
+
+      -- T.TypeApp ann (T.TypeApp ann arr' a') b'
+
     TypeList _ a -> do
       let
         a' = go a
@@ -320,10 +338,18 @@ convertExpr fileName = go
     ExprTuple _ (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
-        [m,n] = case bs of
+        res = case bs of
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
-      positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral m n
+      case res of
+        [] -> error $ show bs
+        [_] -> error $ show bs
+        [m1,m2] -> positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral m1 m2
+        [m1,m2,m3] -> positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral3 m1 m2 m3
+        [m1,m2,m3,m4] -> positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral4 m1 m2 m3 m4
+        [m1,m2,m3,m4,m5] -> positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral5 m1 m2 m3 m4 m5
+        [m1,m2,m3,m4,m5,m6] -> positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral6 m1 m2 m3 m4 m5 m6
+        [m1,m2,m3,m4,m5,m6,m7] -> positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral7 m1 m2 m3 m4 m5 m6 m7
     ExprRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
@@ -473,11 +499,18 @@ convertBinder fileName = go
     BinderTuple _ (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
-        [m,n] = case bs of
+        res = case bs of
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
-      positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral m n
-
+      case res of
+        [] -> error $ show bs
+        [_] -> error $ show bs
+        [m1,m2] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral m1 m2
+        [m1,m2,m3] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral3 m1 m2 m3
+        [m1,m2,m3,m4] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral4 m1 m2 m3 m4
+        [m1,m2,m3,m4,m5] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral5 m1 m2 m3 m4 m5
+        [m1,m2,m3,m4,m5,m6] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral6 m1 m2 m3 m4 m5 m6
+        [m1,m2,m3,m4,m5,m6,m7] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral7 m1 m2 m3 m4 m5 m6 m7
     BinderRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
