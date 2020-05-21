@@ -36,10 +36,10 @@ data Literal a
   --
   | ObjectLiteral [(PSString, a)]
   | TupleLiteral  a a
-  -- | TupleLiteral3 a a a
-  -- | TupleLiteral4 a a a a
-  -- | TupleLiteral5 a a a a a
-  -- | TupleLiteral6 a a a a a a
-  -- | TupleLiteral7 a a a a a a a
+  | TupleLiteral3 a a a
+  | TupleLiteral4 a a a a
+  | TupleLiteral5 a a a a a
+  | TupleLiteral6 a a a a a a
+  | TupleLiteral7 a a a a a a a
 
   deriving (Eq, Ord, Show, Functor)

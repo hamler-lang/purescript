@@ -125,6 +125,7 @@ data Labeled a b = Labeled
   } deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
 type Delimited a = Wrapped (Maybe (Separated a))
+
 type DelimitedNonEmpty a = Wrapped (Separated a)
 
 data OneOrDelimited a
@@ -153,7 +154,7 @@ data Type a
   | TypeOp a (Type a) (QualifiedName (N.OpName 'N.TypeOpName)) (Type a)
   | TypeOpName a (QualifiedName (N.OpName 'N.TypeOpName))
   | TypeArr a (Type a) SourceToken (Type a)
-  | TypeTuple a  (Type a) (Type a)
+  | TypeTuple a (Delimited (Type a))
   | TypeList a  (Type a)
   | TypeArrName a SourceToken
   | TypeConstrained a (Constraint a) SourceToken (Type a)

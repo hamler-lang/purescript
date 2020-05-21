@@ -22,7 +22,12 @@ everythingOnTypes op k = goTy
     TypeOp _ ty2 _ ty3 -> k ty `op` (goTy ty2 `op` goTy ty3)
     TypeOpName _ _ -> k ty
     TypeArr _ ty2 _ ty3 -> k ty `op` (goTy ty2 `op` goTy ty3)
-    TypeTuple _ ty2 ty3 -> k ty `op` (goTy ty2 `op` goTy ty3)
+
+    TypeTuple _ (Wrapped _ Nothing _) -> error $ ".... strange things happed"
+
+    TypeTuple _ (Wrapped _ (Just (Separated x xs) ) _) -> k ty `op` ( foldl op (goTy x )  $ fmap goTy $ fmap snd  $ xs )
+
+
     TypeList _ ty2 -> k ty `op` (goTy ty2)
     TypeArrName _ _ -> k ty
     TypeConstrained _ (constraintTys -> ty2) _ ty3
@@ -39,3 +44,4 @@ everythingOnTypes op k = goTy
   constraintTys = \case
     Constraint _ _ tys -> tys
     ConstraintParens _ (Wrapped _ c _) -> constraintTys c
+
