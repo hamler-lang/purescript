@@ -87,7 +87,10 @@ psciExports :: PSCiState -> P.Exports
 psciExports (PSCiState _ _ _ _ _ x) = x
 
 initialPSCiState :: PSCiState
-initialPSCiState = PSCiState [] [] [] initialInteractivePrint nullImports primExports
+initialPSCiState = PSCiState [preludeModule] [] [] initialInteractivePrint nullImports primExports
+
+preludeModule :: ImportedModule
+preludeModule = (P.ModuleName [P.ProperName "Prelude"], P.Implicit, Nothing)
 
 -- | The default interactive print function.
 initialInteractivePrint :: (P.ModuleName, P.Ident)
