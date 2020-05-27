@@ -75,6 +75,7 @@ literalFromJSON t = withObject "Literal" literalFromObj
       "IntegerLiteral" -> NumericLiteral . Left <$> o .: "value"
       "FloatLiteral"   -> NumericLiteral . Right <$> o .: "value"
       "StringLiteral"  -> StringLiteral <$> o .: "value"
+      "AtomLiteral"    -> AtomLiteral <$> o .: "value"
       "CharLiteral"    -> CharLiteral <$> o .: "value"
       "ListLiteral"    -> parseListLiteral o
       "ObjectLiteral"  -> parseObjectLiteral o

@@ -294,6 +294,7 @@ exprRange = \case
   ExprBoolean _ a _ -> (a, a)
   ExprChar _ a _ -> (a, a)
   ExprString _ a _ -> (a, a)
+  ExprAtom _ a _ -> (a, a)
   ExprNumber _ a _ -> (a, a)
   ExprArray _ a -> wrappedRange a
   ExprMapSuger _ a -> wrappedRange a
