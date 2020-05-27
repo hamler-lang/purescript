@@ -356,8 +356,5 @@ ptoExpr s@(SourceToken _ (TokAtom t)) =
   in ExprAtom () s p
   -- in ExprParens () $ Wrapped placeholder (ExprApp () (ExprIdent () (QualifiedName placeholder Nothing (Ident "atom") ))
   --      (ExprString () placeholder p)) placeholder
+
 ptoExpr x = error $ show x
-
-
-
-
