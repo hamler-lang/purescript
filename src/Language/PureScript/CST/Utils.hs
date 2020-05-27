@@ -354,7 +354,15 @@ ptoExpr :: SourceToken -> Expr ()
 ptoExpr s@(SourceToken _ (TokAtom t)) =
   let p =  mkString t
   in ExprAtom () s p
-  -- in ExprParens () $ Wrapped placeholder (ExprApp () (ExprIdent () (QualifiedName placeholder Nothing (Ident "atom") ))
-  --      (ExprString () placeholder p)) placeholder
-
 ptoExpr x = error $ show x
+
+
+ptoBinder :: SourceToken -> Binder ()
+ptoBinder s@(SourceToken _ (TokAtom t)) =
+  let p =  mkString t
+  in BinderAtom () s p
+ptoBinder x = error $ show x
+
+
+
+

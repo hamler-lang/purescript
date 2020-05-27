@@ -340,6 +340,7 @@ binderRange = \case
   BinderBoolean _ a _ -> (a, a)
   BinderChar _ a _ -> (a, a)
   BinderString _ a _ -> (a, a)
+  BinderAtom _ a _ -> (a, a)
   BinderNumber _ a b _
     | Just a' <- a -> (a', b)
     | otherwise -> (b, b)

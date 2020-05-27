@@ -441,6 +441,7 @@ data Binder a
   | BinderBoolean a SourceToken Bool
   | BinderChar a SourceToken Char
   | BinderString a SourceToken PSString
+  | BinderAtom a SourceToken PSString
   | BinderNumber a (Maybe SourceToken) SourceToken (Either Integer Double)
   | BinderArray a (Delimited (Binder a))
   | BinderMap a (Delimited (Binder a,Binder a))
@@ -467,6 +468,7 @@ extraBinder (BinderConstructor a _ _) = a
 extraBinder (BinderBoolean a _ _) = a
 extraBinder (BinderChar a _ _) = a
 extraBinder (BinderString a _ _) = a
+extraBinder (BinderAtom a _ _) = a
 extraBinder (BinderNumber a _ _ _) = a
 extraBinder (BinderArray a _ ) = a
 extraBinder (BinderTuple a _) = a

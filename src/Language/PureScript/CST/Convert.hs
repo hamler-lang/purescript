@@ -474,6 +474,9 @@ convertBinder fileName = go
     BinderString _ a b -> do
       let ann = sourceAnnCommented fileName a a
       positioned ann . AST.LiteralBinder (fst ann) . AST.StringLiteral $ b
+    BinderAtom _ a b -> do
+      let ann = sourceAnnCommented fileName a a
+      positioned ann . AST.LiteralBinder (fst ann) . AST.AtomLiteral $ b
     BinderNumber _ n a b -> do
       let
         ann = sourceAnnCommented fileName a a
