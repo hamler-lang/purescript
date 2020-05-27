@@ -66,6 +66,11 @@ literalToJSON _ (StringLiteral s)
     [ T.pack "literalType"  .= "StringLiteral"
     , T.pack "value"        .= s
     ]
+literalToJSON _ (AtomLiteral s)
+  = object
+    [ T.pack "literalType"  .= "AtomLiteral"
+    , T.pack "value"        .= s
+    ]
 literalToJSON _ (CharLiteral c)
   = object
     [ T.pack "literalType"  .= "CharLiteral"

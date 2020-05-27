@@ -323,6 +323,9 @@ tyFunction = primTy "Function"
 tyString :: SourceType
 tyString = primTy "String"
 
+tyAtom :: SourceType
+tyAtom = primTy "Atom"
+
 -- | Type constructor for strings
 tyChar :: SourceType
 tyChar = primTy "Char"
@@ -447,6 +450,9 @@ primTypes = M.fromList
 
   , (primName "Record",  (kindRow kindType -:> kindType, ExternData))
   , (primName "String",  (kindType, ExternData))
+
+  , (primName "Atom",  (kindType, ExternData))
+
   , (primName "Char",    (kindType, ExternData))
   , (primName "Float",   (kindType, ExternData))
   , (primName "Integer", (kindType, ExternData))

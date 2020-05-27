@@ -314,6 +314,9 @@ convertExpr fileName = go
     ExprString _ a b -> do
       let ann = sourceAnnCommented fileName a a
       positioned ann . AST.Literal (fst ann) . AST.StringLiteral $ b
+    ExprAtom _ a b -> do
+      let ann = sourceAnnCommented fileName a a
+      positioned ann . AST.Literal (fst ann) . AST.AtomLiteral $ b
     ExprNumber _ a b -> do
       let ann = sourceAnnCommented fileName a a
       positioned ann . AST.Literal (fst ann) $ AST.NumericLiteral b

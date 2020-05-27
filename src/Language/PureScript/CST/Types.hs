@@ -328,6 +328,7 @@ data Expr a
   | ExprBoolean a SourceToken Bool
   | ExprChar a SourceToken Char
   | ExprString a SourceToken PSString
+  | ExprAtom a SourceToken PSString
   | ExprNumber a SourceToken (Either Integer Double)
   | ExprArray a (Delimited (Expr a))
   | ExprTuple a (Delimited (Expr a))

@@ -334,6 +334,7 @@ infer' ::
 infer' v@(Literal _ (NumericLiteral (Left _))) = return $ TypedValue' True v tyInteger
 infer' v@(Literal _ (NumericLiteral (Right _))) = return $ TypedValue' True v tyFloat
 infer' v@(Literal _ (StringLiteral _)) = return $ TypedValue' True v tyString
+infer' v@(Literal _ (AtomLiteral _)) = return $ TypedValue' True v tyAtom
 infer' v@(Literal _ (CharLiteral _)) = return $ TypedValue' True v tyChar
 infer' v@(Literal _ (BooleanLiteral _)) = return $ TypedValue' True v tyBoolean
 infer' (Literal ss (ListLiteral vals)) = do
@@ -673,6 +674,7 @@ inferBinder ::
   m (M.Map Ident SourceType)
 inferBinder _ NullBinder = return M.empty
 inferBinder val (LiteralBinder _ (StringLiteral _)) = unifyTypes val tyString >> return M.empty
+inferBinder val (LiteralBinder _ (AtomLiteral _)) = unifyTypes val tyAtom >> return M.empty
 inferBinder val (LiteralBinder _ (CharLiteral _)) = unifyTypes val tyChar >> return M.empty
 inferBinder val (LiteralBinder _ (NumericLiteral (Left _))) = unifyTypes val tyInteger >> return M.empty
 inferBinder val (LiteralBinder _ (NumericLiteral (Right _))) = unifyTypes val tyFloat >> return M.empty
@@ -1056,6 +1058,9 @@ check' v@(Literal _ (NumericLiteral (Right _))) t
     return $ TypedValue' True v t
 check' v@(Literal _ (StringLiteral _)) t
   | t == tyString =
+    return $ TypedValue' True v t
+check' v@(Literal _ (AtomLiteral _)) t
+  | t == tyAtom =
     return $ TypedValue' True v t
 check' v@(Literal _ (CharLiteral _)) t
   | t == tyChar =
