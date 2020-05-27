@@ -428,6 +428,7 @@ exprAtom :: { Expr () }
   | hole { ExprHole () $1 }
   | qualIdent { ExprIdent () $1 }
   | qualProperName { ExprConstructor () $1 }
+  | 'myAtom' {  ptoExpr $1 }
   | qualSymbol { ExprOpName () $1 }
   | boolean { uncurry (ExprBoolean ()) $1 }
   | char { uncurry (ExprChar ()) $1 }
@@ -438,7 +439,6 @@ exprAtom :: { Expr () }
   | delim('(', expr, ',', ')') { ExprTuple () $1 }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
   | '(' expr ')' { ExprParens () (Wrapped $1 $2 $3) }
-  | 'myAtom' { ptoExpr $1 }
   | '#' delim('{', kvPair, ',', '}') { ExprMapSuger () $2 }
 
 kvPair :: {(Expr (), Expr ())}

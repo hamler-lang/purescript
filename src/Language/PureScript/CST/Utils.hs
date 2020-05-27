@@ -353,7 +353,7 @@ dType b xs = if "Integer" `elem` xs
 ptoExpr :: SourceToken -> Expr ()
 ptoExpr (SourceToken _ (TokAtom t)) =
   let p =  mkString t
-  in ExprApp () (ExprIdent () (QualifiedName placeholder Nothing (Ident "atom") ))
-       (ExprString () placeholder p)
+  in ExprParens () $ Wrapped placeholder (ExprApp () (ExprIdent () (QualifiedName placeholder Nothing (Ident "atom") ))
+       (ExprString () placeholder p)) placeholder
 ptoExpr x = error $ show x
 
