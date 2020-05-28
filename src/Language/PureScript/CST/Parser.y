@@ -83,6 +83,7 @@ import Language.PureScript.PSString (PSString)
   '<='            { SourceToken _ (TokOperator [] sym) | isLeftFatArrow sym }
   '=>'            { SourceToken _ (TokRightFatArrow _) }
   ':'             { SourceToken _ (TokOperator [] ":") }
+  '/'             { SourceToken _ (TokOperator [] "/") }
   ':='            { SourceToken _ (TokOperator [] ":=") }
   '<<'            { SourceToken _ (TokOperator [] "<<") }
   '>>'            { SourceToken _ (TokOperator [] ">>") }
@@ -617,20 +618,18 @@ binderAtom :: { Binder () }
   | boolean { uncurry (BinderBoolean ()) $1 }
   | char { uncurry (BinderChar ()) $1 }
   | string { uncurry (BinderString ()) $1 }
-  | 'myAtom' { ptoBinder $1 }
   | number { uncurry (BinderNumber () Nothing) $1 }
   | '-' number { uncurry (BinderNumber () (Just $1)) $2 }
+  | 'myAtom' { ptoBinder $1 }
   | delim('[', binder, ',', ']') { BinderArray () $1 }
   | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
   | '(' binder ')' { BinderParens () (Wrapped $1 $2 $3) }
   | '#' delim('{', kvPatPair, ',', '}') { BinderMap () $2 }
-  | delim('<<', binderBinayE, '|', '>>') { BinderBinary () (myTres1 $1) }
+  | delim('<<', binderBinayE, ',', '>>') { BinderBinary () (myTres1 $1) }
 
 kvPatPair :: {(Binder (), Binder ())}
  : binder ':=' binder { ( $1, $3 ) }
-
-
 
 myUpper :: { Text }
   : UPPER {% myUpper1 $1}
@@ -639,10 +638,7 @@ myPSString :: { MyList () }
   :  sep(myUpper,'-')  { MyList () $1 }
 
 binderBinayE :: { BinaryE () }
-  : '(' binder ')' ':'  int  ':' myPSString {BinaryE () $2 $5 $7 }
-
-
-
+  : '(' binder ')' ':'  int  '/' myPSString {BinaryE () $2 $5 $7 }
 
 recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }

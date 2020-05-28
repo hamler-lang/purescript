@@ -158,7 +158,7 @@ toBoolean tok = case tokValue tok of
   TokLowerName [] "false" -> (tok, False)
   _                       -> internalError $ "Invalid boolean literal: " <> show tok
 
-toConstraint :: forall a. Monoid a => Type a -> Parser (Constraint a)
+toConstraint :: forall a. (Monoid a, Show a)=> Type a -> Parser (Constraint a)
 toConstraint = convertParens
   where
   convertParens :: Type a -> Parser (Constraint a)
@@ -179,7 +179,7 @@ toConstraint = convertParens
       addFailure [tok1, tok2] ErrTypeInConstraint
       pure $ Constraint mempty (QualifiedName tok1 Nothing (N.ProperName "<unexpected")) []
 
-toBinderConstructor :: Monoid a => NE.NonEmpty (Binder a) -> Parser (Binder a)
+toBinderConstructor :: (Monoid a,Show a) => NE.NonEmpty (Binder a) -> Parser (Binder a)
 toBinderConstructor = \case
   BinderConstructor a name [] NE.:| bs ->
     pure $ BinderConstructor a name bs
@@ -187,7 +187,7 @@ toBinderConstructor = \case
   a NE.:| _ -> unexpectedToks binderRange (unexpectedBinder) ErrExprInBinder a
 
 toRecordFields
-  :: Monoid a
+  :: (Monoid a,Show a)
   => Separated (Either (RecordLabeled (Expr a)) (RecordUpdate a))
   -> Parser (Either (Separated (RecordLabeled (Expr a))) (Separated (RecordUpdate a)))
 toRecordFields = \case
@@ -229,7 +229,7 @@ data TmpModuleDecl a
   | TmpChain (Separated (Declaration a))
   deriving (Show)
 
-toModuleDecls :: Monoid a => [TmpModuleDecl a] -> Parser ([ImportDecl a], [Declaration a])
+toModuleDecls :: (Monoid a, Show a) => [TmpModuleDecl a] -> Parser ([ImportDecl a], [Declaration a])
 toModuleDecls = goImport []
   where
   goImport acc (TmpImport x : xs) = goImport (x : acc) xs
