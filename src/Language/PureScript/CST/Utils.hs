@@ -158,7 +158,7 @@ toBoolean tok = case tokValue tok of
   TokLowerName [] "false" -> (tok, False)
   _                       -> internalError $ "Invalid boolean literal: " <> show tok
 
-toConstraint :: forall a. (Monoid a, Show a)=> Type a -> Parser (Constraint a)
+toConstraint :: forall a. (Monoid a, Show a) => Type a -> Parser (Constraint a)
 toConstraint = convertParens
   where
   convertParens :: Type a -> Parser (Constraint a)
@@ -179,7 +179,7 @@ toConstraint = convertParens
       addFailure [tok1, tok2] ErrTypeInConstraint
       pure $ Constraint mempty (QualifiedName tok1 Nothing (N.ProperName "<unexpected")) []
 
-toBinderConstructor :: (Monoid a,Show a) => NE.NonEmpty (Binder a) -> Parser (Binder a)
+toBinderConstructor :: (Monoid a, Show a) => NE.NonEmpty (Binder a) -> Parser (Binder a)
 toBinderConstructor = \case
   BinderConstructor a name [] NE.:| bs ->
     pure $ BinderConstructor a name bs
@@ -187,7 +187,7 @@ toBinderConstructor = \case
   a NE.:| _ -> unexpectedToks binderRange (unexpectedBinder) ErrExprInBinder a
 
 toRecordFields
-  :: (Monoid a,Show a)
+  :: (Monoid a, Show a)
   => Separated (Either (RecordLabeled (Expr a)) (RecordUpdate a))
   -> Parser (Either (Separated (RecordLabeled (Expr a))) (Separated (RecordUpdate a)))
 toRecordFields = \case
@@ -343,7 +343,7 @@ be2t (BinaryE _ a b d) = let temp =fmap myt1 d
 myt1 :: MyList a -> [Text]
 myt1 (MyList _ (Separated x xs)) = x : fmap snd xs
 
-dType :: Binder a ->Maybe [Text]-> Binder a
+dType :: Binder a -> Maybe [Text] -> Binder a
 dType b (Just xs) = if "Integer" `elem` xs
              then t "Prim" "Integer"
              else if "Binary" `elem` xs
@@ -351,7 +351,7 @@ dType b (Just xs) = if "Integer" `elem` xs
                   else t "Prim" "Integer"
   where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)
                                                          (QualifiedName placeholder (Just $ N.moduleNameFromString m) (N.ProperName n)) )
-dType b Nothing = t "Data.Binary" "Binary"
+dType b Nothing = t "Data.Integer" "Integer"
   where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)
                                                          (QualifiedName placeholder (Just $ N.moduleNameFromString m) (N.ProperName n)) )
 

@@ -14,8 +14,8 @@ div x y  =1
 -- infixl 7 div as /
 
 t1 :: Binary -> Integer
--- t1 <<a, (b):45 , (c):Integer-Litterl , (d):32:Littel-Binary>> = c
-t1 <<a, (b):20:Integer-Littel, c>> = b
+t1 <<a, (b):45 , (c):Integer-Litterl , (d):32:Littel-Binary>> = c
+-- t1 <<a, (b):20:Integer-Little, c>> = b
 t1 _ = 1
 
 

@@ -122,7 +122,7 @@ qualRange a = (qualTok a, qualTok a)
 labelRange :: Label -> TokenRange
 labelRange a = (lblTok a, lblTok a)
 
-wrappedRange :: Show a =>Wrapped a -> TokenRange
+wrappedRange :: Show a => Wrapped a -> TokenRange
 wrappedRange (Wrapped { wrpOpen, wrpClose }) = (wrpOpen, wrpClose)
 
 moduleRange :: Show a =>Module a -> TokenRange
@@ -132,7 +132,7 @@ moduleRange (Module { modKeyword, modWhere, modImports, modDecls }) =
     (is, []) -> (modKeyword, snd . importDeclRange $ last is)
     (_,  ds) -> (modKeyword, snd . declRange $ last ds)
 
-exportRange :: Show a =>Export a -> TokenRange
+exportRange :: Show a => Export a -> TokenRange
 exportRange = \case
   ExportValue _ a -> nameRange a
   ExportOp _ a -> nameRange a
@@ -144,13 +144,13 @@ exportRange = \case
   ExportKind _ a b -> (a, nameTok b)
   ExportModule _ a b -> (a, nameTok b)
 
-importDeclRange :: Show a =>ImportDecl a -> TokenRange
+importDeclRange :: Show a => ImportDecl a -> TokenRange
 importDeclRange (ImportDecl { impKeyword, impModule, impNames, impQual })
   | Just (_, modName) <- impQual = (impKeyword, nameTok modName)
   | Just (_, imports) <- impNames = (impKeyword, wrpClose imports)
   | otherwise = (impKeyword, nameTok impModule)
 
-importRange :: Show a =>Import a -> TokenRange
+importRange :: Show a => Import a -> TokenRange
 importRange = \case
   ImportValue _ a -> nameRange a
   ImportOp _ a -> nameRange a
@@ -161,12 +161,12 @@ importRange = \case
   ImportClass _ a b -> (a, nameTok b)
   ImportKind _ a b -> (a, nameTok b)
 
-dataMembersRange :: Show a =>DataMembers a -> TokenRange
+dataMembersRange :: Show a => DataMembers a -> TokenRange
 dataMembersRange = \case
   DataAll _ a -> (a, a)
   DataEnumerated _ (Wrapped a _ b) -> (a, b)
 
-declRange :: Show a =>Declaration a -> TokenRange
+declRange :: Show a => Declaration a -> TokenRange
 declRange = \case
   DeclData _ hd ctors
     | Just (_, cs) <- ctors -> (fst start, snd . dataCtorRange $ sepLast cs)
@@ -186,17 +186,17 @@ declRange = \case
   DeclFixity _ (FixityFields a _ (FixityType _ _ _ b)) -> (fst a, nameTok b)
   DeclForeign _ a _ b -> (a, snd $ foreignRange b)
 
-dataHeadRange :: Show a =>DataHead a -> TokenRange
+dataHeadRange :: Show a => DataHead a -> TokenRange
 dataHeadRange (DataHead kw name vars)
   | [] <- vars = (kw, nameTok name)
   | otherwise = (kw, snd . typeVarBindingRange $ last vars)
 
-dataCtorRange :: Show a =>DataCtor a -> TokenRange
+dataCtorRange :: Show a => DataCtor a -> TokenRange
 dataCtorRange (DataCtor _ name fields)
   | [] <- fields = nameRange name
   | otherwise = (nameTok name, snd . typeRange $ last fields)
 
-classHeadRange :: Show a =>ClassHead a -> TokenRange
+classHeadRange :: Show a => ClassHead a -> TokenRange
 classHeadRange (ClassHead kw _ name vars fdeps)
   | Just (_, fs) <- fdeps = (kw, snd .classFundepRange $ sepLast fs)
   | [] <- vars = (kw, snd $ nameRange name)
@@ -207,52 +207,52 @@ classFundepRange = \case
   FundepDetermined arr bs -> (arr, nameTok $ NE.last bs)
   FundepDetermines as _ bs -> (nameTok $ NE.head as, nameTok $ NE.last bs)
 
-instanceRange :: Show a =>Instance a -> TokenRange
+instanceRange :: Show a => Instance a -> TokenRange
 instanceRange (Instance hd bd)
   | Just (_, ts) <- bd = (fst start, snd . instanceBindingRange $ NE.last ts)
   | otherwise = start
   where start = instanceHeadRange hd
 
-instanceHeadRange :: Show a =>InstanceHead a -> TokenRange
+instanceHeadRange :: Show a => InstanceHead a -> TokenRange
 instanceHeadRange (InstanceHead kw _ cls types)
   | [] <- types = (kw, qualTok cls)
   | otherwise = (kw, snd . typeRange $ last types)
 
-instanceBindingRange :: Show a =>InstanceBinding a -> TokenRange
+instanceBindingRange :: Show a => InstanceBinding a -> TokenRange
 instanceBindingRange = \case
   InstanceBindingSignature _ (Labeled a _ b) -> (nameTok a, snd $ typeRange b)
   InstanceBindingName _ a -> valueBindingFieldsRange a
 
-foreignRange :: Show a =>Foreign a -> TokenRange
+foreignRange :: Show a => Foreign a -> TokenRange
 foreignRange = \case
   ForeignValue (Labeled a _ b) -> (nameTok a, snd $ typeRange b)
   ForeignData a (Labeled _ _ b) -> (a, snd $ kindRange b)
   ForeignKind a b -> (a, nameTok b)
 
-valueBindingFieldsRange :: Show a =>ValueBindingFields a -> TokenRange
+valueBindingFieldsRange :: Show a => ValueBindingFields a -> TokenRange
 valueBindingFieldsRange (ValueBindingFields a _ b) = (nameTok a, snd $ guardedRange b)
 
-guardedRange :: Show a =>Guarded a -> TokenRange
+guardedRange :: Show a => Guarded a -> TokenRange
 guardedRange = \case
   Unconditional a b -> (a, snd $ whereRange b)
   Guarded as -> (fst . guardedExprRange $ NE.head as, snd . guardedExprRange $ NE.last as)
 
-guardedExprRange :: Show a =>GuardedExpr a -> TokenRange
+guardedExprRange :: Show a => GuardedExpr a -> TokenRange
 guardedExprRange (GuardedExpr a _ _ b) = (a, snd $ whereRange b)
 
-whereRange :: Show a =>Where a -> TokenRange
+whereRange :: Show a => Where a -> TokenRange
 whereRange (Where a bs)
   | Just (_, ls) <- bs = (fst $ exprRange a, snd . letBindingRange $ NE.last ls)
   | otherwise = exprRange a
 
-kindRange :: Show a =>Kind a -> TokenRange
+kindRange :: Show a => Kind a -> TokenRange
 kindRange = \case
   KindName _ a -> qualRange a
   KindArr _ a _ b -> (fst $ kindRange a, snd $ kindRange b)
   KindRow _ a b -> (a, snd $ kindRange b)
   KindParens _ a -> wrappedRange a
 
-typeRange :: Show a =>Type a -> TokenRange
+typeRange :: Show a => Type a -> TokenRange
 typeRange = \case
   TypeVar _ a -> nameRange a
   TypeConstructor _ a -> qualRange a
@@ -273,19 +273,19 @@ typeRange = \case
   TypeConstrained _ a _ b -> (fst $ constraintRange a, snd $ typeRange b)
   TypeParens _ a -> wrappedRange a
 
-constraintRange :: Show a =>Constraint a -> TokenRange
+constraintRange :: Show a => Constraint a -> TokenRange
 constraintRange = \case
   Constraint _ name args
     | [] <- args -> qualRange name
     | otherwise -> (qualTok name, snd . typeRange $ last args)
   ConstraintParens _ wrp -> wrappedRange wrp
 
-typeVarBindingRange :: Show a =>TypeVarBinding a -> TokenRange
+typeVarBindingRange :: Show a => TypeVarBinding a -> TokenRange
 typeVarBindingRange = \case
   TypeVarKinded a -> wrappedRange a
   TypeVarName a -> nameRange a
 
-exprRange :: Show a =>Expr a -> TokenRange
+exprRange :: Show a => Expr a -> TokenRange
 exprRange = \case
   ExprHole _ a -> nameRange a
   ExprSection _ a -> (a, a)
@@ -317,13 +317,13 @@ exprRange = \case
   ExprListComp _ (ListComp a b _) -> (a,  snd . doStatementRange $ NE.last b)
   ExprAdo _ (AdoBlock a _ _ b) -> (a, snd $ exprRange b)
 
-letBindingRange :: Show a =>LetBinding a -> TokenRange
+letBindingRange :: Show a => LetBinding a -> TokenRange
 letBindingRange = \case
   LetBindingSignature _ (Labeled a _ b) -> (nameTok a, snd $ typeRange b)
   LetBindingName _ a -> valueBindingFieldsRange a
   LetBindingPattern _ a _ b -> (fst $ binderRange a, snd $ whereRange b)
 
-doStatementRange :: Show a =>DoStatement a -> TokenRange
+doStatementRange :: Show a => DoStatement a -> TokenRange
 doStatementRange = \case
   DoLet a bs -> (a, snd . letBindingRange $ NE.last bs)
   DoDiscard a -> exprRange a
@@ -360,12 +360,12 @@ placeholder1 = SourceToken
   }
 
 
-recordUpdateRange :: Show a =>RecordUpdate a -> TokenRange
+recordUpdateRange :: Show a => RecordUpdate a -> TokenRange
 recordUpdateRange = \case
   RecordUpdateLeaf a _ b -> (lblTok a, snd $ exprRange b)
   RecordUpdateBranch a (Wrapped _ _ b) -> (lblTok a, b)
 
-recordLabeledExprRange :: Show a =>RecordLabeled (Expr a) -> TokenRange
+recordLabeledExprRange :: Show a => RecordLabeled (Expr a) -> TokenRange
 recordLabeledExprRange = \case
   RecordPun a -> nameRange a
   RecordField a _ b -> (fst $ labelRange a, snd $ exprRange b)
