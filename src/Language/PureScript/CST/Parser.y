@@ -83,7 +83,6 @@ import Language.PureScript.PSString (PSString)
   '<='            { SourceToken _ (TokOperator [] sym) | isLeftFatArrow sym }
   '=>'            { SourceToken _ (TokRightFatArrow _) }
   ':'             { SourceToken _ (TokOperator [] ":") }
-  '/'             { SourceToken _ (TokOperator [] "/") }
   ':='            { SourceToken _ (TokOperator [] ":=") }
   '<<'            { SourceToken _ (TokOperator [] "<<") }
   '>>'            { SourceToken _ (TokOperator [] ">>") }
@@ -638,7 +637,7 @@ myPSString :: { MyList () }
   :  sep(myUpper,'-')  { MyList () $1 }
 
 binderBinayE :: { BinaryE () }
-  : '(' binder ')' ':'  int  '/' myPSString {BinaryE () $2 $5 $7 }
+  : '(' binder ')' ':'  int  ':' myPSString {BinaryE () $2 $5 $7 }
 
 recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }

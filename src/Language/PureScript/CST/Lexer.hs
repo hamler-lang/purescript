@@ -216,7 +216,7 @@ breakComments = k0 []
 token :: Lexer Token
 token = peek >>= maybe (pure TokEof) k0
   where
-  k0 ch1 = case ch1 of
+  k0 ch1 = case  ch1 of
     '('  -> next *> leftParen
     ')'  -> next $> TokRightParen
     '{'  -> next $> TokLeftBrace
@@ -295,7 +295,7 @@ token = peek >>= maybe (pure TokEof) k0
             ksucc inp2 $ pure tok2
       Just (ch2', inp2) | isSymbolChar ch2' ->
         ksucc inp2 $ operator [] [ch1, ch2']
-      Just (ch2', inp2) | (ch2' /= ' ') && (not $ Char.isDigit ch2') ->
+      Just (ch2', inp2) | (ch2' /= ' ') && (not $ Char.isDigit ch2') && (not $ Char.isUpper ch2') ->
                           let (a,b) = Text.span (not . isStringGapChar) inp
                           in ksucc b $ pure $ TokAtom a
       _ ->
