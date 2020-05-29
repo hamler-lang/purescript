@@ -447,7 +447,7 @@ kvPair :: {(Expr (), Expr ())}
 
 recordLabel :: { RecordLabeled (Expr ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }
-  | label '=' expr {% addFailure [$2] ErrRecordUpdateInCtr *> pure (RecordPun $ unexpectedName $ lblTok $1) }
+  | label '=' expr { RecordField $1 $2 $3 }
   | label ':' expr { RecordField $1 $2 $3 }
   | label '=>' expr { RecordField $1 $2 $3 }
 

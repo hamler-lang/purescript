@@ -11,11 +11,11 @@ div  1 2 =1
 div x y  =1
 
 
-infixl 7 div as /
+-- infixl 7 div as /
 
-t1 :: Binary -> Integer
-t1 <<(23):23:Big-Integer, (b):45:Littel-Integer , (c):32:Binary , (d):32:Binary>> = b
-t1 _ = 1
+-- t1 :: Binary -> Integer
+-- t1 <<(23):23:Big-Integer, (b):45:Littel-Integer , (c):32:Binary , (d):32:Binary>> = b
+-- t1 _ = 1
 
 
 -- t2 :: Binary -> Integer
@@ -23,4 +23,8 @@ t1 _ = 1
 --        in  22
 -- t2 _ = 1
 
+g = t{nice =3}
+t = { nice = 1 , greate = {nice = 10 , greate = 20}}
 
+
+  -- | label '=' expr {% addFailure [$2] ErrRecordUpdateInCtr *> pure (RecordPun $ unexpectedName $ lblTok $1) }
