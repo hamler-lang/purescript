@@ -295,11 +295,12 @@ token = peek >>= maybe (pure TokEof) k0
             ksucc inp2 $ pure tok2
       Just (ch2', inp2) | isSymbolChar ch2' ->
         ksucc inp2 $ operator [] [ch1, ch2']
-      Just (ch2', inp2) | (ch2' /= ' ') ->
+      Just (ch2', inp2) | (ch2' /= ' ') && (not $ Char.isDigit ch2') && (not $ Char.isUpper ch2') ->
                           let (a,b) = Text.span (not . isStringGapChar) inp
                           in ksucc b $ pure $ TokAtom a
       _ ->
         ksucc inp $ pure tok1
+        -- ksucc inp $ error $ show tok1
 
   {-
     leftParen

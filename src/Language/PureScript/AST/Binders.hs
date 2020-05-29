@@ -62,8 +62,8 @@ data Binder
   -- A binder with a type annotation
   --
   | TypedBinder SourceType Binder
-  | MapBinder [(Binder,Binder)]
-  | BinaryBinder [(Binder,Integer,[Text])]
+  | MapBinder [(Binder, Binder)]
+  | BinaryBinder [(Binder, Maybe Integer, Maybe [Text])]
   deriving (Show)
 
 -- Manual Eq and Ord instances for `Binder` were added on 2018-03-05. Comparing

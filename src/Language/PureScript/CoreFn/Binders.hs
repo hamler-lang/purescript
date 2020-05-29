@@ -33,7 +33,7 @@ data Binder a
   --
   | NamedBinder a Ident (Binder a)
   | MapBinder a [(Binder a ,Binder a)]
-  | BinaryBinder a [(Binder a ,Integer,[Text])]
+  | BinaryBinder a [(Binder a , Maybe Integer, Maybe [Text])]
   deriving (Show, Functor)
 
 

@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 116
+%expect 118
 
 %name parseKind kind
 %name parseType type
@@ -447,7 +447,7 @@ kvPair :: {(Expr (), Expr ())}
 
 recordLabel :: { RecordLabeled (Expr ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }
-  | label '=' expr {% addFailure [$2] ErrRecordUpdateInCtr *> pure (RecordPun $ unexpectedName $ lblTok $1) }
+  | label '=' expr { RecordField $1 $2 $3 }
   | label ':' expr { RecordField $1 $2 $3 }
   | label '=>' expr { RecordField $1 $2 $3 }
 
@@ -617,20 +617,18 @@ binderAtom :: { Binder () }
   | boolean { uncurry (BinderBoolean ()) $1 }
   | char { uncurry (BinderChar ()) $1 }
   | string { uncurry (BinderString ()) $1 }
-  | 'myAtom' { ptoBinder $1 }
   | number { uncurry (BinderNumber () Nothing) $1 }
   | '-' number { uncurry (BinderNumber () (Just $1)) $2 }
+  | 'myAtom' { ptoBinder $1 }
   | delim('[', binder, ',', ']') { BinderArray () $1 }
   | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
   | '(' binder ')' { BinderParens () (Wrapped $1 $2 $3) }
   | '#' delim('{', kvPatPair, ',', '}') { BinderMap () $2 }
-  | delim('<<', binderBinayE, '|', '>>') { BinderBinary () (myTres1 $1) }
+  | delim('<<', binderBinayE, ',', '>>') { BinderBinary () (myTres1 $1) }
 
 kvPatPair :: {(Binder (), Binder ())}
  : binder ':=' binder { ( $1, $3 ) }
-
-
 
 myUpper :: { Text }
   : UPPER {% myUpper1 $1}
@@ -639,10 +637,10 @@ myPSString :: { MyList () }
   :  sep(myUpper,'-')  { MyList () $1 }
 
 binderBinayE :: { BinaryE () }
-  : '(' binder ')' ':'  int  ':' myPSString {BinaryE () $2 $5 $7 }
-
-
-
+  : binder {BinaryE () $1 Nothing Nothing }
+  | '(' binder ')' ':'  int  {BinaryE () $2 (Just $5) Nothing }
+  | '(' binder ')' ':' myPSString {BinaryE () $2 Nothing (Just $5) }
+  | '(' binder ')' ':'  int  ':' myPSString {BinaryE () $2 (Just $5) (Just $7) }
 
 recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }
