@@ -232,8 +232,10 @@ prettyPrintBinderAtom (BinaryBinder xs) =
                 Monoid.<> " : "
                 Monoid.<> (T.pack $ show i)
                 Monoid.<> " : "
-                Monoid.<> T.intercalate "-" ts
-          )
+                Monoid.<> case ts of
+                            Nothing -> " "
+                            Just t1 -> T.intercalate "-" t1
+            )
           xs
       )
     Monoid.<> ">>"

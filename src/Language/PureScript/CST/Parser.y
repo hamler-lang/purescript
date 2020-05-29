@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 116
+%expect 118
 
 %name parseKind kind
 %name parseType type
@@ -637,7 +637,10 @@ myPSString :: { MyList () }
   :  sep(myUpper,'-')  { MyList () $1 }
 
 binderBinayE :: { BinaryE () }
-  : '(' binder ')' ':'  int  ':' myPSString {BinaryE () $2 $5 $7 }
+  : binder {BinaryE () $1 Nothing Nothing }
+  | '(' binder ')' ':'  int  {BinaryE () $2 (Just $5) Nothing }
+  | '(' binder ')' ':' myPSString {BinaryE () $2 Nothing (Just $5) }
+  | '(' binder ')' ':'  int  ':' myPSString {BinaryE () $2 (Just $5) (Just $7) }
 
 recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }

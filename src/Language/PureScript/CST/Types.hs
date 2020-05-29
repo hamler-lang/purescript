@@ -450,11 +450,11 @@ data Binder a
   | BinderParens a (Wrapped (Binder a))
   | BinderTyped a (Binder a) SourceToken (Type a)
   | BinderOp a (Binder a) (QualifiedName (N.OpName 'N.ValueOpName)) (Binder a)
-  | BinderBinary a [(Binder a, Integer,  [Text])]
+  | BinderBinary a [(Binder a, Maybe Integer, Maybe [Text])]
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
 data BinaryE a = BinaryE a (Binder a)
-                           (SourceToken,Integer) (MyList a)
+                           (Maybe (SourceToken,Integer)) (Maybe (MyList a))
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
 data MyList a = MyList a (Separated Text)
