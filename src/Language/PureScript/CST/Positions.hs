@@ -125,7 +125,7 @@ labelRange a = (lblTok a, lblTok a)
 wrappedRange :: Show a => Wrapped a -> TokenRange
 wrappedRange (Wrapped { wrpOpen, wrpClose }) = (wrpOpen, wrpClose)
 
-moduleRange :: Show a =>Module a -> TokenRange
+moduleRange :: Show a => Module a -> TokenRange
 moduleRange (Module { modKeyword, modWhere, modImports, modDecls }) =
   case (modImports, modDecls) of
     ([], []) -> (modKeyword, modWhere)
