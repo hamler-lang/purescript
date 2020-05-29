@@ -216,7 +216,7 @@ breakComments = k0 []
 token :: Lexer Token
 token = peek >>= maybe (pure TokEof) k0
   where
-  k0 ch1 = case  ch1 of
+  k0 ch1 = case ch1 of
     '('  -> next *> leftParen
     ')'  -> next $> TokRightParen
     '{'  -> next $> TokLeftBrace
