@@ -36,6 +36,7 @@ data Literal a
   --
   | AtomLiteral PSString
   | ObjectLiteral [(PSString, a)]
+  | BinaryLiteral [(Integer,Integer)]
   | TupleLiteral  a a
   | TupleLiteral3 a a a
   | TupleLiteral4 a a a a

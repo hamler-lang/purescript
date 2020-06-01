@@ -132,6 +132,7 @@ prettyPrintLiteralValue _ (CharLiteral c) = text $ show c
 prettyPrintLiteralValue _ (BooleanLiteral True) = text "true"
 prettyPrintLiteralValue _ (BooleanLiteral False) = text "false"
 prettyPrintLiteralValue d (ListLiteral xs) = list '[' ']' (prettyPrintValue (d - 1)) xs
+prettyPrintLiteralValue d (BinaryLiteral xs) = text $  show xs
 prettyPrintLiteralValue d (TupleLiteral a b) = list '(' ')' (prettyPrintValue (d - 1)) [a, b]
 prettyPrintLiteralValue d (TupleLiteral3 a b c) = list '(' ')' (prettyPrintValue (d - 1)) [a, b, c]
 prettyPrintLiteralValue d (TupleLiteral4 a b c ds) = list '(' ')' (prettyPrintValue (d - 1)) [a, b, c, ds]

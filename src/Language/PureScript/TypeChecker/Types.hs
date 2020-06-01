@@ -345,6 +345,9 @@ infer' (Literal ss (ListLiteral vals)) = do
     unifyTypes els t'
     return (TypedValue ch val' t')
   return $ TypedValue' True (Literal ss (ListLiteral ts')) (srcTypeApp tyList els)
+
+infer' v@(Literal ss (BinaryLiteral vals )) = return $ TypedValue' True v tyBinary
+
 infer' (Literal ss (TupleLiteral a b)) = do
   a' <- infer a
   els1 <- freshType
