@@ -365,6 +365,9 @@ tyTuple6 = primTy "Tuple6"
 tyTuple7 :: SourceType
 tyTuple7 = primTy "Tuple7"
 
+tyBinary :: SourceType
+tyBinary = primTy "Binary"
+
 
 -- | Type constructor for records
 
@@ -457,6 +460,7 @@ primTypes = M.fromList
   , (primName "Float",   (kindType, ExternData))
   , (primName "Integer", (kindType, ExternData))
   , (primName "Boolean",  (kindType, ExternData))
+  , (primName "Binary",  (kindType, ExternData))
   , (primName "Partial",  (kindConstraint, ExternData))
   ]
 

@@ -349,6 +349,7 @@ data Expr a
   | ExprDo a (DoBlock a)
   | ExprListComp a (ListComp a)
   | ExprMapSuger a (Delimited (Expr a , Expr a))
+  | ExprBinary a (Delimited (BinaryVal a))
   | ExprAdo a (AdoBlock a)
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
@@ -478,6 +479,7 @@ extraBinder (BinderTyped a _ _ _) = a
 extraBinder (BinderBinary a _) = a
 extraBinder (BinderOp a _ _ _) = a
 
-
+data BinaryVal a = IntVal Integer (Maybe Integer)
+  deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
 

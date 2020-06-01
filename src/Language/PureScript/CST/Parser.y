@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 114
+%expect 115
 
 %name parseKind kind
 %name parseType type
@@ -439,9 +439,16 @@ exprAtom :: { Expr () }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
   | '(' expr ')' { ExprParens () (Wrapped $1 $2 $3) }
   | '#' delim('{', kvPair, ',', '}') { ExprMapSuger () $2 }
+  | delim('<<', binaryVal, ',', '>>') { ExprBinary () $1 }
 
 kvPair :: {(Expr (), Expr ())}
   : expr '=>' expr { ( $1, $3 ) }
+
+binaryVal :: { BinaryVal ()}
+  : LIT_INT  { IntVal (snd $ toInt $1) Nothing }
+  | LIT_INT ':' LIT_INT { IntVal (snd $ toInt $1) (Just $ snd $ toInt $3) }
+  | LIT_STRING {pssToTuple $ snd $ toString $1}
+
 
 
 recordLabel :: { RecordLabeled (Expr ()) }

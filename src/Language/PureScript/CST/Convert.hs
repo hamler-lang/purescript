@@ -332,6 +332,12 @@ convertExpr fileName = go
                        Just (Separated x xs) -> go x : (go . snd <$> xs)
                        Nothing -> []
           positioned ann . AST.Literal (fst ann) $ AST.ListLiteral vals
+    ExprBinary t (Wrapped a bs c) -> do
+          let ann = sourceAnnCommented fileName a c
+              vals = case bs of
+                       Nothing -> []
+                       Just (Separated x xs) -> intValToBinaryLit x : (fmap (intValToBinaryLit . snd) xs)
+          positioned ann . AST.Literal (fst ann) $ AST.BinaryLiteral vals
     ExprMapSuger t (Wrapped a bs c) -> do
       case bs of
         Nothing -> go (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "empty")))
@@ -761,5 +767,6 @@ tT (TypeVar _ (Name _ (Ident x))) = x
 tT (TypeParens _ (Wrapped _ a _)) = tT a
 tT x = error $ show x
 
-
-
+intValToBinaryLit :: BinaryVal a -> (Integer,Integer)
+intValToBinaryLit (IntVal i (Just b)) = (i,b)
+intValToBinaryLit (IntVal i Nothing) = (i,8)

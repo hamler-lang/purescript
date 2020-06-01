@@ -18,7 +18,8 @@ import Language.PureScript.CST.Positions
 import Language.PureScript.CST.Traversals.Type
 import Language.PureScript.CST.Types
 import qualified Language.PureScript.Names as N
-import Language.PureScript.PSString (PSString, mkString)
+import Language.PureScript.PSString (PSString, mkString,toUTF16CodeUnits)
+import Data.Word (Word16)
 
 placeholder :: SourceToken
 placeholder = SourceToken
@@ -369,6 +370,15 @@ ptoBinder s@(SourceToken _ (TokAtom t)) =
   in BinderAtom () s p
 ptoBinder x = error $ show x
 
+pssToTuple :: PSString -> BinaryVal ()
+pssToTuple ps = IntVal r (Just $ toInteger $ length t)
+  where t = toUTF16CodeUnits ps
+        r = foldl (\b a -> b * 256 + a) 0 $ fmap deals t
 
 
 
+deals :: Word16 -> Integer
+deals w =let t= toInteger w
+         in if t > 255
+            then error "input too large. "
+            else t
