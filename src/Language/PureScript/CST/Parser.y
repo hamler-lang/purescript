@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 118
+%expect 114
 
 %name parseKind kind
 %name parseType type
@@ -209,7 +209,6 @@ qualOp :: { QualifiedName (N.OpName a) }
   | '<=' {% toQualifiedName N.OpName $1 }
   | '-' {% toQualifiedName N.OpName $1 }
   | '#' {% toQualifiedName N.OpName $1 }
-  | ':' {% toQualifiedName N.OpName $1 }
 
 op :: { Name (N.OpName a) }
   : OPERATOR {% toName N.OpName $1 }
@@ -638,9 +637,9 @@ myPSString :: { MyList () }
 
 binderBinayE :: { BinaryE () }
   : binder {BinaryE () $1 Nothing Nothing }
-  | '(' binder ')' ':'  int  {BinaryE () $2 (Just $5) Nothing }
-  | '(' binder ')' ':' myPSString {BinaryE () $2 Nothing (Just $5) }
-  | '(' binder ')' ':'  int  ':' myPSString {BinaryE () $2 (Just $5) (Just $7) }
+  |  binder  ':'  int  {BinaryE () $1 (Just $3) Nothing }
+  |  binder  ':' myPSString {BinaryE () $1 Nothing (Just $3) }
+  |  binder  ':'  int  ':' myPSString {BinaryE () $1 (Just $3) (Just $5) }
 
 recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }
