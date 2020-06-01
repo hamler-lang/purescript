@@ -371,7 +371,7 @@ ptoBinder s@(SourceToken _ (TokAtom t)) =
 ptoBinder x = error $ show x
 
 pssToTuple :: PSString -> BinaryVal ()
-pssToTuple ps = IntVal r (Just $ toInteger $ length t)
+pssToTuple ps = IntVal r (Just $ 8 * (toInteger $ length t))
   where t = toUTF16CodeUnits ps
         r = foldl (\b a -> b * 256 + a) 0 $ fmap deals t
 
