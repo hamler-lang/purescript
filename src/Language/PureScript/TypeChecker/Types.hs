@@ -921,7 +921,7 @@ inferBinder val (BinaryBinder xs) = do
               )
               $ fmap gfst xs
           )
-  unifyTypes val (srcTypeConstructor $ Qualified (Just $ moduleNameFromString "Data.Binary") (ProperName "Binary"))
+  unifyTypes val tyBinary
   return (M.unions [m1])
 inferBinder val (NamedBinder ss name binder) =
   warnAndRethrowWithPositionTC ss $ do
