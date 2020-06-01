@@ -351,7 +351,7 @@ dType b (Just xs) = if "Integer" `elem` xs
                   else t "Prim" "Integer"
   where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)
                                                          (QualifiedName placeholder (Just $ N.moduleNameFromString m) (N.ProperName n)) )
-dType b Nothing = t "Data.Integer" "Integer"
+dType b Nothing = t "Prim" "Integer"
   where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)
                                                          (QualifiedName placeholder (Just $ N.moduleNameFromString m) (N.ProperName n)) )
 
