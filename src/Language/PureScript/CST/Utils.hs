@@ -348,7 +348,7 @@ dType :: Binder a -> Maybe [Text] -> Binder a
 dType b (Just xs) = if "Integer" `elem` xs
              then t "Prim" "Integer"
              else if "Binary" `elem` xs
-                  then t "Data.Binary" "Binary"
+                  then t "Prim" "Binary"
                   else t "Prim" "Integer"
   where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)
                                                          (QualifiedName placeholder (Just $ N.moduleNameFromString m) (N.ProperName n)) )
