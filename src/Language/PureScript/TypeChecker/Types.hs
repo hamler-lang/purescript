@@ -721,6 +721,12 @@ inferBinder val (LiteralBinder _ (ListLiteral binders)) = do
   m1 <- M.unions <$> traverse (inferBinder el) binders
   unifyTypes val (srcTypeApp tyList el)
   return m1
+inferBinder val (ListBinder binders b) = do
+  el <- freshType
+  m1 <- M.unions <$> traverse (inferBinder el) binders
+  m2 <- inferBinder (srcTypeApp tyList el) b
+  unifyTypes val (srcTypeApp tyList el)
+  return (M.unions [m1,m2])
 inferBinder val (MapBinder xs) = do
   let (bs1, bs2) = unzip xs
   e1 <- freshType

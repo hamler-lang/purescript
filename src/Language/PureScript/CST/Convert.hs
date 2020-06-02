@@ -497,7 +497,13 @@ convertBinder fileName = go
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
       positioned ann . AST.LiteralBinder (fst ann) $ AST.ListLiteral vals
-
+    BinderList _ (Wrapped a bs c) b-> do
+      let
+        ann = sourceAnnCommented fileName a c
+        vals = case bs of
+          Just (Separated x xs) -> go x : (go . snd <$> xs)
+          Nothing -> []
+      positioned ann $ AST.ListBinder vals (go b)
     BinderMap _ (Wrapped _ bs _) -> do
       let
         vals = case bs of

@@ -34,6 +34,7 @@ data Binder a
   | NamedBinder a Ident (Binder a)
   | MapBinder a [(Binder a ,Binder a)]
   | BinaryBinder a [(Binder a , Maybe Integer, Maybe [Text])]
+  | ListBinder a [Binder a] (Binder a)
   deriving (Show, Functor)
 
 

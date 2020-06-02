@@ -64,6 +64,7 @@ data Binder
   | TypedBinder SourceType Binder
   | MapBinder [(Binder, Binder)]
   | BinaryBinder [(Binder, Maybe Integer, Maybe [Text])]
+  | ListBinder [Binder] Binder
   deriving (Show)
 
 -- Manual Eq and Ord instances for `Binder` were added on 2018-03-05. Comparing
@@ -119,6 +120,9 @@ instance Eq Binder where
     (==) xs ys
   (==) BinaryBinder{} _ = False
 
+  (==) (ListBinder xs a) (ListBinder ys b) =
+    (==) xs ys && (==) a b
+  (==) ListBinder{} _ = False
 
 instance Ord Binder where
   compare NullBinder NullBinder = EQ
@@ -186,6 +190,9 @@ instance Ord Binder where
     compare xs ys
   compare BinaryBinder{} _ = GT
 
+  compare (ListBinder xs x) (ListBinder ys y) =
+    compare xs ys <> compare x y
+  compare ListBinder{} _ = GT
 
 gfst :: (a,b,c) -> a
 gfst (a,_,_) = a
@@ -199,6 +206,7 @@ binderNames = go []
   go ns (VarBinder _ name) = name : ns
   go ns (ConstructorBinder _ _ bs) = foldl go ns bs
   go ns (MapBinder xs) = foldl go ns (concat $ fmap (\(a,b) -> [a,b]) xs)
+  go ns (ListBinder xs x) = foldl go ns (xs++[x])
   go ns (BinaryBinder xs) = foldl go ns (fmap gfst xs)
   go ns (BinaryNoParensBinder b1 b2 b3) = foldl go ns [b1, b2, b3]
   go ns (ParensInBinder b) = go ns b
