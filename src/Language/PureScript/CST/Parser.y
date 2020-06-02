@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 115
+%expect 117
 
 %name parseKind kind
 %name parseType type
@@ -367,6 +367,7 @@ expr :: { Expr () }
 expr1 :: { Expr () }
   : expr2 { $1 }
   | expr1 qualOp expr2 { ExprOp () $1 $2 $3 }
+  | expr1 ':' expr2 { ExprOp () $1 (sourToQual $2) $3 }
 
 expr2 :: { Expr () }
   : expr3 { $1 }
