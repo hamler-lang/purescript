@@ -627,6 +627,7 @@ binderAtom :: { Binder () }
   | '-' number { uncurry (BinderNumber () (Just $1)) $2 }
   | 'myAtom' { ptoBinder $1 }
   | delim('[', binder, ',', ']') { BinderArray () $1 }
+  | delim('[', binder, ',', '|') binder ']' { BinderList () $1 $2 }
   | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
   | '(' binder ')' { BinderParens () (Wrapped $1 $2 $3) }

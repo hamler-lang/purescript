@@ -151,6 +151,8 @@ moduleToCoreFn env (A.Module modSS coms mn decls (Just exps)) =
     NamedBinder (ss, com, Nothing, Nothing) name (binderToCoreFn ss [] b)
   binderToCoreFn ss com (A.MapBinder xs) =
     MapBinder (ss, com, Nothing, Nothing)  (fmap (\(x,y) -> (binderToCoreFn ss [] x, binderToCoreFn ss [] y)) xs)
+  binderToCoreFn ss com (A.ListBinder xs b) =
+    ListBinder (ss, com, Nothing, Nothing)  (fmap (\x -> (binderToCoreFn ss [] x)) xs) (binderToCoreFn ss [] b)
   binderToCoreFn ss com (A.BinaryBinder xs) =
     BinaryBinder (ss, com, Nothing, Nothing)  (fmap (\(x,y,z) -> (binderToCoreFn ss [] x, y,z)) xs)
   binderToCoreFn _ com (A.PositionedBinder ss com1 b) =
