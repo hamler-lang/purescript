@@ -332,6 +332,17 @@ convertExpr fileName = go
                        Just (Separated x xs) -> go x : (go . snd <$> xs)
                        Nothing -> []
           positioned ann . AST.Literal (fst ann) $ AST.ListLiteral vals
+    ExprList _ (Wrapped a bs c) b-> do
+          let ann = sourceAnnCommented fileName a c
+              vals = case bs of
+                       Just (Separated x xs) -> go x : (go . snd <$> xs)
+                       Nothing -> []
+              vals1 = case b of
+                        ExprArray _ (Wrapped a2 bs2 c2) -> case bs2 of
+                                                             Just (Separated x1 xs1) -> go x1 : (go . snd <$> xs1)
+                                                             Nothing -> []
+                        x -> error $ show x
+          positioned ann . AST.Literal (fst ann) $ AST.ListLiteral (vals ++ vals1)
     ExprBinary t (Wrapped a bs c) -> do
           let ann = sourceAnnCommented fileName a c
               vals = case bs of

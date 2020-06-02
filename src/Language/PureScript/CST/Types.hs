@@ -331,6 +331,7 @@ data Expr a
   | ExprAtom a SourceToken PSString
   | ExprNumber a SourceToken (Either Integer Double)
   | ExprArray a (Delimited (Expr a))
+  | ExprList a (Delimited (Expr a)) (Expr a)
   | ExprTuple a (Delimited (Expr a))
   | ExprRecord a (Delimited (RecordLabeled (Expr a)))
   | ExprParens a (Wrapped (Expr a))
