@@ -383,6 +383,3 @@ deals w =let t= toInteger w
             then error "input too large. "
             else t
 
-sourToQual :: SourceToken -> QualifiedName (N.OpName 'N.ValueOpName)
-sourToQual tok@(SourceToken _ (TokOperator q a)) = QualifiedName tok Nothing (N.OpName a)
-sourToQual x = error $ show x

@@ -34,7 +34,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 117
+%expect 116
 
 %name parseKind kind
 %name parseType type
@@ -367,7 +367,6 @@ expr :: { Expr () }
 expr1 :: { Expr () }
   : expr2 { $1 }
   | expr1 qualOp expr2 { ExprOp () $1 $2 $3 }
-  | expr1 ':' expr2 { ExprOp () $1 (sourToQual $2) $3 }
 
 expr2 :: { Expr () }
   : expr3 { $1 }
@@ -436,6 +435,7 @@ exprAtom :: { Expr () }
   | number { uncurry (ExprNumber ()) $1 }
   | '()' {ExprIdent () (QualifiedName placeholder Nothing (Ident "unit") )}
   | delim('[', expr, ',', ']') { ExprArray () $1 }
+  | delim('[', expr, ',', '|') expr ']' { ExprList () $1 $2}
   | delim('(', expr, ',', ')') { ExprTuple () $1 }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
   | '(' expr ')' { ExprParens () (Wrapped $1 $2 $3) }

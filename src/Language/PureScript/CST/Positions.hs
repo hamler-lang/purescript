@@ -297,6 +297,7 @@ exprRange = \case
   ExprAtom _ a _ -> (a, a)
   ExprNumber _ a _ -> (a, a)
   ExprArray _ a -> wrappedRange a
+  ExprList _ a b -> wrappedRange a
   ExprMapSuger _ a -> wrappedRange a
   ExprBinary _ a -> wrappedRange a
   ExprTuple _ a -> wrappedRange a
