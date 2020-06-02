@@ -347,6 +347,7 @@ binderRange = \case
     | otherwise -> (b, b)
   BinderArray _ a -> wrappedRange a
   BinderMap _ a -> wrappedRange a
+  BinderList _ a _ -> wrappedRange a
   BinderBinary _ a -> (placeholder1,placeholder1)
   BinderTuple _ a -> wrappedRange a
   BinderRecord _ a -> wrappedRange a
