@@ -337,12 +337,7 @@ convertExpr fileName = go
               vals = case bs of
                        Just (Separated x xs) -> go x : (go . snd <$> xs)
                        Nothing -> []
-              vals1 = case b of
-                        ExprArray _ (Wrapped a2 bs2 c2) -> case bs2 of
-                                                             Just (Separated x1 xs1) -> go x1 : (go . snd <$> xs1)
-                                                             Nothing -> []
-                        x -> error $ show x
-          positioned ann . AST.Literal (fst ann) $ AST.ListLiteral (vals ++ vals1)
+          positioned ann $ AST.List vals (go b)
     ExprBinary t (Wrapped a bs c) -> do
           let ann = sourceAnnCommented fileName a c
               vals = case bs of
@@ -454,6 +449,10 @@ convertExpr fileName = go
       positioned ann . AST.Do (moduleName $ tokValue kw) $ goDoStatement <$>
         ((fmap warpGuard $ NE.toList stmts) <> [DoDiscard $ ExprApp undefined
                              (ExprIdent undefined (QualifiedName placeholder Nothing (Ident "pure"))) lexpr ])
+
+    expr@(ExprListComp _ (ListList expr1 expr2)) -> do
+      let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
+      positioned ann $ AST.List [go expr1] (go expr2)
 
     expr@(ExprAdo _ (AdoBlock kw stms _ a)) -> do
       let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr

@@ -52,6 +52,7 @@ data Expr a
   -- A let binding
   --
   | Let a [Bind a] (Expr a)
+  | List a [Expr a] (Expr a)
   deriving (Show, Functor)
 
 -- |
@@ -104,6 +105,7 @@ extractAnn (Abs a _ _) = a
 extractAnn (App a _ _) = a
 extractAnn (Var a _) = a
 extractAnn (Case a _ _) = a
+extractAnn (List a _ _) = a
 extractAnn (Let a _ _) = a
 
 
@@ -119,4 +121,5 @@ modifyAnn f (Abs a b c)           = Abs (f a) b c
 modifyAnn f (App a b c)           = App (f a) b c
 modifyAnn f (Var a b)             = Var (f a) b
 modifyAnn f (Case a b c)          = Case (f a) b c
+modifyAnn f (List a b c)          = List (f a) b c
 modifyAnn f (Let a b c)           = Let (f a) b c

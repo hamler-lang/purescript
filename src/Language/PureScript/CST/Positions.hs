@@ -317,6 +317,7 @@ exprRange = \case
   ExprLet _ (LetIn a _ _ b) -> (a, snd $ exprRange b)
   ExprDo _ (DoBlock a b) -> (a,  snd . doStatementRange $ NE.last b)
   ExprListComp _ (ListComp a b _) -> (a,  snd . doStatementRange $ NE.last b)
+  ExprListComp _ (ListList a b) -> (fst $ exprRange a, snd $ exprRange b)
   ExprAdo _ (AdoBlock a _ _ b) -> (a, snd $ exprRange b)
 
 letBindingRange :: Show a => LetBinding a -> TokenRange

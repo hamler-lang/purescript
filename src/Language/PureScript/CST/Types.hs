@@ -419,8 +419,9 @@ data DoBlock a = DoBlock
 data ListComp a = ListComp
   { listKeyword :: SourceToken
   , listStatements :: NonEmpty (DoStatement a)
-  , listExpr  :: Expr a
-  } deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+  , listExpr  :: Expr a }
+  | ListList (Expr a) (Expr a)
+  deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
 data DoStatement a
   = DoLet SourceToken (NonEmpty (LetBinding a))

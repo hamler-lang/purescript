@@ -838,6 +838,7 @@ data Expr
   -- A value with source position information
   --
   | PositionedValue SourceSpan [Comment] Expr
+  | List [Expr] Expr
   deriving (Show)
 
 -- |
