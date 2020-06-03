@@ -66,28 +66,29 @@ data PSCiState = PSCiState
   (P.ModuleName, P.Ident)
   P.Imports
   P.Exports
+  String
   deriving Show
 
 psciImportedModules :: PSCiState -> [ImportedModule]
-psciImportedModules (PSCiState x _ _ _ _ _) = x
+psciImportedModules (PSCiState x _ _ _ _ _ _) = x
 
 psciLetBindings :: PSCiState -> [P.Declaration]
-psciLetBindings (PSCiState _ x _ _ _ _) = x
+psciLetBindings (PSCiState _ x _ _ _ _ _) = x
 
 psciLoadedExterns :: PSCiState -> [(P.Module, P.ExternsFile)]
-psciLoadedExterns (PSCiState _ _ x _ _ _) = x
+psciLoadedExterns (PSCiState _ _ x _ _ _ _) = x
 
 psciInteractivePrint :: PSCiState -> (P.ModuleName, P.Ident)
-psciInteractivePrint (PSCiState _ _ _ x _ _) = x
+psciInteractivePrint (PSCiState _ _ _ x _ _ _) = x
 
 psciImports :: PSCiState -> P.Imports
-psciImports (PSCiState _ _ _ _ x _) = x
+psciImports (PSCiState _ _ _ _ x _ _) = x
 
 psciExports :: PSCiState -> P.Exports
-psciExports (PSCiState _ _ _ _ _ x) = x
+psciExports (PSCiState _ _ _ _ _ x _) = x
 
 initialPSCiState :: PSCiState
-initialPSCiState = PSCiState [preludeModule] [] [] initialInteractivePrint nullImports primExports
+initialPSCiState = PSCiState [preludeModule] [] [] initialInteractivePrint nullImports primExports "> "
 
 preludeModule :: ImportedModule
 preludeModule = (P.ModuleName [P.ProperName "Prelude"], P.Implicit, Nothing)
@@ -121,12 +122,12 @@ psciImportedModuleNames st =
 -- handling completions. This function must be called whenever the PSCiState is modified to
 -- ensure that completions remain accurate.
 updateImportExports :: PSCiState -> PSCiState
-updateImportExports st@(PSCiState modules lets externs iprint _ _) =
+updateImportExports st@(PSCiState modules lets externs iprint _ _ v) =
   case createEnv (map snd externs) >>= flip desugarModule [temporaryModule] of
     Left _          -> st -- TODO: can this fail and what should we do?
     Right (env, _)  ->
       case M.lookup temporaryName env of
-        Just (_, is, es)  -> PSCiState modules lets externs iprint is es
+        Just (_, is, es)  -> PSCiState modules lets externs iprint is es v
         _                 -> st -- impossible
   where
 
@@ -155,24 +156,32 @@ updateImportExports st@(PSCiState modules lets externs iprint _ _) =
 
 -- | Updates the imported modules in the state record.
 updateImportedModules :: ([ImportedModule] -> [ImportedModule]) -> PSCiState -> PSCiState
-updateImportedModules f (PSCiState x a b c d e) =
-  updateImportExports (PSCiState (f x) a b c d e)
+updateImportedModules f (PSCiState x a b c d e v) =
+  updateImportExports (PSCiState (f x) a b c d e v)
 
 -- | Updates the loaded externs files in the state record.
 updateLoadedExterns :: ([(P.Module, P.ExternsFile)] -> [(P.Module, P.ExternsFile)]) -> PSCiState -> PSCiState
-updateLoadedExterns f (PSCiState a b x c d e) =
-  updateImportExports (PSCiState a b (f x) c d e)
+updateLoadedExterns f (PSCiState a b x c d e v) =
+  updateImportExports (PSCiState a b (f x) c d e v)
 
 -- | Updates the let bindings in the state record.
 updateLets :: ([P.Declaration] -> [P.Declaration]) -> PSCiState -> PSCiState
-updateLets f (PSCiState a x b c d e) =
-  updateImportExports (PSCiState a (f x) b c d e)
+updateLets f (PSCiState a x b c d e v) =
+  updateImportExports (PSCiState a (f x) b c d e v)
 
 -- | Replaces the interactive printing function in the state record with a new
 -- one.
 setInteractivePrint :: (P.ModuleName, P.Ident) -> PSCiState -> PSCiState
-setInteractivePrint iprint (PSCiState a b c _ d e) =
-  PSCiState a b c iprint d e
+setInteractivePrint iprint (PSCiState a b c _ d e v) =
+  PSCiState a b c iprint d e v
+
+
+setVal :: (String, String) -> PSCiState -> PSCiState
+setVal (s1,s2) (PSCiState a b c k d e v) =
+  PSCiState a b c k d e s2
+
+getVal :: PSCiState -> String
+getVal (PSCiState a b c k d e v) = v 
 
 -- * Commands
 
@@ -208,6 +217,7 @@ data Command
   | CompleteStr String
   -- | Set the interactive printing function
   | SetInteractivePrint (P.ModuleName, P.Ident)
+  | Setval String String
   deriving Show
 
 data ReplQuery
@@ -246,4 +256,5 @@ data Directive
   | Paste
   | Complete
   | Print
+  | Set
   deriving (Eq, Show)
