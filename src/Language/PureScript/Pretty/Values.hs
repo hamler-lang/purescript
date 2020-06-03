@@ -75,6 +75,8 @@ prettyPrintValue d (TypeClassDictionaryConstructorApp className ps) =
 prettyPrintValue d (Case values binders) =
   (text "case " <> foldr beforeWithSpace (text "of") (map (prettyPrintValueAtom (d - 1)) values))
     // moveRight 2 (vcat left (map (prettyPrintCaseAlternative (d - 1)) binders))
+prettyPrintValue d (List exprs expr) =
+  text "list: " <> foldr beforeWithSpace (text " | ") (map (prettyPrintValueAtom (d - 1)) exprs) <> ((prettyPrintValueAtom (d - 1)) expr)
 prettyPrintValue d (Let FromWhere ds val) =
   prettyPrintValue (d - 1) val
     // moveRight

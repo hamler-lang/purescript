@@ -265,12 +265,13 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
     in return $ iife (properToJs ctor) [ constructor
                           , AST.Assignment Nothing (accessorString "create" (AST.Var Nothing (properToJs ctor))) createFn
                           ]
+  valueToJs' x = error $ show x
 
   iife :: Text -> [AST] -> AST
   iife v exprs = AST.App Nothing (AST.Function Nothing Nothing [] (AST.Block Nothing $ exprs ++ [AST.Return Nothing $ AST.Var Nothing v])) []
 
   literalToValueJS :: SourceSpan -> Literal (Expr Ann) -> m AST
-  literalToValueJS _ x  = error $ show x
+  -- literalToValueJS _ x  = error $ show x
   literalToValueJS ss (NumericLiteral (Left i)) = return $ AST.NumericLiteral (Just ss) (Left i)
   literalToValueJS ss (NumericLiteral (Right n)) = return $ AST.NumericLiteral (Just ss) (Right n)
   literalToValueJS ss (StringLiteral s) = return $ AST.StringLiteral (Just ss) s

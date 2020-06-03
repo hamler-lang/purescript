@@ -562,7 +562,9 @@ doListBlock :: { ListComp () }
       {%% revert $ do
         res <- parseDoListStatement
         when (null res) $ addFailure [$3] ErrEmptyDo
-        pure $ ListComp $1 (NE.fromList res) $2
+        case res of
+          [DoDiscard expr1] -> pure $ ListList $2 expr1
+          _ -> pure $ ListComp $1 (NE.fromList res) $2
       }
 
 doListStatement :: { [DoStatement ()] }
