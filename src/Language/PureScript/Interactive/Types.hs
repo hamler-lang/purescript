@@ -26,6 +26,8 @@ module Language.PureScript.Interactive.Types
   , replQueryStrings
   , showReplQuery
   , parseReplQuery
+  , getVal
+  , setVal
   , Directive(..)
   ) where
 
