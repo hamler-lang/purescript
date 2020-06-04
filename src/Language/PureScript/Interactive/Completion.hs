@@ -132,6 +132,7 @@ completeDirective ws w =
 directiveArg :: [String] -> Directive -> [CompletionContext]
 directiveArg [] Browse = [CtxModule]                    -- only complete very next term
 directiveArg [] Show   = map CtxFixed replQueryStrings  -- only complete very next term
+directiveArg [] Set   = map CtxFixed ["prompt"]  -- only complete very next term
 directiveArg _ Type    = [CtxIdentifier]
 directiveArg _ Kind    = [CtxType ""]
 directiveArg _ _       = []

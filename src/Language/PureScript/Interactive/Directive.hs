@@ -34,6 +34,7 @@ directiveStrings =
     , (Paste     , ["paste"])
     , (Complete  , ["complete"])
     , (Print     , ["print"])
+    , (Set      ,  ["set"])
     ]
 
 -- |
@@ -98,5 +99,6 @@ help =
   , (Paste,    "paste",     "Enter multiple lines, terminated by ^D")
   , (Complete, "<prefix>",  "Show completions for <prefix> as if pressing tab")
   , (Print,    "<fn>",      "Set the repl's printing function to <fn> (which must be fully qualified)")
+  , (Set,      "pro val",   "Set the pro's val")
   ]
 
