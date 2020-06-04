@@ -108,15 +108,16 @@ parseDirective cmd =
     Type     -> TypeOf . CST.convertExpr "" <$> parseRest (parseOne CST.parseExprP) arg
     Kind     -> KindOf . CST.convertType "" <$> parseRest (parseOne CST.parseTypeP) arg
     Complete -> return (CompleteStr arg)
-    Set      -> return $ doArg arg
+    Set      -> doArg arg
     Print
       | arg == "" -> return $ ShowInfo QueryPrint
       | otherwise -> SetInteractivePrint <$> parseRest (parseOne parseFullyQualifiedIdent) arg
 
-doArg :: String -> Command
-doArg s = let (a,b) = break isSpace s 
-          in Setval a b
--- |
+doArg :: String -> Either String Command
+doArg s = case words s of 
+          ["prompt", v] ->Right $ Setval v v
+          _ -> Left $ "unknow command " ++  s
+
 -- Parses expressions entered at the PSCI repl.
 --
 psciExpression :: CST.Parser Command
