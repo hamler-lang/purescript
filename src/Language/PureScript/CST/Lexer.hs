@@ -296,7 +296,7 @@ token = peek >>= maybe (pure TokEof) k0
       Just (ch2', inp2) | isSymbolChar ch2' ->
         ksucc inp2 $ operator [] [ch1, ch2']
       Just (ch2', _) | (ch2' /= '\r') && (ch2' /= '\n') && (ch2' /= ' ') && (not $ Char.isDigit ch2') && (not $ Char.isUpper ch2') ->
-                          let (a,b) = Text.span (not . isStringGapChar) inp
+                          let (a,b) = Text.span isAtomElem inp
                           in ksucc b $ pure $ TokAtom a
       _ ->
         ksucc inp $ pure tok1
@@ -731,3 +731,6 @@ isUnquotedKey t =
       False
     Just (hd, tl) ->
       isIdentStart hd && Text.all isIdentChar tl
+
+isAtomElem :: Char -> Bool
+isAtomElem c = Char.isDigit c || Char.isUpper c || Char.isLower c
