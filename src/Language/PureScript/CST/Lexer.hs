@@ -733,4 +733,4 @@ isUnquotedKey t =
       isIdentStart hd && Text.all isIdentChar tl
 
 isAtomElem :: Char -> Bool
-isAtomElem c = Char.isDigit c || Char.isUpper c || Char.isLower c
+isAtomElem c = Char.isDigit c || Char.isUpper c || Char.isLower c || (c=='_')
