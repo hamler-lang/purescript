@@ -286,10 +286,16 @@ renameInModule imports (Module modSS coms mn decls exps) =
     :: (SourceSpan, [Ident])
     -> Binder
     -> m ((SourceSpan, [Ident]), Binder)
-  updateBinder (_, bound) v@(PositionedBinder pos _ _) =
+  updateBinder (_, bound) v@(PositionedBinder pos _ c) = do
+    (_,v) <- updateBinder (pos,bound) c
     return ((pos, bound), v)
   updateBinder (_, bound) (ConstructorBinder ss name b) =
-    (,) (ss, bound) <$> (ConstructorBinder ss <$> updateDataConstructorName name ss <*> pure b)
+    (,) (ss, bound) <$> (ConstructorBinder ss <$>  updateDataConstructorName name ss <*> pure b)
+  updateBinder (ss, bound) (ListBinder xs x) =
+    (,) (ss, bound) <$> ( do
+                            xs' <- forM xs $ \v -> snd <$> updateBinder (ss,bound) v
+                            return $ ListBinder xs' x
+                        )
   updateBinder (_, bound) (OpBinder ss op) =
     (,) (ss, bound) <$> (OpBinder ss <$> updateValueOpName op ss)
   updateBinder s (TypedBinder t b) = do

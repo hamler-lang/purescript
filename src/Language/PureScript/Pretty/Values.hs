@@ -242,6 +242,17 @@ prettyPrintBinderAtom (BinaryBinder xs) =
           xs
       )
     Monoid.<> ">>"
+prettyPrintBinderAtom (ListBinder xs x) =
+  "["
+    Monoid.<> T.intercalate
+      ","
+      ( map prettyPrintBinderAtom xs
+      )
+    Monoid.<> "|"
+    Monoid.<>
+    prettyPrintBinderAtom x
+    Monoid.<> "]"
+
 prettyPrintBinderAtom (PositionedBinder _ _ binder) = prettyPrintBinderAtom binder
 prettyPrintBinderAtom (TypedBinder _ binder) = prettyPrintBinderAtom binder
 prettyPrintBinderAtom (OpBinder _ op) = runOpName (disqualify op)

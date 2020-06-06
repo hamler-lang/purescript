@@ -125,6 +125,21 @@ missingCasesSingle env mn NullBinder cb@(ConstructorBinder ss con _) =
 missingCasesSingle env mn cb@(ConstructorBinder ss con bs) (ConstructorBinder _ con' bs')
   | con == con' = let (bs'', pr) = missingCasesMultiple env mn bs bs' in (map (ConstructorBinder ss con) bs'', pr)
   | otherwise = ([cb], return False)
+missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral a b)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder] [a,b]
+        bs2 = map (\[k1,k2] -> (LiteralBinder ss (TupleLiteral k1 k2))) bs1
+missingCasesSingle env mn (LiteralBinder _ (TupleLiteral a0 b0)) (LiteralBinder ss (TupleLiteral a b)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0] [a,b]
+        bs2 = map (\[k1,k2] -> (LiteralBinder ss (TupleLiteral k1 k2))) bs1
+missingCasesSingle env mn NullBinder (LiteralBinder ss (ListLiteral [])) = (bs1,pr1)
+  where (bs1,pr1) = ([ListBinder [NullBinder] NullBinder],return False)
+missingCasesSingle env mn (LiteralBinder ss0 (ListLiteral [])) (LiteralBinder ss (ListLiteral [])) = ([],return True)
+missingCasesSingle env mn NullBinder (ListBinder [xs0] (PositionedBinder _ _ (VarBinder ss _))) = (bs2,pr2)
+  where (bs1,pr1) = missingCasesSingle env mn NullBinder xs0
+        (bs2,pr2) = ( (LiteralBinder ss (ListLiteral [])) : [ListBinder [b] NullBinder | b <- bs1 ] ,pr1)
+missingCasesSingle env mn (ListBinder [xs0] _) (ListBinder [xs] (PositionedBinder _ _ (VarBinder ss _))) = (bs2,pr2)
+  where (bs1,pr1) = missingCasesSingle env mn xs0 xs
+        (bs2,pr2) = ([ListBinder [b] NullBinder | b <- bs1 ] ,pr1)
 missingCasesSingle env mn NullBinder (LiteralBinder ss (ObjectLiteral bs)) =
   (map (LiteralBinder ss . ObjectLiteral . zip (map fst bs)) allMisses, pr)
   where
