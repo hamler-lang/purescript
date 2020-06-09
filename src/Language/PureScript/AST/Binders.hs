@@ -69,7 +69,7 @@ instance Show Binder where
   show NullBinder = " _ "
   show (LiteralBinder _ l) = "LiteralB " <> show l
   show (VarBinder _ i) = "VarB " <> show i
-  show (ConstructorBinder _ q bs) = " " ++ show q 
+  show (ConstructorBinder _ q bs) = "C" ++ show q ++ " " ++ show bs
   show (OpBinder _ q) = "OpB " <> show q
   show (BinaryNoParensBinder b1 b2 b3) = "BinaryNPB " <> show b1 <> show b2 <> show b3
   show (ParensInBinder b) = "ParensInB " <> show b

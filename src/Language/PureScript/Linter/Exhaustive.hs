@@ -36,7 +36,6 @@ import Language.PureScript.Pretty.Values (prettyPrintBinderAtom)
 import Language.PureScript.Traversals
 import Language.PureScript.Types as P
 import qualified Language.PureScript.Constants as C
-import Debug.Trace
 
 -- | There are two modes of failure for the redundancy check:
 --
@@ -172,20 +171,18 @@ missingCasesSingle env mn (LiteralBinder _ (TupleLiteral7 a0 b0 c0 d0 e0 f0 g0))
   where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0,e0,f0,g0] [a,b,c,d,e,f,g]
         bs2 = map (\[k1,k2,k3,k4,k5,k6,k7] -> (LiteralBinder ss (TupleLiteral7 k1 k2 k3 k4 k5 k6 k7))) bs1
 
--- missingCasesSingle env mn NullBinder (LiteralBinder ss (ListLiteral [])) = (bs1,pr1)
---   where (bs1,pr1) = ([ListBinder [NullBinder] NullBinder],return False)
+missingCasesSingle env mn NullBinder (LiteralBinder ss (ListLiteral [])) = (bs1,pr1)
+  where (bs1,pr1) = ([ListBinder [NullBinder] NullBinder], return True)
 
+missingCasesSingle env mn NullBinder (ListBinder [xs0] xs) = (n:bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder, NullBinder] [xs0,xs]
+        bs2 = map (\[k1,k2] -> ListBinder [k1] k2) bs1
+        n = LiteralBinder undefined (ListLiteral [])
 
-
--- missingCasesSingle env mn (LiteralBinder ss0 (ListLiteral [])) (LiteralBinder ss (ListLiteral [])) = ([],return True)
-
-
--- missingCasesSingle env mn NullBinder (ListBinder [xs0] (PositionedBinder _ _ (VarBinder ss _))) = (bs2,pr2)
---   where (bs1,pr1) = missingCasesSingle env mn NullBinder xs0
---         (bs2,pr2) = ( (LiteralBinder ss (ListLiteral [])) : [ListBinder [b] NullBinder | b <- bs1 ] ,pr1)
--- missingCasesSingle env mn (ListBinder [xs0] _) (ListBinder [xs] (PositionedBinder _ _ (VarBinder ss _))) = (bs2,pr2)
---   where (bs1,pr1) = missingCasesSingle env mn xs0 xs
---         (bs2,pr2) = ([ListBinder [b] NullBinder | b <- bs1 ] ,pr1)
+missingCasesSingle env mn (LiteralBinder ss0 (ListLiteral [])) (LiteralBinder ss (ListLiteral [])) = ([],return True)
+missingCasesSingle env mn (ListBinder [xs0] ys0) (ListBinder [xs] ys) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [xs0,ys0] [xs,ys]
+        bs2 = map (\[k1,k2] -> ListBinder [k1] k2) bs1
 
 missingCasesSingle env mn NullBinder (LiteralBinder ss (ObjectLiteral bs)) =
   (map (LiteralBinder ss . ObjectLiteral . zip (map fst bs)) allMisses, pr)
@@ -248,11 +245,12 @@ missingCasesMultiple env mn = go
   where
   go (x:xs) (y:ys) = let t = map (: xs) miss1 ++ map (x :) miss2
                          b = liftA2 (&&) pr1 pr2
-    in (trace ("end: === " <> show t <> " +++++ " <> show b) t, b)
+                     in (t, b)
     where
-    (miss1, pr1) = missingCasesSingle env mn (trace ("exist: " <> show x <> " -> input: " <> show y) x) y
+    (miss1, pr1) = missingCasesSingle env mn (x) y
     (miss2, pr2) = go xs ys
-  go a b = ([], trace ("otherPat: ... "  <> show a <> "   " <> show b ) $ pure True)
+  go _ _ = ([], pure True)
+
 
 -- |
 -- Guard handling
@@ -330,7 +328,7 @@ checkExhaustive ss env mn numArgs cas expr = makeResult . first ordNub $ foldl' 
 
   makeResult :: ([[Binder]], (Either RedundancyError Bool, [[Binder]])) -> m Expr
   makeResult (bss, (rr, bss')) =
-    do unless (null (trace ("result: >>>> " <> show bss') bss')) tellRedundant
+    do unless (null bss') tellRedundant
        case rr of
          Left Incomplete -> tellIncomplete
          _ -> return ()

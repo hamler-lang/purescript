@@ -506,14 +506,17 @@ convertBinder fileName = go
         vals = case bs of
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
-      positioned ann . AST.LiteralBinder (fst ann) $ AST.ListLiteral vals
+      case vals of
+        [] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.ListLiteral []
+        xs -> positioned ann $ reBuild xs (AST.LiteralBinder (fst ann) $ AST.ListLiteral [])
     BinderList _ (Wrapped a bs c) b-> do
       let
         ann = sourceAnnCommented fileName a c
         vals = case bs of
           Just (Separated x xs) -> go x : (go . snd <$> xs)
           Nothing -> []
-      positioned ann $ AST.ListBinder vals (go b)
+      -- positioned ann $ AST.ListBinder vals (go b)
+      positioned ann $ reBuild vals (go b)
     BinderMap _ (Wrapped _ bs _) -> do
       let
         vals = case bs of
@@ -539,6 +542,7 @@ convertBinder fileName = go
         [m1,m2,m3,m4,m5] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral5 m1 m2 m3 m4 m5
         [m1,m2,m3,m4,m5,m6] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral6 m1 m2 m3 m4 m5 m6
         [m1,m2,m3,m4,m5,m6,m7] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral7 m1 m2 m3 m4 m5 m6 m7
+
     BinderRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
@@ -786,3 +790,9 @@ tT x = error $ show x
 intValToBinaryLit :: BinaryVal a -> (Integer,Integer)
 intValToBinaryLit (IntVal i (Just b)) = (i,b)
 intValToBinaryLit (IntVal i Nothing) = (i,8)
+
+
+reBuild :: [AST.Binder] -> AST.Binder -> AST.Binder
+reBuild [] s = error $ show s  -- AST.ListBinder [x] (AST.LiteralBinder undefined $ AST.ListLiteral [])
+reBuild [x] s = AST.ListBinder [x] s
+reBuild (x:xs) s = AST.ListBinder [x] (reBuild xs s)
