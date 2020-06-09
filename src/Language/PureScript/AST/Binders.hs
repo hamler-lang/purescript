@@ -12,8 +12,7 @@ import Language.PureScript.Comments
 import Language.PureScript.Types
 import Data.Text(Text)
 
--- |
--- Data type for binders
+-- | Data type for binders
 --
 data Binder
   -- |
@@ -65,7 +64,22 @@ data Binder
   | MapBinder [(Binder, Binder)]
   | BinaryBinder [(Binder, Maybe Integer, Maybe [Text])]
   | ListBinder [Binder] Binder
-  deriving (Show)
+  -- deriving (Show)
+instance Show Binder where
+  show NullBinder = " _ "
+  show (LiteralBinder _ l) = "LiteralB " <> show l
+  show (VarBinder _ i) = "VarB " <> show i
+  show (ConstructorBinder _ q bs) = " " ++ show q 
+  show (OpBinder _ q) = "OpB " <> show q
+  show (BinaryNoParensBinder b1 b2 b3) = "BinaryNPB " <> show b1 <> show b2 <> show b3
+  show (ParensInBinder b) = "ParensInB " <> show b
+  show (NamedBinder _ i b) = "NameB " <> show i <> " " <> show b
+  show (PositionedBinder _ _ b) = "PositionB " <> show b
+  show (TypedBinder _ b) = "TypeB " <> show b
+  show (MapBinder xs ) = "MapBindere " <> show xs
+  show (BinaryBinder xs) = "BinaryB " <> show xs 
+  show (ListBinder bs b) = "ListB " <> show bs <> " " <> show b
+
 
 -- Manual Eq and Ord instances for `Binder` were added on 2018-03-05. Comparing
 -- the `SourceSpan` values embedded in some of the data constructors of `Binder`

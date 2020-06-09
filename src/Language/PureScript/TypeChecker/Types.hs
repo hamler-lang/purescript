@@ -877,7 +877,7 @@ inferBinder val (LiteralBinder _ (TupleLiteral6 a b c d e f)) = do
 
 
 
-  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple5 el1) el2) el3) el4) el5) el6)
+  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple6 el1) el2) el3) el4) el5) el6)
   let m1 = M.unions [a', b',c', d', e',f']
   return m1
 
@@ -919,7 +919,7 @@ inferBinder val (LiteralBinder _ (TupleLiteral7 a b c d e f g)) = do
 
 
 
-  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple5 el1) el2) el3) el4) el5) el6) el7)
+  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple7 el1) el2) el3) el4) el5) el6) el7)
   let m1 = M.unions [a', b',c', d', e',f',g']
   return m1
 

@@ -36,6 +36,7 @@ import Language.PureScript.Pretty.Values (prettyPrintBinderAtom)
 import Language.PureScript.Traversals
 import Language.PureScript.Types as P
 import qualified Language.PureScript.Constants as C
+import Debug.Trace
 
 -- | There are two modes of failure for the redundancy check:
 --
@@ -43,7 +44,7 @@ import qualified Language.PureScript.Constants as C
 -- 2. We didn't attempt to determine redundancy for a binder, e.g. an integer binder.
 --
 -- We want to warn the user in the first case.
-data RedundancyError = Incomplete | Unknown
+data RedundancyError = Incomplete | Unknown deriving (Show)
 
 -- |
 -- Qualifies a propername from a given qualified propername and a default module name
@@ -117,6 +118,7 @@ missingCasesSingle _ _ _ NullBinder = ([], return True)
 missingCasesSingle _ _ _ (VarBinder _ _) = ([], return True)
 missingCasesSingle env mn (VarBinder _ _) b = missingCasesSingle env mn NullBinder b
 missingCasesSingle env mn br (NamedBinder _ _ bl) = missingCasesSingle env mn br bl
+
 missingCasesSingle env mn NullBinder cb@(ConstructorBinder ss con _) =
   (concatMap (\cp -> fst $ missingCasesSingle env mn cp cb) allPatterns, return True)
   where
@@ -125,21 +127,66 @@ missingCasesSingle env mn NullBinder cb@(ConstructorBinder ss con _) =
 missingCasesSingle env mn cb@(ConstructorBinder ss con bs) (ConstructorBinder _ con' bs')
   | con == con' = let (bs'', pr) = missingCasesMultiple env mn bs bs' in (map (ConstructorBinder ss con) bs'', pr)
   | otherwise = ([cb], return False)
+
+
+
 missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral a b)) = (bs2,pr1)
   where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder] [a,b]
         bs2 = map (\[k1,k2] -> (LiteralBinder ss (TupleLiteral k1 k2))) bs1
 missingCasesSingle env mn (LiteralBinder _ (TupleLiteral a0 b0)) (LiteralBinder ss (TupleLiteral a b)) = (bs2,pr1)
   where (bs1,pr1) = missingCasesMultiple env mn [a0,b0] [a,b]
         bs2 = map (\[k1,k2] -> (LiteralBinder ss (TupleLiteral k1 k2))) bs1
-missingCasesSingle env mn NullBinder (LiteralBinder ss (ListLiteral [])) = (bs1,pr1)
-  where (bs1,pr1) = ([ListBinder [NullBinder] NullBinder],return False)
-missingCasesSingle env mn (LiteralBinder ss0 (ListLiteral [])) (LiteralBinder ss (ListLiteral [])) = ([],return True)
-missingCasesSingle env mn NullBinder (ListBinder [xs0] (PositionedBinder _ _ (VarBinder ss _))) = (bs2,pr2)
-  where (bs1,pr1) = missingCasesSingle env mn NullBinder xs0
-        (bs2,pr2) = ( (LiteralBinder ss (ListLiteral [])) : [ListBinder [b] NullBinder | b <- bs1 ] ,pr1)
-missingCasesSingle env mn (ListBinder [xs0] _) (ListBinder [xs] (PositionedBinder _ _ (VarBinder ss _))) = (bs2,pr2)
-  where (bs1,pr1) = missingCasesSingle env mn xs0 xs
-        (bs2,pr2) = ([ListBinder [b] NullBinder | b <- bs1 ] ,pr1)
+
+missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral3 a b c)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder] [a,b,c]
+        bs2 = map (\[k1,k2,k3] -> (LiteralBinder ss (TupleLiteral3 k1 k2 k3))) bs1
+missingCasesSingle env mn (LiteralBinder _ (TupleLiteral3 a0 b0 c0)) (LiteralBinder ss (TupleLiteral3 a b c)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0] [a,b,c]
+        bs2 = map (\[k1,k2,k3] -> (LiteralBinder ss (TupleLiteral3 k1 k2 k3))) bs1
+
+missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral4 a b c d)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder,NullBinder] [a,b,c,d]
+        bs2 = map (\[k1,k2,k3,k4] -> (LiteralBinder ss (TupleLiteral4 k1 k2 k3 k4))) bs1
+missingCasesSingle env mn (LiteralBinder _ (TupleLiteral4 a0 b0 c0 d0)) (LiteralBinder ss (TupleLiteral4 a b c d)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0] [a,b,c,d]
+        bs2 = map (\[k1,k2,k3,k4] -> (LiteralBinder ss (TupleLiteral4 k1 k2 k3 k4))) bs1
+
+missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral5 a b c d e)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder,NullBinder,NullBinder] [a,b,c,d,e]
+        bs2 = map (\[k1,k2,k3,k4,k5] -> (LiteralBinder ss (TupleLiteral5 k1 k2 k3 k4 k5))) bs1
+missingCasesSingle env mn (LiteralBinder _ (TupleLiteral5 a0 b0 c0 d0 e0)) (LiteralBinder ss (TupleLiteral5 a b c d e)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0,e0] [a,b,c,d,e]
+        bs2 = map (\[k1,k2,k3,k4,k5] -> (LiteralBinder ss (TupleLiteral5 k1 k2 k3 k4 k5))) bs1
+
+missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral6 a b c d e f)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder,NullBinder,NullBinder,NullBinder] [a,b,c,d,e,f]
+        bs2 = map (\[k1,k2,k3,k4,k5,k6] -> (LiteralBinder ss (TupleLiteral6 k1 k2 k3 k4 k5 k6))) bs1
+missingCasesSingle env mn (LiteralBinder _ (TupleLiteral6 a0 b0 c0 d0 e0 f0)) (LiteralBinder ss (TupleLiteral6 a b c d e f)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0,e0,f0] [a,b,c,d,e,f]
+        bs2 = map (\[k1,k2,k3,k4,k5,k6] -> (LiteralBinder ss (TupleLiteral6 k1 k2 k3 k4 k5 k6))) bs1
+
+missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral7 a b c d e f g)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder,NullBinder,NullBinder,NullBinder,NullBinder] [a,b,c,d,e,f,g]
+        bs2 = map (\[k1,k2,k3,k4,k5,k6,k7] -> (LiteralBinder ss (TupleLiteral7 k1 k2 k3 k4 k5 k6 k7))) bs1
+missingCasesSingle env mn (LiteralBinder _ (TupleLiteral7 a0 b0 c0 d0 e0 f0 g0)) (LiteralBinder ss (TupleLiteral7 a b c d e f g)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0,e0,f0,g0] [a,b,c,d,e,f,g]
+        bs2 = map (\[k1,k2,k3,k4,k5,k6,k7] -> (LiteralBinder ss (TupleLiteral7 k1 k2 k3 k4 k5 k6 k7))) bs1
+
+-- missingCasesSingle env mn NullBinder (LiteralBinder ss (ListLiteral [])) = (bs1,pr1)
+--   where (bs1,pr1) = ([ListBinder [NullBinder] NullBinder],return False)
+
+
+
+-- missingCasesSingle env mn (LiteralBinder ss0 (ListLiteral [])) (LiteralBinder ss (ListLiteral [])) = ([],return True)
+
+
+-- missingCasesSingle env mn NullBinder (ListBinder [xs0] (PositionedBinder _ _ (VarBinder ss _))) = (bs2,pr2)
+--   where (bs1,pr1) = missingCasesSingle env mn NullBinder xs0
+--         (bs2,pr2) = ( (LiteralBinder ss (ListLiteral [])) : [ListBinder [b] NullBinder | b <- bs1 ] ,pr1)
+-- missingCasesSingle env mn (ListBinder [xs0] _) (ListBinder [xs] (PositionedBinder _ _ (VarBinder ss _))) = (bs2,pr2)
+--   where (bs1,pr1) = missingCasesSingle env mn xs0 xs
+--         (bs2,pr2) = ([ListBinder [b] NullBinder | b <- bs1 ] ,pr1)
+
 missingCasesSingle env mn NullBinder (LiteralBinder ss (ObjectLiteral bs)) =
   (map (LiteralBinder ss . ObjectLiteral . zip (map fst bs)) allMisses, pr)
   where
@@ -199,11 +246,13 @@ missingCasesSingle _ _ b _ = ([b], Left Unknown)
 missingCasesMultiple :: Environment -> ModuleName -> [Binder] -> [Binder] -> ([[Binder]], Either RedundancyError Bool)
 missingCasesMultiple env mn = go
   where
-  go (x:xs) (y:ys) = (map (: xs) miss1 ++ map (x :) miss2, liftA2 (&&) pr1 pr2)
+  go (x:xs) (y:ys) = let t = map (: xs) miss1 ++ map (x :) miss2
+                         b = liftA2 (&&) pr1 pr2
+    in (trace ("end: === " <> show t <> " +++++ " <> show b) t, b)
     where
-    (miss1, pr1) = missingCasesSingle env mn x y
+    (miss1, pr1) = missingCasesSingle env mn (trace ("exist: " <> show x <> " -> input: " <> show y) x) y
     (miss2, pr2) = go xs ys
-  go _ _ = ([], pure True)
+  go a b = ([], trace ("otherPat: ... "  <> show a <> "   " <> show b ) $ pure True)
 
 -- |
 -- Guard handling
@@ -281,7 +330,7 @@ checkExhaustive ss env mn numArgs cas expr = makeResult . first ordNub $ foldl' 
 
   makeResult :: ([[Binder]], (Either RedundancyError Bool, [[Binder]])) -> m Expr
   makeResult (bss, (rr, bss')) =
-    do unless (null bss') tellRedundant
+    do unless (null (trace ("result: >>>> " <> show bss') bss')) tellRedundant
        case rr of
          Left Incomplete -> tellIncomplete
          _ -> return ()
