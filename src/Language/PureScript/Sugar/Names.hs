@@ -294,7 +294,8 @@ renameInModule imports (Module modSS coms mn decls exps) =
   updateBinder (ss, bound) (ListBinder xs x) =
     (,) (ss, bound) <$> ( do
                             xs' <- forM xs $ \v -> snd <$> updateBinder (ss,bound) v
-                            return $ ListBinder xs' x
+                            x' <- snd <$> updateBinder (ss,bound) x
+                            return $ ListBinder xs' x'
                         )
   updateBinder (_, bound) (OpBinder ss op) =
     (,) (ss, bound) <$> (OpBinder ss <$> updateValueOpName op ss)
