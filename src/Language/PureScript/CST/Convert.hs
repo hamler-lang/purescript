@@ -785,6 +785,7 @@ tT (TypeApp _ a _) = tT a
 tT (TypeConstructor _ (QualifiedName _ _ (N.ProperName t))) = t
 tT (TypeVar _ (Name _ (Ident x))) = x
 tT (TypeParens _ (Wrapped _ a _)) = tT a
+tT (TypeArr _ ta _ tb ) = tT ta <> "To" <> tT tb
 tT x = error $ show x
 
 intValToBinaryLit :: BinaryVal a -> (Integer,Integer)
