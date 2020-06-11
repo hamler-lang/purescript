@@ -100,7 +100,7 @@ instance A.ToJSON FunctionalDependency where
 
 -- | The initial environment with no values and only the default javascript types defined
 initEnvironment :: Environment
-initEnvironment = Environment M.empty allPrimTypes M.empty M.empty M.empty allPrimClasses allPrimKinds
+initEnvironment = Environment M.empty allPrimTypes M.empty (M.singleton (primName "String") ([], tyString)) M.empty allPrimClasses allPrimKinds
 
 -- | A constructor for TypeClassData that computes which type class arguments are fully determined
 -- and argument covering sets.
@@ -321,7 +321,7 @@ tyFunction = primTy "Function"
 
 -- | Type constructor for strings
 tyString :: SourceType
-tyString = primTy "String"
+tyString = TypeApp nullSourceAnn tyList tyChar
 
 tyAtom :: SourceType
 tyAtom = primTy "Atom"
