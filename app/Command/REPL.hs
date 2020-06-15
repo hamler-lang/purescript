@@ -331,7 +331,7 @@ command = loop <$> options
                 historyFilename <- getHistoryFilename
                 let settings = defaultSettings { historyFile = Just historyFilename }
                     initialState = updateLoadedExterns (const (zip (map snd modules) externs)) initialPSCiState
-                    config = PSCiConfig psciInputGlob
+                    config = PSCiConfig psciInputGlob ".tmp"
                     runner = flip runReaderT config
                              . flip evalStateT initialState
                              . runInputT (setComplete completion settings)

@@ -46,8 +46,9 @@ import           Control.Monad.Writer.Strict (runWriterT)
 --
 -- These configuration values do not change during execution.
 --
-newtype PSCiConfig = PSCiConfig
+data PSCiConfig = PSCiConfig
   { psciFileGlobs :: [String]
+  , moduleDirs :: FilePath
   } deriving Show
 
 -- | The PSCI state.
