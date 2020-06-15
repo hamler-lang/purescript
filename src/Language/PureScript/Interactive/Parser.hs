@@ -45,7 +45,9 @@ parseCommand :: String -> Either String [Command]
 parseCommand cmdString =
   case cmdString of
     (':' : cmd) -> pure <$> parseDirective cmd
-    _ -> parseRest (mergeDecls <$> parseMany psciCommand) cmdString
+    _ -> case parseRest (mergeDecls <$> parseMany psciCommand) cmdString of
+           Right a -> Right a
+           Left b -> parseRest1 (mergeDecls <$> psciTopBinding) cmdString
   where
   mergeDecls (Decls as : bs) =
     case mergeDecls bs of
@@ -70,6 +72,15 @@ parseRest p =
     . CST.lexTopLevel
     . T.pack
 
+
+
+parseRest1 :: CST.Parser a -> String -> Either String a
+parseRest1 p =
+   first (CST.prettyPrintError . NE.head)
+    . CST.runTokenParser p
+    . CST.lex
+    . T.pack
+
 psciCommand :: CST.Parser Command
 psciCommand =
   CSTM.oneOf $ NE.fromList
@@ -77,6 +88,7 @@ psciCommand =
     , psciDeclaration
     , psciExpression
     ]
+
 
 trim :: String -> String
 trim = trimEnd . trimStart
@@ -114,7 +126,7 @@ parseDirective cmd =
       | otherwise -> SetInteractivePrint <$> parseRest (parseOne parseFullyQualifiedIdent) arg
 
 doArg :: String -> Either String Command
-doArg s = case words s of 
+doArg s = case words s of
           ["prompt", v] ->Right $ Setval v v
           _ -> Left $ "unknow command " ++  s
 
@@ -122,6 +134,23 @@ doArg s = case words s of
 --
 psciExpression :: CST.Parser Command
 psciExpression = Expression . CST.convertExpr "" <$> CST.parseExprP
+
+psciTopBinding :: CST.Parser [Command]
+psciTopBinding = (fmap (Decls . (CST.convertDeclaration "") )) <$> trans <$> (CST.parseTopBinding)
+
+
+trans :: CST.TopBinding a -> [CST.Declaration a]
+trans (CST.TopBinding a b s w) = flip fmap vars
+  $ \v@(CST.Name stk idt) -> CST.DeclValue a (CST.ValueBindingFields v []
+                                (CST.Unconditional s (CST.Where
+                                                      (CST.ExprLet a (CST.LetIn s
+                                                                      (NE.fromList [CST.LetBindingPattern a b s w]) s
+                                                                      (CST.ExprIdent a (CST.QualifiedName stk Nothing idt) )))
+                                                      Nothing
+                                                     )
+                                )
+                               )
+  where vars = CST.binderToNames b
 
 -- | Imports must be handled separately from other declarations, so that
 -- :show import works, for example.
