@@ -410,7 +410,7 @@ data LetBinding a
   | LetBindingPattern a (Binder a) SourceToken (Where a)
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
-data TempBinding a = TempBinding a (Binder a) SourceToken (Where a)
+data TopBinding a = TopBinding a (Binder a) SourceToken (Where a)
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
 data DoBlock a = DoBlock

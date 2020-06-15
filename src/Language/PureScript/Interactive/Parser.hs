@@ -47,7 +47,7 @@ parseCommand cmdString =
     (':' : cmd) -> pure <$> parseDirective cmd
     _ -> case parseRest (mergeDecls <$> parseMany psciCommand) cmdString of
            Right a -> Right a
-           Left b -> parseRest1 (mergeDecls <$> psciTempBinding) cmdString
+           Left b -> parseRest1 (mergeDecls <$> psciTopBinding) cmdString
   where
   mergeDecls (Decls as : bs) =
     case mergeDecls bs of
@@ -135,12 +135,12 @@ doArg s = case words s of
 psciExpression :: CST.Parser Command
 psciExpression = Expression . CST.convertExpr "" <$> CST.parseExprP
 
-psciTempBinding :: CST.Parser [Command]
-psciTempBinding = (fmap (Decls . (CST.convertDeclaration "") )) <$> trans <$> (CST.parseTempBinding)
+psciTopBinding :: CST.Parser [Command]
+psciTopBinding = (fmap (Decls . (CST.convertDeclaration "") )) <$> trans <$> (CST.parseTopBinding)
 
 
-trans :: CST.TempBinding a -> [CST.Declaration a]
-trans (CST.TempBinding a b s w) = flip fmap vars
+trans :: CST.TopBinding a -> [CST.Declaration a]
+trans (CST.TopBinding a b s w) = flip fmap vars
   $ \v@(CST.Name stk idt) -> CST.DeclValue a (CST.ValueBindingFields v []
                                 (CST.Unconditional s (CST.Where
                                                       (CST.ExprLet a (CST.LetIn s

@@ -15,7 +15,7 @@ module Language.PureScript.CST.Parser
   , parseQualIdentP
   , parse
   , PartialResult(..)
-  , parseTempBinding
+  , parseTopBinding
   ) where
 
 import Prelude hiding (lex)
@@ -44,7 +44,7 @@ import Language.PureScript.PSString (PSString)
 %name parseOperator op
 %name parseModuleBody moduleBody
 %name parseDecl decl
-%name parseTempBinding tempBinding
+%name parseTopBinding topBinding
 %partial parseImportDeclP importDeclP
 %partial parseDeclP declP
 %partial parseExprP exprP
@@ -476,8 +476,8 @@ letBinding :: { LetBinding () }
   | ident many(binderAtom) guardedDecl { LetBindingName () (ValueBindingFields $1 (NE.toList $2) $3) }
   | binder1 '=' exprWhere { LetBindingPattern () $1 $2 $3 }
 
-tempBinding :: { TempBinding () }
-  : binder1 '=' exprWhere { TempBinding () $1 $2 $3 }
+topBinding :: { TopBinding () }
+  : binder1 '=' exprWhere { TopBinding () $1 $2 $3 }
 
 
 caseBranch :: { (Separated (Binder ()), Guarded ()) }
