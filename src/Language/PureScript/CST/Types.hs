@@ -4,7 +4,6 @@
 -- an exact printer so that `print . parse = id`. Every constructor is laid out
 -- with tokens in left-to-right order. The core productions are given a slot for
 -- arbitrary annotations, however this is not used by the parser.
-
 module Language.PureScript.CST.Types where
 
 import Prelude
@@ -411,6 +410,9 @@ data LetBinding a
   | LetBindingPattern a (Binder a) SourceToken (Where a)
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
+data TempBinding a = TempBinding a (Binder a) SourceToken (Where a)
+  deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+
 data DoBlock a = DoBlock
   { doKeyword :: SourceToken
   , doStatements :: NonEmpty (DoStatement a)
@@ -485,4 +487,18 @@ extraBinder (BinderOp a _ _ _) = a
 data BinaryVal a = IntVal Integer (Maybe Integer)
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 
-
+binderToNames :: Binder a -> [Name Ident]
+binderToNames = go []
+  where
+    go ns (BinderVar _ n) = n : ns
+    go ns (BinderNamed _ n _ b) = n : go ns b
+    go ns (BinderConstructor _ _ bs) = foldl go ns bs
+    go ns (BinderArray _ (Wrapped _  (Just (Separated x xs)) _)) = foldl go ns (x: fmap snd xs )
+    go ns (BinderList _ (Wrapped _ (Just (Separated x xs)) _ ) b) = foldl go ns (b : x : fmap snd xs)
+    go ns (BinderMap _ (Wrapped _ (Just (Separated x xs)) _)) = foldl go ns (snd x : fmap (snd .snd ) xs)
+    go ns (BinderTuple _ (Wrapped _ (Just (Separated x xs)) _)) = foldl go ns (x : fmap snd xs)
+    go ns (BinderParens _ (Wrapped _ b _)) = go ns b
+    go ns (BinderTyped _ a _ _) = go ns a
+    go ns (BinderOp _ a _ b) =foldl go ns [a,b]
+    go ns (BinderBinary _ xs) = foldl go ns (fmap (\(a,b,c) -> a) xs)
+    go ns _ = ns
