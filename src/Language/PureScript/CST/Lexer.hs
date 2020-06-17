@@ -543,6 +543,7 @@ token = peek >>= maybe (pure TokEof) k0
   number :: Char -> Lexer Token
   number ch1 = peek >>= \ch2 -> case (ch1, ch2) of
     ('0', Just 'x') -> next *> hexadecimal
+    ('0', Just 'X') -> next *> hexadecimal
     (_, _) -> do
       mbInt <- integer1 ch1
       mbFraction <- fraction
