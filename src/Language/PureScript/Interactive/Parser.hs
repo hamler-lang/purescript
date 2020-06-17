@@ -47,7 +47,11 @@ parseCommand cmdString =
     (':' : cmd) -> pure <$> parseDirective cmd
     _ -> case parseRest (mergeDecls <$> parseMany psciCommand) cmdString of
            Right a -> Right a
-           Left b -> parseRest1 (mergeDecls <$> psciTopBinding) cmdString
+           Left _ -> case parseRest1 (mergeDecls <$> psciTopBinding) cmdString of
+                       Right a -> Right a
+                       Left _ -> case parseRest (mergeDecls <$> parseMany psciCommand) (removeLetPrefix cmdString) of
+                         Right a -> Right a
+                         Left _ -> parseRest1 (mergeDecls <$> psciTopBinding) (removeLetPrefix cmdString)
   where
   mergeDecls (Decls as : bs) =
     case mergeDecls bs of
@@ -58,6 +62,12 @@ parseCommand cmdString =
   mergeDecls (a : bs) =
     a : mergeDecls bs
   mergeDecls [] = []
+
+removeLetPrefix :: String -> String
+removeLetPrefix s = case ws of
+                      ("let":xs) -> unwords xs
+                      _ -> s
+  where ws = words s
 
 parseMany :: CST.Parser a -> CST.Parser [a]
 parseMany = CSTM.manyDelimited CST.TokLayoutStart CST.TokLayoutEnd CST.TokLayoutSep
