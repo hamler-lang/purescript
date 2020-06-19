@@ -128,6 +128,7 @@ everywhereOnValues f g h = (f', g', h')
     h' (NamedBinder ss name b) = h (NamedBinder ss name (h' b))
     h' (PositionedBinder pos com b) = h (PositionedBinder pos com (h' b))
     h' (TypedBinder t b) = h (TypedBinder t (h' b))
+    h' (MapBinder xs) = h (MapBinder (fmap (\(x1,x2) -> (h' x1 , h' x2)) xs))
     h' other = h other
     lit :: (a -> a) -> Literal a -> Literal a
     lit go (ListLiteral as) = ListLiteral (fmap go as)
@@ -204,6 +205,11 @@ everywhereOnValuesTopDownM f g h = (f' <=< f, g' <=< g, h' <=< h)
     h' (NamedBinder ss name b) = NamedBinder ss name <$> (h b >>= h')
     h' (PositionedBinder pos com b) = PositionedBinder pos com <$> (h b >>= h')
     h' (TypedBinder t b) = TypedBinder t <$> (h b >>= h')
+    h' (MapBinder xs) = MapBinder <$> traverse (\(x1,x2) -> do 
+                                                   x1' <- (h' <=< h) x1
+                                                   x2' <- (h' <=< h) x2
+                                                   return (x1',x2')
+                                                  ) xs
     h' other = h other
     handleCaseAlternative :: CaseAlternative -> m CaseAlternative
     handleCaseAlternative (CaseAlternative bs val) =
@@ -269,6 +275,11 @@ everywhereOnValuesM f g h = (f', g', h')
     h' (NamedBinder ss name b) = (NamedBinder ss name <$> h' b) >>= h
     h' (PositionedBinder pos com b) = (PositionedBinder pos com <$> h' b) >>= h
     h' (TypedBinder t b) = (TypedBinder t <$> h' b) >>= h
+    h' (MapBinder xs) = (MapBinder <$> traverse (\(x1,x2) -> do
+                                                      x1' <- h' x1
+                                                      x2' <- h' x2
+                                                      return (x1',x2')
+                                                       ) xs ) >>= h
     h' other = h other
     handleCaseAlternative :: CaseAlternative -> m CaseAlternative
     handleCaseAlternative (CaseAlternative bs val) =
@@ -337,6 +348,7 @@ everythingOnValues (<>.) f g h i j = (f', g', h', i', j')
     h' b@(NamedBinder _ _ b1) = h b <>. h' b1
     h' b@(PositionedBinder _ _ b1) = h b <>. h' b1
     h' b@(TypedBinder _ b1) = h b <>. h' b1
+    h' b@(MapBinder xs) = foldl (<>.) (h b) (fmap h' $ concat $ fmap (\(x1,x2) -> [x1,x2]) xs )
     h' b = h b
     lit :: r -> (a -> r) -> Literal a -> r
     lit r go (ListLiteral as) = foldl (<>.) r (fmap go as)
@@ -420,6 +432,7 @@ everythingWithContextOnValues s0 r0 (<>.) f g h i j = (f'' s0, g'' s0, h'' s0, i
     h' s (NamedBinder _ _ b1) = h'' s b1
     h' s (PositionedBinder _ _ b1) = h'' s b1
     h' s (TypedBinder _ b1) = h'' s b1
+    h' s (MapBinder xs) = foldl (<>.) r0 (fmap (h'' s) $ concat $ fmap (\(x1,x2) -> [x1,x2]) xs )
     h' _ _ = r0
     lit :: (s -> a -> r) -> s -> Literal a -> r
     lit go s (ListLiteral as) = foldl (<>.) r0 (fmap (go s) as)
@@ -500,6 +513,11 @@ everywhereWithContextOnValuesM s0 f g h i j = (f'' s0, g'' s0, h'' s0, i'' s0, j
     h' s (NamedBinder ss name b) = NamedBinder ss name <$> h'' s b
     h' s (PositionedBinder pos com b) = PositionedBinder pos com <$> h'' s b
     h' s (TypedBinder t b) = TypedBinder t <$> h'' s b
+    h' s (MapBinder xs) = MapBinder <$> traverse (\(x1,x2) -> do 
+                                                      x1' <- h'' s x1
+                                                      x2' <- h'' s x2
+                                                      return (x1', x2')
+                                                      ) xs
     h' _ other = return other
     lit :: (s -> a -> m a) -> s -> Literal a -> m (Literal a)
     lit go s (ListLiteral as) = ListLiteral <$> traverse (go s) as
@@ -631,6 +649,7 @@ everythingWithScope f g h i j = (f'', g'', h'', i'', \s -> snd . j'' s)
     h' s (NamedBinder _ name b1) = h'' (S.insert (LocalIdent name) s) b1
     h' s (PositionedBinder _ _ b1) = h'' s b1
     h' s (TypedBinder _ b1) = h'' s b1
+    h' s (MapBinder xs) = foldMap (h'' s) (concat $ fmap (\(x1,x2) -> [x1,x2]) xs)
     h' _ _ = mempty
     lit :: (S.Set ScopedIdent -> a -> r) -> S.Set ScopedIdent -> Literal a -> r
     lit go s (ListLiteral as) = foldMap (go s) as
