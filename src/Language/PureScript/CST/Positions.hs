@@ -48,6 +48,7 @@ tokenDelta = \case
   TokForall Unicode        -> (0, 1)
   TokEquals                -> (0, 1)
   TokPipe                  -> (0, 1)
+  TokMapLeftBrace          -> (0, 2)
   TokTick                  -> (0, 1)
   TokDot                   -> (0, 1)
   TokComma                 -> (0, 1)

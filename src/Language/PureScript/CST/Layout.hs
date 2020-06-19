@@ -295,6 +295,9 @@ insertLayout src@(SourceToken tokAnn tok) nextPos stack =
     TokOperator _ "<<" ->
       state & insertDefault & pushStack tokPos LytParen
 
+    TokMapLeftBrace ->
+      state & insertDefault & pushStack tokPos LytBrace & pushStack tokPos LytProperty
+
     TokLeftBrace ->
       state & insertDefault & pushStack tokPos LytBrace & pushStack tokPos LytProperty
 

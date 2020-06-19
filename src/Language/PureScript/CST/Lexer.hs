@@ -243,7 +243,7 @@ token = peek >>= maybe (pure TokEof) k0
     _  | Char.isDigit ch1 -> restore (== ErrNumberOutOfRange) (next *> number ch1)
        | Char.isUpper ch1 -> next *> upper [] ch1
        | isIdentStart ch1 -> next *> lower [] ch1
-       | isSymbolChar ch1 -> next *> operator [] [ch1]
+       | isSymbolChar ch1 -> next *> orSymbol ch1
        | otherwise        -> throw $ ErrLexeme (Just [ch1]) []
 
   {-# INLINE orOperator1 #-}
@@ -254,6 +254,15 @@ token = peek >>= maybe (pure TokEof) k0
         ksucc inp2 $ operator [] [ch1, ch2]
       _ ->
         ksucc inp $ pure tok
+
+  {-# INLINE orSymbol #-}
+  orSymbol :: Char -> Lexer Token
+  orSymbol ch1 = join $ Parser $ \inp _ ksucc ->
+    case Text.uncons inp of
+      Just (ch2, inp2) | ch1 == '#' && ch2 == '{' ->
+        ksucc inp2 $ pure TokMapLeftBrace
+      _ ->
+        ksucc inp $ operator [] [ch1]
 
   {-# INLINE orOperator2 #-}
   orOperator2 :: Token -> Char -> Char -> Lexer Token

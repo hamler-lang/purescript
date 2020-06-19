@@ -59,6 +59,7 @@ data Token
   | TokForall !SourceStyle
   | TokEquals
   | TokPipe
+  | TokMapLeftBrace
   | TokTick
   | TokDot
   | TokComma
