@@ -35,7 +35,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 116
+%expect 115
 
 %name parseKind kind
 %name parseType type
@@ -84,6 +84,7 @@ import Language.PureScript.PSString (PSString)
   '->'            { SourceToken _ (TokRightArrow _) }
   '<='            { SourceToken _ (TokOperator [] sym) | isLeftFatArrow sym }
   '=>'            { SourceToken _ (TokRightFatArrow _) }
+  '#{'            { SourceToken _ (TokMapLeftBrace) }
   ':'             { SourceToken _ (TokOperator [] ":") }
   ':='            { SourceToken _ (TokOperator [] ":=") }
   '<<'            { SourceToken _ (TokOperator [] "<<") }
@@ -441,7 +442,7 @@ exprAtom :: { Expr () }
   | delim('(', expr, ',', ')') { ExprTuple () $1 }
   | delim('{', recordLabel, ',', '}') { ExprRecord () $1 }
   | '(' expr ')' { ExprParens () (Wrapped $1 $2 $3) }
-  | '#' delim('{', kvPair, ',', '}') { ExprMapSuger () $2 }
+  | delim('#{', kvPair, ',', '}') { ExprMapSuger () $1 }
   | delim('<<', binaryVal, ',', '>>') { ExprBinary () $1 }
 
 kvPair :: {(Expr (), Expr ())}
@@ -640,7 +641,7 @@ binderAtom :: { Binder () }
   | delim('(', binder, ',', ')') { BinderTuple () $1 }
   | delim('{', recordBinder, ',', '}') { BinderRecord () $1 }
   | '(' binder ')' { BinderParens () (Wrapped $1 $2 $3) }
-  | '#' delim('{', kvPatPair, ',', '}') { BinderMap () $2 }
+  | delim('#{', kvPatPair, ',', '}') { BinderMap () $1 }
   | delim('<<', binderBinayE, ',', '>>') { BinderBinary () (myTres1 $1) }
 
 kvPatPair :: {(Binder (), Binder ())}
