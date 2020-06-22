@@ -359,180 +359,14 @@ infer' (List vals list ) = do
     return (TypedValue ch val' t')
   return $ TypedValue' True (List ts' (head tb')) (srcTypeApp tyList els)
 infer' v@(Literal ss (BinaryLiteral vals )) = return $ TypedValue' True v tyBinary
-infer' (Literal ss (TupleLiteral a b)) = do
-  a' <- infer a
-  els1 <- freshType
-  ta' <- forM [a'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els1 t'
-    return (TypedValue ch val' t')
-  b' <- infer b
-  els2 <- freshType
-  tb' <- forM [b'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els2 t'
-    return (TypedValue ch val' t')
-  return $ TypedValue' True (Literal ss (TupleLiteral (head ta') (head tb'))) (srcTypeApp (srcTypeApp tyTuple els1) els2)
-infer' (Literal ss (TupleLiteral3 a b c)) = do
-  a' <- infer a
-  els1 <- freshType
-  ta' <- forM [a'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els1 t'
-    return (TypedValue ch val' t')
-  b' <- infer b
-  els2 <- freshType
-  tb' <- forM [b'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els2 t'
-    return (TypedValue ch val' t')
-  c' <- infer c
-  els3 <- freshType
-  tc' <- forM [c'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els3 t'
-    return (TypedValue ch val' t')
-  return $ TypedValue' True (Literal ss (TupleLiteral3 (head ta') (head tb') (head tc'))) (srcTypeApp (srcTypeApp (srcTypeApp tyTuple3 els1) els2) els3)
-infer' (Literal ss (TupleLiteral4 a b c d)) = do
-  a' <- infer a
-  els1 <- freshType
-  ta' <- forM [a'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els1 t'
-    return (TypedValue ch val' t')
-  b' <- infer b
-  els2 <- freshType
-  tb' <- forM [b'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els2 t'
-    return (TypedValue ch val' t')
-  c' <- infer c
-  els3 <- freshType
-  tc' <- forM [c'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els3 t'
-    return (TypedValue ch val' t')
-  d' <- infer d
-  els4 <- freshType
-  td' <- forM [d'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els4 t'
-    return (TypedValue ch val' t')
-  return $ TypedValue' True (Literal ss (TupleLiteral4 (head ta') (head tb') (head tc') (head td'))) (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple4 els1) els2) els3) els4)
-infer' (Literal ss (TupleLiteral5 a b c d e)) = do
-  a' <- infer a
-  els1 <- freshType
-  ta' <- forM [a'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els1 t'
-    return (TypedValue ch val' t')
-  b' <- infer b
-  els2 <- freshType
-  tb' <- forM [b'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els2 t'
-    return (TypedValue ch val' t')
-  c' <- infer c
-  els3 <- freshType
-  tc' <- forM [c'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els3 t'
-    return (TypedValue ch val' t')
-  d' <- infer d
-  els4 <- freshType
-  td' <- forM [d'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els4 t'
-    return (TypedValue ch val' t')
-  e' <- infer e
-  els5 <- freshType
-  te' <- forM [e'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els5 t'
-    return (TypedValue ch val' t')
-  return $ TypedValue' True (Literal ss (TupleLiteral5 (head ta') (head tb') (head tc') (head td') (head te'))) (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple5 els1) els2) els3) els4) els5)
-infer' (Literal ss (TupleLiteral6 a b c d e f)) = do
-  a' <- infer a
-  els1 <- freshType
-  ta' <- forM [a'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els1 t'
-    return (TypedValue ch val' t')
-  b' <- infer b
-  els2 <- freshType
-  tb' <- forM [b'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els2 t'
-    return (TypedValue ch val' t')
-  c' <- infer c
-  els3 <- freshType
-  tc' <- forM [c'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els3 t'
-    return (TypedValue ch val' t')
-  d' <- infer d
-  els4 <- freshType
-  td' <- forM [d'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els4 t'
-    return (TypedValue ch val' t')
-  e' <- infer e
-  els5 <- freshType
-  te' <- forM [e'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els5 t'
-    return (TypedValue ch val' t')
-  f' <- infer f
-  els6 <- freshType
-  tf' <- forM [f'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els6 t'
-    return (TypedValue ch val' t')
-  return $ TypedValue' True (Literal ss (TupleLiteral6 (head ta') (head tb') (head tc') (head td') (head te') (head tf'))) (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple6 els1) els2) els3) els4) els5) els6)
-infer' (Literal ss (TupleLiteral7 a b c d e f g)) = do
-  a' <- infer a
-  els1 <- freshType
-  ta' <- forM [a'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els1 t'
-    return (TypedValue ch val' t')
-  b' <- infer b
-  els2 <- freshType
-  tb' <- forM [b'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els2 t'
-    return (TypedValue ch val' t')
-  c' <- infer c
-  els3 <- freshType
-  tc' <- forM [c'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els3 t'
-    return (TypedValue ch val' t')
-  d' <- infer d
-  els4 <- freshType
-  td' <- forM [d'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els4 t'
-    return (TypedValue ch val' t')
-  e' <- infer e
-  els5 <- freshType
-  te' <- forM [e'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els5 t'
-    return (TypedValue ch val' t')
-  f' <- infer f
-  els6 <- freshType
-  tf' <- forM [f'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els6 t'
-    return (TypedValue ch val' t')
-  g' <- infer g
-  els7 <- freshType
-  tg' <- forM [g'] $ \(TypedValue' ch val t) -> do
-    (val', t') <- instantiatePolyTypeWithUnknowns val t
-    unifyTypes els7 t'
-    return (TypedValue ch val' t')
-  return $ TypedValue' True (Literal ss (TupleLiteral7 (head ta') (head tb') (head tc') (head td') (head te') (head tf') (head tg'))) (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple6 els1) els2) els3) els4) els5) els6) els7)
+infer' (Literal ss (TuplesLiteral xs)) = do 
+  let inferPro val = do 
+        TypedValue' _ val' ty <- infer val 
+        instantiatePolyTypeWithUnknowns val' ty
+      toTuplesItem (_,ty) = srcTuplesItem ty
+  fields <- forM xs inferPro
+  let ty = srcTypeApp tyTuples $ tuplesFromList (fmap toTuplesItem fields, srcREmpty)
+  return  $ TypedValue' True (Literal ss (TuplesLiteral (fmap (uncurry (TypedValue True)) fields))) ty
 infer' (Literal ss (ObjectLiteral ps)) = do
   ensureNoDuplicateProperties ps
   -- We make a special case for Vars in record labels, since these are the
@@ -746,187 +580,17 @@ inferBinder val (MapBinder xs) = do
   m2 <- M.unions <$> traverse (inferBinder e2) bs2
   unifyTypes val (srcTypeApp (srcTypeApp (srcTypeConstructor $ Qualified (Just $ moduleNameFromString "Data.Map") (ProperName "Map")) e1) e2)
   return (M.unions [m1, m2])
-------------------------------------------------------------------
-inferBinder val (LiteralBinder _ (TupleLiteral a b)) = do
-  el1 <- freshType
-  a' <- do
-    at <- inferBinder el1 a
-    return at
-  el2 <- freshType
-  b' <- do
-    att <- inferBinder el2 b
-    return att
-  unifyTypes val (srcTypeApp (srcTypeApp tyTuple el1) el2)
-  let m1 = M.unions [a', b']
-  return m1
-
-
-
-inferBinder val (LiteralBinder _ (TupleLiteral3 a b c)) = do
-  el1 <- freshType
-  a' <- do
-    at <- inferBinder el1 a
-    return at
-  el2 <- freshType
-  b' <- do
-    att <- inferBinder el2 b
-    return att
-
-  el3 <- freshType
-  c' <- do
-    att <- inferBinder el3 c
-    return att
-
-  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp tyTuple3 el1) el2) el3)
-  let m1 = M.unions [a', b',c']
-  return m1
-
-
-
-
-inferBinder val (LiteralBinder _ (TupleLiteral4 a b c d)) = do
-  el1 <- freshType
-  a' <- do
-    at <- inferBinder el1 a
-    return at
-  el2 <- freshType
-  b' <- do
-    att <- inferBinder el2 b
-    return att
-
-  el3 <- freshType
-  c' <- do
-    att <- inferBinder el3 c
-    return att
-
-  el4 <- freshType
-  d' <- do
-    att <- inferBinder el4 d
-    return att
-
-
-
-  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple4 el1) el2) el3) el4)
-  let m1 = M.unions [a', b',c', d']
-  return m1
-
-
-
-inferBinder val (LiteralBinder _ (TupleLiteral5 a b c d e)) = do
-  el1 <- freshType
-  a' <- do
-    at <- inferBinder el1 a
-    return at
-  el2 <- freshType
-  b' <- do
-    att <- inferBinder el2 b
-    return att
-
-  el3 <- freshType
-  c' <- do
-    att <- inferBinder el3 c
-    return att
-
-  el4 <- freshType
-  d' <- do
-    att <- inferBinder el4 d
-    return att
-
-  el5 <- freshType
-  e' <- do
-    att <- inferBinder el5 e
-    return att
-
-
-
-  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple5 el1) el2) el3) el4) el5)
-  let m1 = M.unions [a', b',c', d', e']
-  return m1
-
-
-
-inferBinder val (LiteralBinder _ (TupleLiteral6 a b c d e f)) = do
-  el1 <- freshType
-  a' <- do
-    at <- inferBinder el1 a
-    return at
-  el2 <- freshType
-  b' <- do
-    att <- inferBinder el2 b
-    return att
-
-  el3 <- freshType
-  c' <- do
-    att <- inferBinder el3 c
-    return att
-
-  el4 <- freshType
-  d' <- do
-    att <- inferBinder el4 d
-    return att
-
-  el5 <- freshType
-  e' <- do
-    att <- inferBinder el5 e
-    return att
-
-  el6 <- freshType
-  f' <- do
-    att <- inferBinder el6 f
-    return att
-
-
-
-  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple6 el1) el2) el3) el4) el5) el6)
-  let m1 = M.unions [a', b',c', d', e',f']
-  return m1
-
-
-inferBinder val (LiteralBinder _ (TupleLiteral7 a b c d e f g)) = do
-  el1 <- freshType
-  a' <- do
-    at <- inferBinder el1 a
-    return at
-  el2 <- freshType
-  b' <- do
-    att <- inferBinder el2 b
-    return att
-
-  el3 <- freshType
-  c' <- do
-    att <- inferBinder el3 c
-    return att
-
-  el4 <- freshType
-  d' <- do
-    att <- inferBinder el4 d
-    return att
-
-  el5 <- freshType
-  e' <- do
-    att <- inferBinder el5 e
-    return att
-
-  el6 <- freshType
-  f' <- do
-    att <- inferBinder el6 f
-    return att
-
-  el7 <- freshType
-  g' <- do
-    att <- inferBinder el7 g
-    return att
-
-
-
-  unifyTypes val (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp (srcTypeApp tyTuple7 el1) el2) el3) el4) el5) el6) el7)
-  let m1 = M.unions [a', b',c', d', e',f',g']
-  return m1
-
-
-
-
-------------------------------------------------------------------
+inferBinder val (LiteralBinder _ (TuplesLiteral props)) = do
+  props' <- forM props $ \p -> do 
+    e <- freshType 
+    p' <- inferBinder e p 
+    return (e, p')
+  let (f,s) =  unzip props'
+      nt = foldr (\ty -> Tuples NullSourceAnn ty)  srcREmpty f
+      s' = M.unions s
+      tt =(srcTypeApp tyTuples nt)
+  unifyTypes val tt
+  return s'
 
 inferBinder val (BinaryBinder xs) = do
   m1 <-
@@ -1092,71 +756,15 @@ check' (Literal ss (ListLiteral vals)) t@(TypeApp _ a ty) = do
   unifyTypes a tyList
   array <- Literal ss . ListLiteral . map tvToExpr <$> forM vals (`check` ty)
   return $ TypedValue' True array t
-check' (Literal ss (TupleLiteral m n)) t@(TypeApp _ (TypeApp _ _ argTy) retTy) = do
-  array <- do
-    m' <- fmap tvToExpr $ m `check` argTy
-    n' <- fmap tvToExpr $ n `check` retTy
-    return $ Literal ss $ TupleLiteral m' n'
-  return $ TypedValue' True array t
-
-
-
-check' (Literal ss (TupleLiteral3 m1 m2 m3)) t@(TypeApp _ (TypeApp _ (TypeApp _ _ m1t) m2t) m3t) = do
-  array <- do
-    m1' <- fmap tvToExpr $ m1 `check` m1t
-    m2' <- fmap tvToExpr $ m2 `check` m2t
-    m3' <- fmap tvToExpr $ m3 `check` m3t
-    return $ Literal ss $ TupleLiteral3 m1' m2' m3'
-  return $ TypedValue' True array t
-
-check' (Literal ss (TupleLiteral4 m1 m2 m3 m4)) t@(TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ _ m1t) m2t) m3t) m4t) = do
-  array <- do
-    m1' <- fmap tvToExpr $ m1 `check` m1t
-    m2' <- fmap tvToExpr $ m2 `check` m2t
-    m3' <- fmap tvToExpr $ m3 `check` m3t
-    m4' <- fmap tvToExpr $ m4 `check` m4t
-    return $ Literal ss $ TupleLiteral4 m1' m2' m3' m4'
-  return $ TypedValue' True array t
-
-check' (Literal ss (TupleLiteral5 m1 m2 m3 m4 m5)) t@(TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ _ m1t) m2t) m3t) m4t) m5t) = do
-  array <- do
-    m1' <- fmap tvToExpr $ m1 `check` m1t
-    m2' <- fmap tvToExpr $ m2 `check` m2t
-    m3' <- fmap tvToExpr $ m3 `check` m3t
-    m4' <- fmap tvToExpr $ m4 `check` m4t
-    m5' <- fmap tvToExpr $ m5 `check` m5t
-    return $ Literal ss $ TupleLiteral5 m1' m2' m3' m4' m5'
-  return $ TypedValue' True array t
-
-
-check' (Literal ss (TupleLiteral6 m1 m2 m3 m4 m5 m6)) t@(TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ _ m1t) m2t) m3t) m4t) m5t) m6t) = do
-  array <- do
-    m1' <- fmap tvToExpr $ m1 `check` m1t
-    m2' <- fmap tvToExpr $ m2 `check` m2t
-    m3' <- fmap tvToExpr $ m3 `check` m3t
-    m4' <- fmap tvToExpr $ m4 `check` m4t
-    m5' <- fmap tvToExpr $ m5 `check` m5t
-    m6' <- fmap tvToExpr $ m6 `check` m6t
-    return $ Literal ss $ TupleLiteral6 m1' m2' m3' m4' m5' m6'
-  return $ TypedValue' True array t
-
-check' (Literal ss (TupleLiteral7 m1 m2 m3 m4 m5 m6 m7)) t@(TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ (TypeApp _ _ m1t) m2t) m3t) m4t) m5t) m6t) m7t) = do
-  array <- do
-    m1' <- fmap tvToExpr $ m1 `check` m1t
-    m2' <- fmap tvToExpr $ m2 `check` m2t
-    m3' <- fmap tvToExpr $ m3 `check` m3t
-    m4' <- fmap tvToExpr $ m4 `check` m4t
-    m5' <- fmap tvToExpr $ m5 `check` m5t
-    m6' <- fmap tvToExpr $ m6 `check` m6t
-    m7' <- fmap tvToExpr $ m7 `check` m7t
-    return $ Literal ss $ TupleLiteral7 m1' m2' m3' m4' m5' m6' m7'
-  return $ TypedValue' True array t
-
-
-
-
-
-
+check' (Literal ss (TuplesLiteral xs)) t@(TypeApp _ tyTuples tys) = do
+  let tys' = tuplesToList tys
+  if length xs /= length tys' 
+    then throwError (MultipleErrors [ (ErrorMessage [] $ TuplesLengthDifferent (length xs) (length tys') )] )
+    else do
+     xs' <- forM (zip xs tys') $ \(x, ty) -> do 
+        tx <- fmap tvToExpr $ x `check` (tuplesType ty)
+        return tx
+     return $ TypedValue' True (Literal ss (TuplesLiteral xs')) t
 check' (Abs binder ret) ty@(TypeApp _ (TypeApp _ t argTy) retTy)
   | VarBinder ss arg <- binder = do
     unifyTypes t tyFunction

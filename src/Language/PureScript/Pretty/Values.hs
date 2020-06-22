@@ -135,12 +135,7 @@ prettyPrintLiteralValue _ (BooleanLiteral True) = text "true"
 prettyPrintLiteralValue _ (BooleanLiteral False) = text "false"
 prettyPrintLiteralValue d (ListLiteral xs) = list '[' ']' (prettyPrintValue (d - 1)) xs
 prettyPrintLiteralValue d (BinaryLiteral xs) = text $  show xs
-prettyPrintLiteralValue d (TupleLiteral a b) = list '(' ')' (prettyPrintValue (d - 1)) [a, b]
-prettyPrintLiteralValue d (TupleLiteral3 a b c) = list '(' ')' (prettyPrintValue (d - 1)) [a, b, c]
-prettyPrintLiteralValue d (TupleLiteral4 a b c ds) = list '(' ')' (prettyPrintValue (d - 1)) [a, b, c, ds]
-prettyPrintLiteralValue d (TupleLiteral5 a b c ds e) = list '(' ')' (prettyPrintValue (d - 1)) [a, b, c, ds, e]
-prettyPrintLiteralValue d (TupleLiteral6 a b c ds e f) = list '(' ')' (prettyPrintValue (d - 1)) [a, b, c, ds, e, f]
-prettyPrintLiteralValue d (TupleLiteral7 a b c ds e f g) = list '(' ')' (prettyPrintValue (d - 1)) [a, b, c, ds, e, f, g]
+prettyPrintLiteralValue d (TuplesLiteral xs) = list '(' ')' (prettyPrintValue (d - 1)) xs
 prettyPrintLiteralValue d (ObjectLiteral ps) = prettyPrintObject (d - 1) $ second Just `map` ps
 
 prettyPrintDeclaration :: Int -> Declaration -> Box
@@ -278,37 +273,10 @@ prettyPrintLiteralBinder (ListLiteral bs) =
   "[ "
     Monoid.<> T.intercalate ", " (map prettyPrintBinder bs)
     Monoid.<> " ]"
-prettyPrintLiteralBinder (TupleLiteral a b) =
+prettyPrintLiteralBinder (TuplesLiteral xs) =
   "( "
-    Monoid.<> T.intercalate ", " (map prettyPrintBinder [a, b])
+    Monoid.<> T.intercalate ", " (map prettyPrintBinder xs)
     Monoid.<> " )"
-
-prettyPrintLiteralBinder (TupleLiteral3 a b c) =
-  "( "
-    Monoid.<> T.intercalate ", " (map prettyPrintBinder [a, b, c])
-    Monoid.<> " )"
-
-prettyPrintLiteralBinder (TupleLiteral4 a b c d) =
-  "( "
-    Monoid.<> T.intercalate ", " (map prettyPrintBinder [a, b, c, d])
-    Monoid.<> " )"
-
-prettyPrintLiteralBinder (TupleLiteral5 a b c d e) =
-  "( "
-    Monoid.<> T.intercalate ", " (map prettyPrintBinder [a, b, c, d, e])
-    Monoid.<> " )"
-
-prettyPrintLiteralBinder (TupleLiteral6 a b c d e f) =
-  "( "
-    Monoid.<> T.intercalate ", " (map prettyPrintBinder [a, b, c, d, e, f])
-    Monoid.<> " )"
-
-prettyPrintLiteralBinder (TupleLiteral7 a b c d e f g) =
-  "( "
-    Monoid.<> T.intercalate ", " (map prettyPrintBinder [a, b, c, d, e, f, g])
-    Monoid.<> " )"
-
-
 
 -- |
 -- Generate a pretty-printed string representing a Binder

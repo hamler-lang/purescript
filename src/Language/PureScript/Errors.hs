@@ -1049,6 +1049,12 @@ prettyPrintSingleError (PPEOptions codeColor full level showDocs relPath) e = fl
             , indent $ paras $ map (line . markCode . showQualified showOp) (NEL.toList ops)
             , line "Use parentheses to resolve this ambiguity."
             ]
+    renderSimpleErrorMessage (TuplesLengthDifferent x y) = 
+      paras 
+        [ line "Tuple have different length"
+        , line  $ "Type lengthe is " <> T.pack (show y)
+        , line  $ "Values lengthe is " <> T.pack (show x)
+        ]
 
     renderHint :: ErrorMessageHint -> Box.Box -> Box.Box
     renderHint (ErrorUnifyingTypes t1@RCons{} t2@RCons{}) detail =
@@ -1194,7 +1200,7 @@ prettyPrintSingleError (PPEOptions codeColor full level showDocs relPath) e = fl
 
     -- If both rows are not empty, print them as diffs
     -- If verbose print all rows else only print unique rows
-    printRows :: Type a -> Type a -> (Box.Box, Box.Box)
+    printRows :: Show a => Type a -> Type a -> (Box.Box, Box.Box)
     printRows r1 r2 = case (full, r1, r2) of 
       (True, _ , _) -> (printRow typeAsBox r1, printRow typeAsBox r2)
 
@@ -1463,7 +1469,7 @@ renderBox = unlines
   where
   whiteSpace = all isSpace
 
-toTypelevelString :: Type a -> Maybe Box.Box
+toTypelevelString :: Show a => Type a -> Maybe Box.Box
 toTypelevelString (TypeLevelString _ s) =
   Just . Box.text $ decodeStringWithReplacement s
 toTypelevelString (TypeApp _ (TypeConstructor _ f) x)

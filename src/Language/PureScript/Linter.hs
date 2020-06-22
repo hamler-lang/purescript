@@ -104,6 +104,7 @@ lint (Module _ _ mn ds _) = censor (addHint (ErrorInModule mn)) $ mapM_ lintDecl
       go unused (TypeApp _ f x) = go unused f `combine` go unused x
       go unused (ConstrainedType _ c t1) = foldl combine (unused, mempty) $ map (go unused) (constraintArgs c <> [t1])
       go unused (RCons _ _ t1 rest) = go unused t1 `combine` go unused rest
+      go unused (Tuples _ t1 rest) = go unused t1 `combine` go unused rest
       go unused (KindedType _ t1 _) = go unused t1
       go unused (ParensInType _ t1) = go unused t1
       go unused (BinaryNoParensType _ t1 t2 t3) = go unused t1 `combine` go unused t2 `combine` go unused t3

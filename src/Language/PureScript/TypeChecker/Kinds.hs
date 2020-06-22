@@ -267,6 +267,11 @@ infer' other = (, []) <$> go other
     k2 <- go row
     unifyKinds k2 (Row ann k1)
     return $ Row ann k1
+  go (Tuples ann ty row) = do
+    k1 <- go ty
+    k2 <- go row
+    unifyKinds k2 (Row ann k1)
+    return $ Row  ann k1
   go (ConstrainedType ann2 (Constraint ann1 className tys _) ty) = do
     k1 <- go $ foldl (TypeApp ann2) (TypeConstructor ann1 (fmap coerceProperName className)) tys
     unifyKinds k1 kindType

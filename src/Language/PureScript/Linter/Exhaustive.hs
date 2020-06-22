@@ -127,49 +127,12 @@ missingCasesSingle env mn cb@(ConstructorBinder ss con bs) (ConstructorBinder _ 
   | con == con' = let (bs'', pr) = missingCasesMultiple env mn bs bs' in (map (ConstructorBinder ss con) bs'', pr)
   | otherwise = ([cb], return False)
 
-
-
-missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral a b)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder] [a,b]
-        bs2 = map (\[k1,k2] -> (LiteralBinder ss (TupleLiteral k1 k2))) bs1
-missingCasesSingle env mn (LiteralBinder _ (TupleLiteral a0 b0)) (LiteralBinder ss (TupleLiteral a b)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0] [a,b]
-        bs2 = map (\[k1,k2] -> (LiteralBinder ss (TupleLiteral k1 k2))) bs1
-
-missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral3 a b c)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder] [a,b,c]
-        bs2 = map (\[k1,k2,k3] -> (LiteralBinder ss (TupleLiteral3 k1 k2 k3))) bs1
-missingCasesSingle env mn (LiteralBinder _ (TupleLiteral3 a0 b0 c0)) (LiteralBinder ss (TupleLiteral3 a b c)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0] [a,b,c]
-        bs2 = map (\[k1,k2,k3] -> (LiteralBinder ss (TupleLiteral3 k1 k2 k3))) bs1
-
-missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral4 a b c d)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder,NullBinder] [a,b,c,d]
-        bs2 = map (\[k1,k2,k3,k4] -> (LiteralBinder ss (TupleLiteral4 k1 k2 k3 k4))) bs1
-missingCasesSingle env mn (LiteralBinder _ (TupleLiteral4 a0 b0 c0 d0)) (LiteralBinder ss (TupleLiteral4 a b c d)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0] [a,b,c,d]
-        bs2 = map (\[k1,k2,k3,k4] -> (LiteralBinder ss (TupleLiteral4 k1 k2 k3 k4))) bs1
-
-missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral5 a b c d e)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder,NullBinder,NullBinder] [a,b,c,d,e]
-        bs2 = map (\[k1,k2,k3,k4,k5] -> (LiteralBinder ss (TupleLiteral5 k1 k2 k3 k4 k5))) bs1
-missingCasesSingle env mn (LiteralBinder _ (TupleLiteral5 a0 b0 c0 d0 e0)) (LiteralBinder ss (TupleLiteral5 a b c d e)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0,e0] [a,b,c,d,e]
-        bs2 = map (\[k1,k2,k3,k4,k5] -> (LiteralBinder ss (TupleLiteral5 k1 k2 k3 k4 k5))) bs1
-
-missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral6 a b c d e f)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder,NullBinder,NullBinder,NullBinder] [a,b,c,d,e,f]
-        bs2 = map (\[k1,k2,k3,k4,k5,k6] -> (LiteralBinder ss (TupleLiteral6 k1 k2 k3 k4 k5 k6))) bs1
-missingCasesSingle env mn (LiteralBinder _ (TupleLiteral6 a0 b0 c0 d0 e0 f0)) (LiteralBinder ss (TupleLiteral6 a b c d e f)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0,e0,f0] [a,b,c,d,e,f]
-        bs2 = map (\[k1,k2,k3,k4,k5,k6] -> (LiteralBinder ss (TupleLiteral6 k1 k2 k3 k4 k5 k6))) bs1
-
-missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral7 a b c d e f g)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [NullBinder,NullBinder,NullBinder,NullBinder,NullBinder,NullBinder,NullBinder] [a,b,c,d,e,f,g]
-        bs2 = map (\[k1,k2,k3,k4,k5,k6,k7] -> (LiteralBinder ss (TupleLiteral7 k1 k2 k3 k4 k5 k6 k7))) bs1
-missingCasesSingle env mn (LiteralBinder _ (TupleLiteral7 a0 b0 c0 d0 e0 f0 g0)) (LiteralBinder ss (TupleLiteral7 a b c d e f g)) = (bs2,pr1)
-  where (bs1,pr1) = missingCasesMultiple env mn [a0,b0,c0,d0,e0,f0,g0] [a,b,c,d,e,f,g]
-        bs2 = map (\[k1,k2,k3,k4,k5,k6,k7] -> (LiteralBinder ss (TupleLiteral7 k1 k2 k3 k4 k5 k6 k7))) bs1
+missingCasesSingle env mn NullBinder (LiteralBinder ss (TuplesLiteral xs)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn (initialize (length xs)) xs
+        bs2 = map (\s -> (LiteralBinder ss (TuplesLiteral s))) bs1
+missingCasesSingle env mn (LiteralBinder _ (TuplesLiteral xs0)) (LiteralBinder ss (TuplesLiteral xs)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn xs0 xs
+        bs2 = map (\s -> (LiteralBinder ss (TuplesLiteral s))) bs1
 
 missingCasesSingle env mn NullBinder (LiteralBinder ss (ListLiteral [])) = (bs1,pr1)
   where (bs1,pr1) = ([ListBinder [NullBinder] NullBinder], return True)
@@ -401,52 +364,7 @@ checkExhaustiveExpr initSS env mn = onExpr initSS
   onExpr :: SourceSpan -> Expr -> m Expr
   onExpr _ (UnaryMinus ss e) = UnaryMinus ss <$> onExpr ss e
   onExpr _ (Literal ss (ListLiteral es)) = Literal ss . ListLiteral <$> mapM (onExpr ss) es
-
-  onExpr _ (Literal ss (TupleLiteral m1 m2)) = do
-    m1' <- onExpr ss m1
-    m2' <- onExpr ss m2
-    return $ Literal ss $ TupleLiteral m1' m2'
-
-  onExpr _ (Literal ss (TupleLiteral3 m1 m2 m3)) = do
-    m1' <- onExpr ss m1
-    m2' <- onExpr ss m2
-    m3' <- onExpr ss m3
-    return $ Literal ss $ TupleLiteral3 m1' m2' m3'
-
-  onExpr _ (Literal ss (TupleLiteral4 m1 m2 m3 m4)) = do
-    m1' <- onExpr ss m1
-    m2' <- onExpr ss m2
-    m3' <- onExpr ss m3
-    m4' <- onExpr ss m4
-    return $ Literal ss $ TupleLiteral4 m1' m2' m3' m4'
-
-  onExpr _ (Literal ss (TupleLiteral5 m1 m2 m3 m4 m5)) = do
-    m1' <- onExpr ss m1
-    m2' <- onExpr ss m2
-    m3' <- onExpr ss m3
-    m4' <- onExpr ss m4
-    m5' <- onExpr ss m5
-    return $ Literal ss $ TupleLiteral5 m1' m2' m3' m4' m5'
-
-  onExpr _ (Literal ss (TupleLiteral6 m1 m2 m3 m4 m5 m6)) = do
-    m1' <- onExpr ss m1
-    m2' <- onExpr ss m2
-    m3' <- onExpr ss m3
-    m4' <- onExpr ss m4
-    m5' <- onExpr ss m5
-    m6' <- onExpr ss m6
-    return $ Literal ss $ TupleLiteral6 m1' m2' m3' m4' m5' m6'
-
-  onExpr _ (Literal ss (TupleLiteral7 m1 m2 m3 m4 m5 m6 m7)) = do
-    m1' <- onExpr ss m1
-    m2' <- onExpr ss m2
-    m3' <- onExpr ss m3
-    m4' <- onExpr ss m4
-    m5' <- onExpr ss m5
-    m6' <- onExpr ss m6
-    m7' <- onExpr ss m7
-    return $ Literal ss $ TupleLiteral7 m1' m2' m3' m4' m5' m6' m7'
-
+  onExpr _ (Literal ss (TuplesLiteral xs)) = Literal ss . TuplesLiteral  <$> mapM (onExpr ss) xs
   onExpr _ (Literal ss (ObjectLiteral es)) = Literal ss . ObjectLiteral <$> mapM (sndM (onExpr ss)) es
   onExpr ss (TypeClassDictionaryConstructorApp x e) = TypeClassDictionaryConstructorApp x <$> onExpr ss e
   onExpr ss (Accessor x e) = Accessor x <$> onExpr ss e

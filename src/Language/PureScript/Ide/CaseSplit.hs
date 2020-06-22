@@ -94,11 +94,11 @@ prettyCtor wsa (ctorName, ctorArgs) =
   "("<> P.runProperName ctorName <> " "
   <> T.unwords (map (prettyPrintWildcard wsa) ctorArgs) <>")"
 
-prettyPrintWildcard :: WildcardAnnotations -> P.Type a -> Text
+prettyPrintWildcard :: Show a => WildcardAnnotations -> P.Type a -> Text
 prettyPrintWildcard (WildcardAnnotations True) = prettyWildcard
 prettyPrintWildcard (WildcardAnnotations False) = const "_"
 
-prettyWildcard :: P.Type a -> Text
+prettyWildcard :: Show a => P.Type a -> Text
 prettyWildcard t = "( _ :: " <> T.strip (T.pack (P.prettyPrintTypeAtom maxBound t)) <> ")"
 
 -- | Constructs Patterns to insert into a sourcefile

@@ -157,45 +157,7 @@ renameInValue (Let ann ds v) =
 -- Renames within literals.
 renameInLiteral :: (a -> Rename a) -> Literal a -> Rename (Literal a)
 renameInLiteral rename (ListLiteral bs) = ListLiteral <$> traverse rename bs
-renameInLiteral rename (TupleLiteral a b) = do
-  a' <- rename a
-  b' <- rename b
-  return $ TupleLiteral a' b'
-renameInLiteral rename (TupleLiteral3 a b c) = do
-  a' <- rename a
-  b' <- rename b
-  c' <- rename c
-  return $ TupleLiteral3 a' b' c'
-renameInLiteral rename (TupleLiteral4 a b c d) = do
-  a' <- rename a
-  b' <- rename b
-  c' <- rename c
-  d' <- rename d
-  return $ TupleLiteral4 a' b' c' d'
-renameInLiteral rename (TupleLiteral5 a b c d e) = do
-  a' <- rename a
-  b' <- rename b
-  c' <- rename c
-  d' <- rename d
-  e' <- rename e
-  return $ TupleLiteral5 a' b' c' d' e'
-renameInLiteral rename (TupleLiteral6 a b c d e f) = do
-  a' <- rename a
-  b' <- rename b
-  c' <- rename c
-  d' <- rename d
-  e' <- rename e
-  f' <- rename f
-  return $ TupleLiteral6 a' b' c' d' e' f'
-renameInLiteral rename (TupleLiteral7 a b c d e f g) = do
-  a' <- rename a
-  b' <- rename b
-  c' <- rename c
-  d' <- rename d
-  e' <- rename e
-  f' <- rename f
-  g' <- rename g
-  return $ TupleLiteral7 a' b' c' d' e' f' g'
+renameInLiteral rename (TuplesLiteral xs) = TuplesLiteral <$> traverse rename xs
 renameInLiteral rename (ObjectLiteral bs) = ObjectLiteral <$> traverse (sndM rename) bs
 renameInLiteral _ l = return l
 

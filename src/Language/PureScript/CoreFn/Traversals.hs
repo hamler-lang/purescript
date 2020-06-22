@@ -36,12 +36,7 @@ everywhereOnValues f g h = (f', g', h')
         }
     handleLiteral :: (a -> a) -> Literal a -> Literal a
     handleLiteral i (ListLiteral ls) = ListLiteral (map i ls)
-    handleLiteral i (TupleLiteral a b) = TupleLiteral (i a) (i b)
-    handleLiteral i (TupleLiteral3 a b c) = TupleLiteral3 (i a) (i b) (i c)
-    handleLiteral i (TupleLiteral4 a b c d) = TupleLiteral4 (i a) (i b) (i c) (i d)
-    handleLiteral i (TupleLiteral5 a b c d e) = TupleLiteral5 (i a) (i b) (i c) (i d) (i e)
-    handleLiteral i (TupleLiteral6 a b c d e fs) = TupleLiteral6 (i a) (i b) (i c) (i d) (i e) (i fs)
-    handleLiteral i (TupleLiteral7 a b c d e fs gs) = TupleLiteral7 (i a) (i b) (i c) (i d) (i e) (i fs) (i gs)
+    handleLiteral i (TuplesLiteral xs) = TuplesLiteral (map i xs)
     handleLiteral i (ObjectLiteral ls) = ObjectLiteral (map (fmap i) ls)
     handleLiteral _ other = other
 
@@ -71,11 +66,6 @@ everythingOnValues (<>.) f g h i = (f', g', h', i')
     i' ca@(CaseAlternative bs (Right val)) = foldl (<>.) (i ca) (map h' bs) <>. g' val
     i' ca@(CaseAlternative bs (Left gs)) = foldl (<>.) (i ca) (map h' bs ++ concatMap (\(grd, val) -> [g' grd, g' val]) gs)
     extractLiteral (ListLiteral xs) = xs
-    extractLiteral (TupleLiteral  a b) = [a, b]
-    extractLiteral (TupleLiteral3 a b c) = [a, b, c]
-    extractLiteral (TupleLiteral4 a b c d) = [a, b, c, d]
-    extractLiteral (TupleLiteral5 a b c d e) = [a, b, c, d, e]
-    extractLiteral (TupleLiteral6 a b c d e fs) = [a, b, c, d, e, fs]
-    extractLiteral (TupleLiteral7 a b c d e fs gs) = [a, b, c, d, e, fs, gs]
+    extractLiteral (TuplesLiteral xs) = xs
     extractLiteral (ObjectLiteral xs) = map snd xs
     extractLiteral _ = []

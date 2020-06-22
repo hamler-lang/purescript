@@ -45,6 +45,8 @@ typeLiterals = mkPattern match
     Just (typeCtor n)
   match (PPRow labels tail_) =
     Just (syntax "(" <> renderRow labels tail_ <> syntax ")")
+  match (PPTuples labels) =
+    Just (syntax "(" <>  renderH labels  <> syntax ")")
   match (PPBinaryNoParensType op l r) =
     Just $ renderTypeAtom' l <> sp <> renderTypeAtom' op <> sp <> renderTypeAtom' r
   match (PPTypeOp n) =
@@ -82,6 +84,15 @@ renderLabel (label, ty) =
     [ typeVar $ prettyPrintLabel label
     , syntax "::"
     , renderType' ty
+    ]
+
+renderH :: [ PrettyPrintType] -> RenderedCode
+renderH = mintersperse (syntax "," <> sp) . map renderL
+
+renderL :: PrettyPrintType -> RenderedCode
+renderL  ty =
+  mintersperse sp
+    [ renderType' ty
     ]
 
 renderTail :: Maybe PrettyPrintType -> RenderedCode
@@ -145,7 +156,7 @@ forall_ = mkPattern match
 -- |
 -- Render code representing a Type
 --
-renderType :: Type a -> RenderedCode
+renderType :: Show a => Type a -> RenderedCode
 renderType = renderType' . convertPrettyPrintType maxBound
 
 renderType' :: PrettyPrintType -> RenderedCode
@@ -164,7 +175,7 @@ renderTypeVar (v, mbK) = case mbK of
 -- |
 -- Render code representing a Type, as it should appear inside parentheses
 --
-renderTypeAtom :: Type a -> RenderedCode
+renderTypeAtom :: Show a => Type a -> RenderedCode
 renderTypeAtom = renderTypeAtom' . convertPrettyPrintType maxBound
 
 renderTypeAtom' :: PrettyPrintType -> RenderedCode

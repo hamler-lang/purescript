@@ -346,24 +346,11 @@ tyBoolean = primTy "Boolean"
 tyList :: SourceType
 tyList = primTy "List"
 
-tyTuple :: SourceType
-tyTuple = primTy "Tuple"
+-- tyTuple :: SourceType
+-- tyTuple = primTy "Tuple"
 
-
-tyTuple3 :: SourceType
-tyTuple3 = primTy "Tuple3"
-
-tyTuple4 :: SourceType
-tyTuple4 = primTy "Tuple4"
-
-tyTuple5 :: SourceType
-tyTuple5 = primTy "Tuple5"
-
-tyTuple6 :: SourceType
-tyTuple6 = primTy "Tuple6"
-
-tyTuple7 :: SourceType
-tyTuple7 = primTy "Tuple7"
+tyTuples :: SourceType
+tyTuples = primTy "Tuples"
 
 tyBinary :: SourceType
 tyBinary = primTy "Binary"
@@ -442,15 +429,7 @@ primTypes :: M.Map (Qualified (ProperName 'TypeName)) (SourceKind, TypeKind)
 primTypes = M.fromList
   [ (primName "Function", (kindType -:> kindType -:> kindType, ExternData))
   , (primName "List",    (kindType -:> kindType, ExternData))
-  , (primName "Tuple",   (kindType -:> kindType -:> kindType, ExternData))
-
-  , (primName "Tuple3",   (kindType -:> kindType -:> kindType -:> kindType, ExternData))
-
-  , (primName "Tuple4",   (kindType -:> kindType -:> kindType -:> kindType -:> kindType, ExternData))
-  , (primName "Tuple5",   (kindType -:> kindType -:> kindType -:> kindType -:> kindType -:> kindType, ExternData))
-  , (primName "Tuple6",   (kindType -:> kindType -:> kindType -:> kindType -:> kindType -:> kindType -:> kindType, ExternData))
-  , (primName "Tuple7",   (kindType -:> kindType -:> kindType -:> kindType -:> kindType -:> kindType -:> kindType -:> kindType, ExternData))
-
+  , (primName "Tuples",  (kindRow kindType -:> kindType, ExternData))
   , (primName "Record",  (kindRow kindType -:> kindType, ExternData))
   , (primName "String",  (kindType, ExternData))
 
