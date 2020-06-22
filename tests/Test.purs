@@ -1,9 +1,13 @@
 module Test where
 
-foreign import error :: forall a.String -> a
+infixr 4 greatThan as >
+infixr 4 lessThan  as <
 
-data T a = T a | N
+foreign import greatThan :: Integer -> Integer -> Boolean
+foreign import lessThan :: Integer -> Integer -> Boolean
 
-fun #{ 1 := (T x) } = x
-fun #{ 1 := N } = N
-fun _ = error "nice"
+
+f :: Integer -> String
+f n | n > 0 = "Positive Integer"
+    | n < 0 = "Negative Integer"
+    | otherwise = "Zero"

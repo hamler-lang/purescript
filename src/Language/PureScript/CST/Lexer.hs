@@ -414,6 +414,7 @@ token = peek >>= maybe (pure TokEof) k0
       _ ->
         case Text.cons pre rest of
           "forall" | null qual -> pure $ TokForall ASCII
+          "otherwise" -> pure $ TokLowerName (reverse qual) "true"
           name -> pure $ TokLowerName (reverse qual) name
 
   {-
