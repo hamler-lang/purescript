@@ -1,13 +1,10 @@
 module Test where
 
-infixr 4 greatThan as >
-infixr 4 lessThan  as <
+-- t0 :: (Integer,Integer) -> Boolean
+-- t0 (x,z) = z
 
-foreign import greatThan :: Integer -> Integer -> Boolean
-foreign import lessThan :: Integer -> Integer -> Boolean
+-- k :: (Integer,Integer,Integer,Integer,String,String,Boolean,String)
+-- k = (1,2,1,2,"nice", "great",true,"nic")
 
-
-f :: Integer -> String
-f n | n > 0 = "Positive Integer"
-    | n < 0 = "Negative Integer"
-    | otherwise = "Zero"
+-- t :: (Integer,Integer,Integer,Integer,Integer,Integer,Integer,Integer)
+t = (1,1,1,1,1,1,1,1,1,1,1,1,"nice","great","a","i","sss",false,true)
