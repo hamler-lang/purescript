@@ -357,16 +357,16 @@ toDecls [ValueDecl sa@(ss, _) ident nameKind bs [MkUnguarded val]] | all isIrref
   fromVarBinder (TypedBinder _ b) = fromVarBinder b
   fromVarBinder _ = internalError "fromVarBinder: Invalid argument"
 toDecls ds@(ValueDecl (ss, _) ident _ bs (result : _) : _) = do
-  let tuples = map toTuple ds
+  let tuple = map toTuple ds
 
       isGuarded (MkUnguarded _) = False
       isGuarded _               = True
 
-  unless (all ((== length bs) . length . fst) tuples) .
+  unless (all ((== length bs) . length . fst) tuple) .
     throwError . errorMessage' ss $ ArgListLengthsDiffer ident
   unless (not (null bs) || isGuarded result) .
     throwError . errorMessage' ss $ DuplicateValueDeclaration ident
-  caseDecl <- makeCaseDeclaration ss ident tuples
+  caseDecl <- makeCaseDeclaration ss ident tuple
   return [caseDecl]
 toDecls ds = return ds
 

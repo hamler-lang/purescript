@@ -97,8 +97,8 @@ convertPrettyPrintType = go
            _ -> Just (go (d-1) tail_)
        )
   goTuple d ty =
-    let items = tuplesToList ty
-    in  map (\item ->  go (d-1) (tuplesType item)) items
+    let items = tupleToList ty
+    in  map (\item ->  go (d-1) (tupleType item)) items
 
   goTypeApp d (TypeApp _ f a) b
     | eqType f tyFunction = PPFunction (go (d-1) a) (go (d-1) b)

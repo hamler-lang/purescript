@@ -134,12 +134,12 @@ convertType fileName = go
         rowTail
 
   goTuple (Separated h t) = do
-    let 
-      tuples ty c = do
+    let
+      tuple ty c = do
         let ann = sourceAnnCommented fileName (fst $ typeRange ty) (snd $ typeRange ty)
         T.Tuple ann (go ty) c
       ann1 = sourceAnnCommented fileName placeholder placeholder
-    tuples h $ foldr (tuples . snd) (T.REmpty ann1) t
+    tuple h $ foldr (tuple . snd) (T.REmpty ann1) t
 
   go = \case
     TypeVar _ a ->
