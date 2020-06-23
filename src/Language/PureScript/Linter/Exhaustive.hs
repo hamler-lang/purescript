@@ -93,7 +93,7 @@ initialize :: Int -> [Binder]
 initialize l = replicate l NullBinder
 
 -- |
--- Applies a function over two lists of tuples that may lack elements
+-- Applies a function over two lists of tuple that may lack elements
 --
 genericMerge :: Ord a =>
   (a -> Maybe b -> Maybe c -> d) ->

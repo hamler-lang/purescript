@@ -76,7 +76,7 @@ data Type a
   | REmpty a
   -- | A non-empty row
   | RCons a Label (Type a) (Type a)
-  -- | A row tuples
+  -- | A row tuple
   | Tuple a (Type a) (Type a)
   -- | A type with a kind annotation
   | KindedType a (Type a) (Kind a)
@@ -364,20 +364,20 @@ srcRowListItem :: Label -> SourceType -> RowListItem SourceAnn
 srcRowListItem = RowListItem NullSourceAnn
 
 data TupleItem a = TupleItem
-  { tuplesAnn :: a
-  , tuplesType :: Type a
+  { tupleAnn :: a
+  , tupleType :: Type a
   } deriving (Show, Generic, Functor, Foldable, Traversable)
 
 srcTupleItem :: SourceType -> TupleItem SourceAnn
 srcTupleItem = TupleItem NullSourceAnn
 
-tuplesToList :: Show a => Type a -> ([TupleItem a])
-tuplesToList  (Tuple ann ty row) = (TupleItem ann  ty ) : (tuplesToList row)
-tuplesToList  (REmpty _) = [] -- [TupleItem ann (REmpty ann)]
-tuplesToList x = error $ show x
+tupleToList :: Show a => Type a -> ([TupleItem a])
+tupleToList  (Tuple ann ty row) = (TupleItem ann  ty ) : (tupleToList row)
+tupleToList  (REmpty _) = [] -- [TupleItem ann (REmpty ann)]
+tupleToList x = error $ show x
 
-tuplesFromList :: ([TupleItem a], Type a) -> Type a
-tuplesFromList (xs, r) = foldr (\(TupleItem ann  ty) -> Tuple ann ty) r xs
+tupleFromList :: ([TupleItem a], Type a) -> Type a
+tupleFromList (xs, r) = foldr (\(TupleItem ann  ty) -> Tuple ann ty) r xs
 
 -- | Convert a row to a list of pairs of labels and types
 rowToList :: Type a -> ([RowListItem a], Type a)

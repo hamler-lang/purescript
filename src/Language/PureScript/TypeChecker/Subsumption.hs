@@ -118,7 +118,7 @@ subsumes' mode (TypeApp _ f1 r1) (TypeApp _ f2 r2) | eqType f1 tyRecord && eqTyp
     -- Nothing was elaborated, return the default coercion
     return (defaultCoercion mode)
   where
-    -- Find the first property that's in the first list (of tuples) but not in the second
+    -- Find the first property that's in the first list (of tuple) but not in the second
     firstMissingProp t1 t2 = fst <$> uncons (minusBy' (comparing rowListLabel) t1 t2)
 subsumes' mode ty1 ty2@(TypeApp _ obj _) | obj == tyRecord =
   subsumes' mode ty2 ty1
