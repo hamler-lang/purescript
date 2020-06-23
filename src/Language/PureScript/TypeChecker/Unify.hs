@@ -117,7 +117,7 @@ unifyTypes t1 t2 = do
   unifyTypes' ty1 (KindedType _ ty2 _) = ty1 `unifyTypes` ty2
   unifyTypes' r1@RCons{} r2 = unifyRows r1 r2
   unifyTypes' r1 r2@RCons{} = unifyRows r1 r2
-  unifyTypes' (Tuples _ t3 t4) (Tuples _ t5 t6) = do 
+  unifyTypes' (Tuple _ t3 t4) (Tuple _ t5 t6) = do 
     t3 `unifyTypes` t5
     t4 `unifyTypes` t6
   unifyTypes' r1@REmpty{} r2 = unifyRows r1 r2

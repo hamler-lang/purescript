@@ -133,11 +133,11 @@ convertType fileName = go
       Nothing ->
         rowTail
 
-  goTuples (Separated h t) = do
+  goTuple (Separated h t) = do
     let 
       tuples ty c = do
         let ann = sourceAnnCommented fileName (fst $ typeRange ty) (snd $ typeRange ty)
-        T.Tuples ann (go ty) c
+        T.Tuple ann (go ty) c
       ann1 = sourceAnnCommented fileName placeholder placeholder
     tuples h $ foldr (tuples . snd) (T.REmpty ann1) t
 
@@ -210,7 +210,7 @@ convertType fileName = go
         ann = sourceAnnCommented fileName a b
       case bs of
           Nothing -> error $ show bs
-          Just v -> T.TypeApp ann (Env.tyTuples) (goTuples v)
+          Just v -> T.TypeApp ann (Env.tyTuple) (goTuple v)
 
     TypeList _ a -> do
       let
@@ -350,7 +350,7 @@ convertExpr fileName = go
       case res of
         [] -> error $ show bs
         [_] -> error $ show bs
-        xs -> positioned ann . AST.Literal (fst ann) $ AST.TuplesLiteral xs
+        xs -> positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral xs
     ExprRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c
@@ -522,7 +522,7 @@ convertBinder fileName = go
       case res of
         [] -> error $ show bs
         [_] -> error $ show bs
-        xs  -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TuplesLiteral xs
+        xs  -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral xs
     BinderRecord z (Wrapped a bs c) -> do
       let
         ann = sourceAnnCommented fileName a c

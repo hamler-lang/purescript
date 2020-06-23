@@ -278,7 +278,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
   literalToValueJS ss (CharLiteral c) = return $ AST.StringLiteral (Just ss) (fromString [c])
   literalToValueJS ss (BooleanLiteral b) = return $ AST.BooleanLiteral (Just ss) b
   literalToValueJS ss (ListLiteral xs) = AST.ListLiteral (Just ss) <$> mapM valueToJs xs
-  literalToValueJS ss (TuplesLiteral xs) = AST.ListLiteral (Just ss) <$> mapM valueToJs xs 
+  literalToValueJS ss (TupleLiteral xs) = AST.ListLiteral (Just ss) <$> mapM valueToJs xs 
   literalToValueJS ss (ObjectLiteral ps) = AST.ObjectLiteral (Just ss) <$> mapM (sndM valueToJs) ps
 
   -- | Shallow copy an object.
@@ -429,7 +429,7 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
       js <- binderToJs elVar done'' binder
       return (AST.VariableIntroduction Nothing elVar (Just (AST.Indexer Nothing (AST.NumericLiteral Nothing (Left index)) (AST.Var Nothing varName))) : js)
 --------------------------------------------------------------------------------------------
-  literalToBinderJS varName done (TuplesLiteral xs) = do
+  literalToBinderJS varName done (TupleLiteral xs) = do
     js <- go done 0 xs
     return [AST.IfElse Nothing (AST.Binary Nothing AST.EqualTo (accessorString "length" (AST.Var Nothing varName)) (AST.NumericLiteral Nothing (Left (fromIntegral $ length xs)))) (AST.Block Nothing js) Nothing]
     where

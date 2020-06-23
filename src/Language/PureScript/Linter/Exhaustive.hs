@@ -127,12 +127,12 @@ missingCasesSingle env mn cb@(ConstructorBinder ss con bs) (ConstructorBinder _ 
   | con == con' = let (bs'', pr) = missingCasesMultiple env mn bs bs' in (map (ConstructorBinder ss con) bs'', pr)
   | otherwise = ([cb], return False)
 
-missingCasesSingle env mn NullBinder (LiteralBinder ss (TuplesLiteral xs)) = (bs2,pr1)
+missingCasesSingle env mn NullBinder (LiteralBinder ss (TupleLiteral xs)) = (bs2,pr1)
   where (bs1,pr1) = missingCasesMultiple env mn (initialize (length xs)) xs
-        bs2 = map (\s -> (LiteralBinder ss (TuplesLiteral s))) bs1
-missingCasesSingle env mn (LiteralBinder _ (TuplesLiteral xs0)) (LiteralBinder ss (TuplesLiteral xs)) = (bs2,pr1)
+        bs2 = map (\s -> (LiteralBinder ss (TupleLiteral s))) bs1
+missingCasesSingle env mn (LiteralBinder _ (TupleLiteral xs0)) (LiteralBinder ss (TupleLiteral xs)) = (bs2,pr1)
   where (bs1,pr1) = missingCasesMultiple env mn xs0 xs
-        bs2 = map (\s -> (LiteralBinder ss (TuplesLiteral s))) bs1
+        bs2 = map (\s -> (LiteralBinder ss (TupleLiteral s))) bs1
 
 missingCasesSingle env mn NullBinder (LiteralBinder ss (ListLiteral [])) = (bs1,pr1)
   where (bs1,pr1) = ([ListBinder [NullBinder] NullBinder], return True)
@@ -364,7 +364,7 @@ checkExhaustiveExpr initSS env mn = onExpr initSS
   onExpr :: SourceSpan -> Expr -> m Expr
   onExpr _ (UnaryMinus ss e) = UnaryMinus ss <$> onExpr ss e
   onExpr _ (Literal ss (ListLiteral es)) = Literal ss . ListLiteral <$> mapM (onExpr ss) es
-  onExpr _ (Literal ss (TuplesLiteral xs)) = Literal ss . TuplesLiteral  <$> mapM (onExpr ss) xs
+  onExpr _ (Literal ss (TupleLiteral xs)) = Literal ss . TupleLiteral  <$> mapM (onExpr ss) xs
   onExpr _ (Literal ss (ObjectLiteral es)) = Literal ss . ObjectLiteral <$> mapM (sndM (onExpr ss)) es
   onExpr ss (TypeClassDictionaryConstructorApp x e) = TypeClassDictionaryConstructorApp x <$> onExpr ss e
   onExpr ss (Accessor x e) = Accessor x <$> onExpr ss e

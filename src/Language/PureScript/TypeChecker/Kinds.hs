@@ -267,7 +267,7 @@ infer' other = (, []) <$> go other
     k2 <- go row
     unifyKinds k2 (Row ann k1)
     return $ Row ann k1
-  go (Tuples ann ty row) = do
+  go (Tuple ann ty row) = do
     k1 <- go ty
     k2 <- go row
     unifyKinds k2 (Row ann k1)

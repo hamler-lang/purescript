@@ -77,7 +77,7 @@ data Type a
   -- | A non-empty row
   | RCons a Label (Type a) (Type a)
   -- | A row tuples
-  | Tuples a (Type a) (Type a)
+  | Tuple a (Type a) (Type a)
   -- | A type with a kind annotation
   | KindedType a (Type a) (Kind a)
   -- | Binary operator application. During the rebracketing phase of desugaring,
@@ -129,8 +129,8 @@ srcREmpty = REmpty NullSourceAnn
 srcRCons :: Label -> SourceType -> SourceType -> SourceType
 srcRCons = RCons NullSourceAnn
 
-srcRTuples :: SourceType -> SourceType -> SourceType
-srcRTuples = Tuples NullSourceAnn
+srcRTuple :: SourceType -> SourceType -> SourceType
+srcRTuple = Tuple NullSourceAnn
 
 srcKindedType :: SourceType -> SourceKind -> SourceType
 srcKindedType = KindedType NullSourceAnn
@@ -220,8 +220,8 @@ typeToJSON annToJSON ty =
       nullary "REmpty" a
     RCons a b c d ->
       variant "RCons" a (b, go c, go d)
-    Tuples a c d ->
-      variant "RTuples" a (go c, go d)
+    Tuple a c d ->
+      variant "RTuple" a (go c, go d)
     KindedType a b c ->
       variant "KindedType" a (go b, kindToJSON annToJSON c)
     BinaryNoParensType a b c d ->
@@ -313,9 +313,9 @@ typeFromJSON defaultAnn annFromJSON = A.withObject "Type" $ \o -> do
     "RCons" -> do
       (b, c, d) <- contents
       RCons a b <$> go c <*> go d
-    "RTuples" -> do
+    "RTuple" -> do
       (c, d) <- contents
-      Tuples a <$> go c <*> go d
+      Tuple a <$> go c <*> go d
     "KindedType" -> do
       (b, c) <- contents
       KindedType a <$> go b <*> kindFromJSON defaultAnn annFromJSON c
@@ -363,21 +363,21 @@ data RowListItem a = RowListItem
 srcRowListItem :: Label -> SourceType -> RowListItem SourceAnn
 srcRowListItem = RowListItem NullSourceAnn
 
-data TuplesItem a = TuplesItem
+data TupleItem a = TupleItem
   { tuplesAnn :: a
   , tuplesType :: Type a
   } deriving (Show, Generic, Functor, Foldable, Traversable)
 
-srcTuplesItem :: SourceType -> TuplesItem SourceAnn
-srcTuplesItem = TuplesItem NullSourceAnn
+srcTupleItem :: SourceType -> TupleItem SourceAnn
+srcTupleItem = TupleItem NullSourceAnn
 
-tuplesToList :: Show a => Type a -> ([TuplesItem a])
-tuplesToList  (Tuples ann ty row) = (TuplesItem ann  ty ) : (tuplesToList row)
-tuplesToList  (REmpty _) = [] -- [TuplesItem ann (REmpty ann)]
+tuplesToList :: Show a => Type a -> ([TupleItem a])
+tuplesToList  (Tuple ann ty row) = (TupleItem ann  ty ) : (tuplesToList row)
+tuplesToList  (REmpty _) = [] -- [TupleItem ann (REmpty ann)]
 tuplesToList x = error $ show x
 
-tuplesFromList :: ([TuplesItem a], Type a) -> Type a
-tuplesFromList (xs, r) = foldr (\(TuplesItem ann  ty) -> Tuples ann ty) r xs
+tuplesFromList :: ([TupleItem a], Type a) -> Type a
+tuplesFromList (xs, r) = foldr (\(TupleItem ann  ty) -> Tuple ann ty) r xs
 
 -- | Convert a row to a list of pairs of labels and types
 rowToList :: Type a -> ([RowListItem a], Type a)
@@ -427,7 +427,7 @@ replaceAllTypeVars = go [] where
       usedVars = concatMap (usedTypeVariables . snd) m
   go bs m (ConstrainedType ann c t) = ConstrainedType ann (mapConstraintArgs (map (go bs m)) c) (go bs m t)
   go bs m (RCons ann name' t r) = RCons ann name' (go bs m t) (go bs m r)
-  go bs m (Tuples ann t r) = Tuples ann (go bs m t) (go bs m r)
+  go bs m (Tuple ann t r) = Tuple ann (go bs m t) (go bs m r)
   go bs m (KindedType ann t k) = KindedType ann (go bs m t) k
   go bs m (BinaryNoParensType ann t1 t2 t3) = BinaryNoParensType ann (go bs m t1) (go bs m t2) (go bs m t3)
   go bs m (ParensInType ann t) = ParensInType ann (go bs m t)
@@ -453,7 +453,7 @@ freeTypeVariables = ordNub . go [] where
   go bound (ForAll _ v _ t _) = go (v : bound) t
   go bound (ConstrainedType _ c t) = concatMap (go bound) (constraintArgs c) ++ go bound t
   go bound (RCons _ _ t r) = go bound t ++ go bound r
-  go bound (Tuples _  t r) = go bound t ++ go bound r
+  go bound (Tuple _  t r) = go bound t ++ go bound r
   go bound (KindedType _ t _) = go bound t
   go bound (BinaryNoParensType _ t1 t2 t3) = go bound t1 ++ go bound t2 ++ go bound t3
   go bound (ParensInType _ t) = go bound t
@@ -490,7 +490,7 @@ everywhereOnTypes f = go where
   go (ForAll ann arg mbK ty sco) = f (ForAll ann arg mbK (go ty) sco)
   go (ConstrainedType ann c ty) = f (ConstrainedType ann (mapConstraintArgs (map go) c) (go ty))
   go (RCons ann name ty rest) = f (RCons ann name (go ty) (go rest))
-  go (Tuples ann ty rest) = f (Tuples ann (go ty) (go rest))
+  go (Tuple ann ty rest) = f (Tuple ann (go ty) (go rest))
   go (KindedType ann ty k) = f (KindedType ann (go ty) k)
   go (BinaryNoParensType ann t1 t2 t3) = f (BinaryNoParensType ann (go t1) (go t2) (go t3))
   go (ParensInType ann t) = f (ParensInType ann (go t))
@@ -502,7 +502,7 @@ everywhereOnTypesTopDown f = go . f where
   go (ForAll ann arg mbK ty sco) = ForAll ann arg mbK (go (f ty)) sco
   go (ConstrainedType ann c ty) = ConstrainedType ann (mapConstraintArgs (map (go . f)) c) (go (f ty))
   go (RCons ann name ty rest) = RCons ann name (go (f ty)) (go (f rest))
-  go (Tuples ann ty rest) = Tuples ann (go (f ty)) (go (f rest))
+  go (Tuple ann ty rest) = Tuple ann (go (f ty)) (go (f rest))
   go (KindedType ann ty k) = KindedType ann (go (f ty)) k
   go (BinaryNoParensType ann t1 t2 t3) = BinaryNoParensType ann (go (f t1)) (go (f t2)) (go (f t3))
   go (ParensInType ann t) = ParensInType ann (go (f t))
@@ -514,7 +514,7 @@ everywhereOnTypesM f = go where
   go (ForAll ann arg mbK ty sco) = (ForAll ann arg mbK <$> go ty <*> pure sco) >>= f
   go (ConstrainedType ann c ty) = (ConstrainedType ann <$> overConstraintArgs (mapM go) c <*> go ty) >>= f
   go (RCons ann name ty rest) = (RCons ann name <$> go ty <*> go rest) >>= f
-  go (Tuples ann ty rest) = (Tuples ann <$> go ty <*> go rest) >>= f
+  go (Tuple ann ty rest) = (Tuple ann <$> go ty <*> go rest) >>= f
   go (KindedType ann ty k) = (KindedType ann <$> go ty <*> pure k) >>= f
   go (BinaryNoParensType ann t1 t2 t3) = (BinaryNoParensType ann <$> go t1 <*> go t2 <*> go t3) >>= f
   go (ParensInType ann t) = (ParensInType ann <$> go t) >>= f
@@ -526,7 +526,7 @@ everywhereOnTypesTopDownM f = go <=< f where
   go (ForAll ann arg mbK ty sco) = ForAll ann arg mbK <$> (f ty >>= go) <*> pure sco
   go (ConstrainedType ann c ty) = ConstrainedType ann <$> overConstraintArgs (mapM (go <=< f)) c <*> (f ty >>= go)
   go (RCons ann name ty rest) = RCons ann name <$> (f ty >>= go) <*> (f rest >>= go)
-  go (Tuples ann ty rest) = Tuples ann <$> (f ty >>= go) <*> (f rest >>= go)
+  go (Tuple ann ty rest) = Tuple ann <$> (f ty >>= go) <*> (f rest >>= go)
   go (KindedType ann ty k) = KindedType ann <$> (f ty >>= go) <*> pure k
   go (BinaryNoParensType ann t1 t2 t3) = BinaryNoParensType ann <$> (f t1 >>= go) <*> (f t2 >>= go) <*> (f t3 >>= go)
   go (ParensInType ann t) = ParensInType ann <$> (f t >>= go)
@@ -538,7 +538,7 @@ everythingOnTypes (<+>) f = go where
   go t@(ForAll _ _ _ ty _) = f t <+> go ty
   go t@(ConstrainedType _ c ty) = foldl (<+>) (f t) (map go (constraintArgs c)) <+> go ty
   go t@(RCons _ _ ty rest) = f t <+> go ty <+> go rest
-  go t@(Tuples _ ty rest) = f t <+> go ty <+> go rest
+  go t@(Tuple _ ty rest) = f t <+> go ty <+> go rest
   go t@(KindedType _ ty _) = f t <+> go ty
   go t@(BinaryNoParensType _ t1 t2 t3) = f t <+> go t1 <+> go t2 <+> go t3
   go t@(ParensInType _ t1) = f t <+> go t1
@@ -551,7 +551,7 @@ everythingWithContextOnTypes s0 r0 (<+>) f = go' s0 where
   go s (ForAll _ _ _ ty _) = go' s ty
   go s (ConstrainedType _ c ty) = foldl (<+>) r0 (map (go' s) (constraintArgs c)) <+> go' s ty
   go s (RCons _ _ ty rest) = go' s ty <+> go' s rest
-  go s (Tuples _ ty rest) = go' s ty <+> go' s rest
+  go s (Tuple _ ty rest) = go' s ty <+> go' s rest
   go s (KindedType _ ty _) = go' s ty
   go s (BinaryNoParensType _ t1 t2 t3) = go' s t1 <+> go' s t2 <+> go' s t3
   go s (ParensInType _ t1) = go' s t1
@@ -570,7 +570,7 @@ annForType k (ConstrainedType a b c) = (\z -> ConstrainedType z b c) <$> k a
 annForType k (Skolem a b c d) = (\z -> Skolem z b c d) <$> k a
 annForType k (REmpty a) = REmpty <$> k a
 annForType k (RCons a b c d) = (\z -> RCons z b c d) <$> k a
-annForType k (Tuples a c d) = (\z -> Tuples z c d) <$> k a
+annForType k (Tuple a c d) = (\z -> Tuple z c d) <$> k a
 annForType k (KindedType a b c) = (\z -> KindedType z b c) <$> k a
 annForType k (BinaryNoParensType a b c d) = (\z -> BinaryNoParensType z b c d) <$> k a
 annForType k (ParensInType a b) = (\z -> ParensInType z b) <$> k a
@@ -600,7 +600,7 @@ eqType (ConstrainedType _ a b) (ConstrainedType _ a' b') = eqConstraint a a' && 
 eqType (Skolem _ a b c) (Skolem _ a' b' c') = a == a' && b == b' && c == c'
 eqType (REmpty _) (REmpty _) = True
 eqType (RCons _ a b c) (RCons _ a' b' c') = a == a' && eqType b b' && eqType c c'
-eqType (Tuples _ b c) (Tuples _  b' c') = eqType b b' && eqType c c'
+eqType (Tuple _ b c) (Tuple _  b' c') = eqType b b' && eqType c c'
 eqType (KindedType _ a b) (KindedType _ a' b') = eqType a a' && eqKind b b'
 eqType (BinaryNoParensType _ a b c) (BinaryNoParensType _ a' b' c') = eqType a a' && eqType b b' && eqType c c'
 eqType (ParensInType _ a) (ParensInType _ a') = eqType a a'
@@ -654,9 +654,9 @@ compareType (RCons _ a b c) (RCons _ a' b' c') = compare a a' <> compareType b b
 compareType (RCons {}) _ = LT
 compareType _ (RCons {}) = GT
 
-compareType (Tuples _ b c) (Tuples _ b' c') = compareType b b' <> compareType c c'
-compareType (Tuples {}) _ = LT
-compareType _ (Tuples {}) = GT
+compareType (Tuple _ b c) (Tuple _ b' c') = compareType b b' <> compareType c c'
+compareType (Tuple {}) _ = LT
+compareType _ (Tuple {}) = GT
 
 compareType (KindedType _ a b) (KindedType _ a' b') = compareType a a' <> compareKind b b'
 compareType (KindedType {}) _ = LT

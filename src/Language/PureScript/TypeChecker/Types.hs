@@ -359,14 +359,14 @@ infer' (List vals list ) = do
     return (TypedValue ch val' t')
   return $ TypedValue' True (List ts' (head tb')) (srcTypeApp tyList els)
 infer' v@(Literal ss (BinaryLiteral vals )) = return $ TypedValue' True v tyBinary
-infer' (Literal ss (TuplesLiteral xs)) = do 
+infer' (Literal ss (TupleLiteral xs)) = do 
   let inferPro val = do 
         TypedValue' _ val' ty <- infer val 
         instantiatePolyTypeWithUnknowns val' ty
-      toTuplesItem (_,ty) = srcTuplesItem ty
+      toTupleItem (_,ty) = srcTupleItem ty
   fields <- forM xs inferPro
-  let ty = srcTypeApp tyTuples $ tuplesFromList (fmap toTuplesItem fields, srcREmpty)
-  return  $ TypedValue' True (Literal ss (TuplesLiteral (fmap (uncurry (TypedValue True)) fields))) ty
+  let ty = srcTypeApp tyTuple $ tuplesFromList (fmap toTupleItem fields, srcREmpty)
+  return  $ TypedValue' True (Literal ss (TupleLiteral (fmap (uncurry (TypedValue True)) fields))) ty
 infer' (Literal ss (ObjectLiteral ps)) = do
   ensureNoDuplicateProperties ps
   -- We make a special case for Vars in record labels, since these are the
@@ -580,15 +580,15 @@ inferBinder val (MapBinder xs) = do
   m2 <- M.unions <$> traverse (inferBinder e2) bs2
   unifyTypes val (srcTypeApp (srcTypeApp (srcTypeConstructor $ Qualified (Just $ moduleNameFromString "Data.Map") (ProperName "Map")) e1) e2)
   return (M.unions [m1, m2])
-inferBinder val (LiteralBinder _ (TuplesLiteral props)) = do
+inferBinder val (LiteralBinder _ (TupleLiteral props)) = do
   props' <- forM props $ \p -> do 
     e <- freshType 
     p' <- inferBinder e p 
     return (e, p')
   let (f,s) =  unzip props'
-      nt = foldr (\ty -> Tuples NullSourceAnn ty)  srcREmpty f
+      nt = foldr (\ty -> Tuple NullSourceAnn ty)  srcREmpty f
       s' = M.unions s
-      tt =(srcTypeApp tyTuples nt)
+      tt =(srcTypeApp tyTuple nt)
   unifyTypes val tt
   return s'
 
@@ -756,15 +756,15 @@ check' (Literal ss (ListLiteral vals)) t@(TypeApp _ a ty) = do
   unifyTypes a tyList
   array <- Literal ss . ListLiteral . map tvToExpr <$> forM vals (`check` ty)
   return $ TypedValue' True array t
-check' (Literal ss (TuplesLiteral xs)) t@(TypeApp _ tyTuples tys) = do
+check' (Literal ss (TupleLiteral xs)) t@(TypeApp _ tyTuple tys) = do
   let tys' = tuplesToList tys
   if length xs /= length tys' 
-    then throwError (MultipleErrors [ (ErrorMessage [] $ TuplesLengthDifferent (length xs) (length tys') )] )
+    then throwError (MultipleErrors [ (ErrorMessage [] $ TupleLengthDifferent (length xs) (length tys') )] )
     else do
      xs' <- forM (zip xs tys') $ \(x, ty) -> do 
         tx <- fmap tvToExpr $ x `check` (tuplesType ty)
         return tx
-     return $ TypedValue' True (Literal ss (TuplesLiteral xs')) t
+     return $ TypedValue' True (Literal ss (TupleLiteral xs')) t
 check' (Abs binder ret) ty@(TypeApp _ (TypeApp _ t argTy) retTy)
   | VarBinder ss arg <- binder = do
     unifyTypes t tyFunction

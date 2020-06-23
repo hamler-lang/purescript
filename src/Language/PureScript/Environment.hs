@@ -349,8 +349,8 @@ tyList = primTy "List"
 -- tyTuple :: SourceType
 -- tyTuple = primTy "Tuple"
 
-tyTuples :: SourceType
-tyTuples = primTy "Tuples"
+tyTuple :: SourceType
+tyTuple = primTy "Tuple"
 
 tyBinary :: SourceType
 tyBinary = primTy "Binary"
@@ -429,7 +429,7 @@ primTypes :: M.Map (Qualified (ProperName 'TypeName)) (SourceKind, TypeKind)
 primTypes = M.fromList
   [ (primName "Function", (kindType -:> kindType -:> kindType, ExternData))
   , (primName "List",    (kindType -:> kindType, ExternData))
-  , (primName "Tuples",  (kindRow kindType -:> kindType, ExternData))
+  , (primName "Tuple",  (kindRow kindType -:> kindType, ExternData))
   , (primName "Record",  (kindRow kindType -:> kindType, ExternData))
   , (primName "String",  (kindType, ExternData))
 

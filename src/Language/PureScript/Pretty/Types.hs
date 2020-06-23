@@ -57,7 +57,7 @@ data PrettyPrintType
   | PPFunction PrettyPrintType PrettyPrintType
   | PPRecord [(Label, PrettyPrintType)] (Maybe PrettyPrintType)
   | PPRow [(Label, PrettyPrintType)] (Maybe PrettyPrintType)
-  | PPTuples [PrettyPrintType] 
+  | PPTuple [PrettyPrintType] 
   | PPTruncated
 
 type PrettyPrintConstraint = (Qualified (ProperName 'ClassName), [PrettyPrintType])
@@ -82,7 +82,7 @@ convertPrettyPrintType = go
   go d (BinaryNoParensType _ ty1 ty2 ty3) = PPBinaryNoParensType (go (d-1) ty1) (go (d-1) ty2) (go (d-1) ty3)
   go d (ParensInType _ ty) = PPParensInType (go (d-1) ty)
   go d ty@RCons{} = uncurry PPRow (goRow d ty)
-  go d ty@(Tuples _ _ _)= PPTuples $  (goTuples d ty)
+  go d ty@(Tuple _ _ _)= PPTuple $  (goTuple d ty)
   go d (ForAll _ v mbK ty _) = goForAll d [(v, fmap ($> ()) mbK)] ty
   go d (TypeApp _ a b) = goTypeApp d a b
 
@@ -96,7 +96,7 @@ convertPrettyPrintType = go
            REmpty _ -> Nothing
            _ -> Just (go (d-1) tail_)
        )
-  goTuples d ty =
+  goTuple d ty =
     let items = tuplesToList ty
     in  map (\item ->  go (d-1) (tuplesType item)) items
 
@@ -105,8 +105,8 @@ convertPrettyPrintType = go
     | otherwise = PPTypeApp (goTypeApp d f a) (go (d-1) b)
   goTypeApp d o ty@RCons{}
     | eqType o tyRecord = uncurry PPRecord (goRow d ty)
-  goTypeApp d o ty@Tuples{}
-    | eqType o tyTuples = PPTuples (goTuples d ty)
+  goTypeApp d o ty@Tuple{}
+    | eqType o tyTuple = PPTuple (goTuple d ty)
   goTypeApp d a b = PPTypeApp (go (d-1) $ a) (go (d-1) $ b)
 
 -- TODO(Christoph): get rid of T.unpack s
@@ -195,7 +195,7 @@ matchTypeAtom tro@TypeRenderOptions{troSuggesting = suggesting} =
         | otherwise = Just $ text $ T.unpack name ++ show s
       match (PPRecord labels tail_) = Just $ prettyPrintRowWith tro '{' '}' labels tail_
       match (PPRow labels tail_) = Just $ prettyPrintRowWith tro '(' ')' labels tail_
-      match (PPTuples labels ) = Just  $ text "(" <> (hsep 0 left $ L.intersperse (text ", ")  $ fmap typeAsBox' labels) <> text ")" 
+      match (PPTuple labels ) = Just  $ text "(" <> (hsep 0 left $ L.intersperse (text ", ")  $ fmap typeAsBox' labels) <> text ")" 
       match (PPBinaryNoParensType op l r) =
         Just $ typeAsBox' l <> text " " <> typeAsBox' op <> text " " <> typeAsBox' r
       match (PPTypeOp op) = Just $ text $ T.unpack $ showQualified runOpName op

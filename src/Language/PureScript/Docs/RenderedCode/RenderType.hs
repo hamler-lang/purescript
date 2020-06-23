@@ -45,7 +45,7 @@ typeLiterals = mkPattern match
     Just (typeCtor n)
   match (PPRow labels tail_) =
     Just (syntax "(" <> renderRow labels tail_ <> syntax ")")
-  match (PPTuples labels) =
+  match (PPTuple labels) =
     Just (syntax "(" <>  renderH labels  <> syntax ")")
   match (PPBinaryNoParensType op l r) =
     Just $ renderTypeAtom' l <> sp <> renderTypeAtom' op <> sp <> renderTypeAtom' r

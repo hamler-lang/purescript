@@ -75,8 +75,8 @@ readInput inputFiles = forM inputFiles $ \inputFile -> do
 -- The support modules that should be cached between test cases, to avoid
 -- excessive rebuilding.
 --
-getSupportModuleTuples :: IO [(FilePath, P.Module)]
-getSupportModuleTuples = do
+getSupportModuleTuple :: IO [(FilePath, P.Module)]
+getSupportModuleTuple = do
   cd <- getCurrentDirectory
   let supportDir = cd </> "tests" </> "support"
   psciFiles <- Glob.globDir1 (Glob.compile "**/*.purs") (supportDir </> "psci")
@@ -89,7 +89,7 @@ getSupportModuleTuples = do
     Left errs -> fail (P.prettyPrintMultipleErrors P.defaultPPEOptions errs)
 
 getSupportModuleNames :: IO [T.Text]
-getSupportModuleNames = sort . map (P.runModuleName . P.getModuleName . snd) <$> getSupportModuleTuples
+getSupportModuleNames = sort . map (P.runModuleName . P.getModuleName . snd) <$> getSupportModuleTuple
 
 pushd :: forall a. FilePath -> IO a -> IO a
 pushd dir act = do
@@ -108,7 +108,7 @@ createOutputFile logfileName = do
 
 setupSupportModules :: IO ([P.Module], [P.ExternsFile], M.Map P.ModuleName FilePath)
 setupSupportModules = do
-  ms <- getSupportModuleTuples
+  ms <- getSupportModuleTuple
   let modules = map snd ms
   supportExterns <- runExceptT $ do
     foreigns <- inferForeignModules ms

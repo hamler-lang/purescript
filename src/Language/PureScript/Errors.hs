@@ -1049,7 +1049,7 @@ prettyPrintSingleError (PPEOptions codeColor full level showDocs relPath) e = fl
             , indent $ paras $ map (line . markCode . showQualified showOp) (NEL.toList ops)
             , line "Use parentheses to resolve this ambiguity."
             ]
-    renderSimpleErrorMessage (TuplesLengthDifferent x y) = 
+    renderSimpleErrorMessage (TupleLengthDifferent x y) = 
       paras 
         [ line "Tuple have different length"
         , line  $ "Type lengthe is " <> T.pack (show y)

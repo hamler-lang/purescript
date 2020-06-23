@@ -157,7 +157,7 @@ renameInValue (Let ann ds v) =
 -- Renames within literals.
 renameInLiteral :: (a -> Rename a) -> Literal a -> Rename (Literal a)
 renameInLiteral rename (ListLiteral bs) = ListLiteral <$> traverse rename bs
-renameInLiteral rename (TuplesLiteral xs) = TuplesLiteral <$> traverse rename xs
+renameInLiteral rename (TupleLiteral xs) = TupleLiteral <$> traverse rename xs
 renameInLiteral rename (ObjectLiteral bs) = ObjectLiteral <$> traverse (sndM rename) bs
 renameInLiteral _ l = return l
 
