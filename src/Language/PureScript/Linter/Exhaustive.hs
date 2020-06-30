@@ -307,7 +307,7 @@ checkExhaustive ss env mn numArgs cas expr = makeResult . first ordNub $ foldl' 
     where
       tellRedundant = tell . errorMessage' ss . uncurry OverlappingPattern . second null . splitAt 5 $ bss'
       tellIncomplete = tell . errorMessage' ss $ IncompleteExhaustivityCheck
-      (baa, complete) = (second null (splitAt 5 (trace (show bss) bss)))
+      (baa, complete) = (second null (splitAt 5 bss))
       constraintData :: ConstraintData
       constraintData =
         PartialConstraintData (map (map prettyPrintBinderAtom) bss) complete
