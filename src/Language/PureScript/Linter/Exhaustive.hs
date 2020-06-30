@@ -36,6 +36,7 @@ import Language.PureScript.Pretty.Values (prettyPrintBinderAtom)
 import Language.PureScript.Traversals
 import Language.PureScript.Types as P
 import qualified Language.PureScript.Constants as C
+import qualified Data.List as L
 
 -- | There are two modes of failure for the redundancy check:
 --
@@ -297,50 +298,26 @@ checkExhaustive ss env mn numArgs cas expr = makeResult . first ordNub $ foldl' 
          _ -> return ()
        if null bss
          then return expr
-         else addPartialConstraint (second null (splitAt 5 bss)) expr
+         else do
+            tell . errorMessage' ss $ NoInstanceFound (srcConstraint C.Partial [] (Just constraintData))
+            return expr
+            -- return $ case expr of
+            --           Case exs calts -> Case exs (calts ++ [calt (length exs)] )
+            --           x -> error $ show x
     where
       tellRedundant = tell . errorMessage' ss . uncurry OverlappingPattern . second null . splitAt 5 $ bss'
       tellIncomplete = tell . errorMessage' ss $ IncompleteExhaustivityCheck
-
-  -- | We add a Partial constraint by adding a call to the following identity function:
-  --
-  -- partial :: forall a. Partial => a -> a
-  --
-  -- The binder information is provided so that it can be embedded in the constraint,
-  -- and then included in the error message.
-  addPartialConstraint :: ([[Binder]], Bool) -> Expr -> m Expr
-  addPartialConstraint (bss, complete) e = do
-    tyVar <- ("p" <>) . T.pack . show <$> fresh
-    var <- freshName
-    return $
-      Let
-        FromLet
-        [ partial var tyVar ]
-        $ App (Var ss (Qualified Nothing UnusedIdent)) e
-    where
-      partial :: Text -> Text -> Declaration
-      partial var tyVar =
-        ValueDecl (ss, []) UnusedIdent Private [] $
-        [MkUnguarded
-          (TypedValue
-           True
-           (Abs (VarBinder ss (Ident var)) (Var ss (Qualified Nothing (Ident var))))
-           (ty tyVar))
-        ]
-
-      ty :: Text -> SourceType
-      ty tyVar =
-        srcForAll tyVar
-          Nothing
-          ( srcConstrainedType
-              (srcConstraint C.Partial [] (Just constraintData))
-              $ srcTypeApp (srcTypeApp tyFunction (srcTypeVar tyVar)) (srcTypeVar tyVar)
-          )
-          Nothing
-
+      (baa, complete) = (second null (splitAt 5 (trace (show bss) bss)))
       constraintData :: ConstraintData
       constraintData =
         PartialConstraintData (map (map prettyPrintBinderAtom) bss) complete
+
+      -- calt n = CaseAlternative (L.replicate n (NullBinder))
+      --            [MkUnguarded $ App myerror (Literal ss $ StringLiteral $ mkString $ T.pack $ show ss ) ]
+
+      -- myerror :: Expr
+      -- myerror   = Var nullSourceSpan $ Qualified  Nothing (Ident "error")
+
 
 -- |
 -- Exhaustivity checking

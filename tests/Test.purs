@@ -1,10 +1,9 @@
 module Test where
 
--- t0 :: (Integer,Integer) -> Boolean
--- t0 (x,z) = z
+data T = T Integer | N
 
--- k :: (Integer,Integer,Integer,Integer,String,String,Boolean,String)
--- k = (1,2,1,2,"nice", "great",true,"nic")
+foreign import error :: forall a. String -> a
 
--- t :: (Integer,Integer,Integer,Integer,Integer,Integer,Integer,Integer)
-t = (1,1,1,1,1,1,1,1,1,1,1,1,"nice","great","a","i","sss",false,true)
+t1 :: (T,T) -> (Integer, Integer)
+t1 (x,y) = let (T a, T b) = (x,y)
+           in  (a,b)
