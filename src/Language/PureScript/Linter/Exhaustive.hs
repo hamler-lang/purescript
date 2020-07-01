@@ -310,7 +310,7 @@ checkExhaustive ss env mn numArgs cas expr = makeResult . first ordNub $ foldl' 
       (baa, complete) = (second null (splitAt 5 bss))
       constraintData :: ConstraintData
       constraintData =
-        PartialConstraintData (map (map prettyPrintBinderAtom) bss) complete
+        PartialConstraintData (map (map prettyPrintBinderAtom) baa) complete
 
       -- calt n = CaseAlternative (L.replicate n (NullBinder))
       --            [MkUnguarded $ App myerror (Literal ss $ StringLiteral $ mkString $ T.pack $ show ss ) ]
