@@ -125,7 +125,7 @@ handleReloadState
 handleReloadState reload = do
   modify $ updateLets (const [])
   globs <- asks psciFileGlobs
-  files <- liftIO $ concat <$> traverse glob (map fst globs)
+  files <- liftIO $ concat <$> traverse glob (map (fst . snd) globs)
   e <- runExceptT $ do
     modules <- ExceptT . liftIO $ loadAllModules files
     (externs, _) <- ExceptT . liftIO . runMake . make $ fmap CST.pureResult <$> modules
