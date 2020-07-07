@@ -21,6 +21,10 @@ readUTF8FilesT :: [FilePath] -> IO [(FilePath, Text)]
 readUTF8FilesT =
   traverse (\inFile -> (inFile, ) <$> readUTF8FileT inFile) . ordNub
 
+readUTF8FilesT' :: [(FilePath, Bool)] -> IO [(FilePath, Text, Bool)]
+readUTF8FilesT' fb =
+  traverse (\(inFile,b) -> fmap (\t -> (inFile, t, b)) (readUTF8FileT inFile)) . ordNub $ fb
+
 readUTF8FileT :: FilePath -> IO Text
 readUTF8FileT inFile =
   fmap (TE.decodeUtf8 . fixCRLF) (BS.readFile inFile)

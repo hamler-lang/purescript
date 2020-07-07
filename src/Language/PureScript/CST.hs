@@ -1,6 +1,7 @@
 module Language.PureScript.CST
   ( parseFromFile
   , parseFromFiles
+  , parseFromFiles'
   , parseModuleFromFile
   , parseModulesFromFiles
   , unwrapParserError
@@ -19,7 +20,7 @@ module Language.PureScript.CST
 import Prelude hiding (lex)
 
 import Control.Monad.Error.Class (MonadError(..))
-import Control.Parallel.Strategies (withStrategy, parList, evalTuple2, r0, rseq)
+import Control.Parallel.Strategies (withStrategy, parList, evalTuple2, evalTuple3, r0, rseq)
 import qualified Data.List.NonEmpty as NE
 import Data.Text (Text)
 import qualified Language.PureScript.AST as AST
@@ -59,6 +60,18 @@ parseFromFiles toFilePath input =
     . flip fmap input
     $ \(k, a) -> (k, parseFromFile (toFilePath k) a)
 
+parseFromFiles'
+  :: forall m k
+   . MonadError E.MultipleErrors m
+  => (k -> FilePath)
+  -> [(k, Text, Bool)]
+  -> m [(k, AST.Module, Bool)]
+parseFromFiles' toFilePath input =
+  flip E.parU (handleParserError' toFilePath)
+    . inParallel'
+    . flip fmap input
+    $ \(k, a, b) -> (k, parseFromFile (toFilePath k) a, b)
+
 parseModuleFromFile :: FilePath -> Text -> Either (NE.NonEmpty ParserError) (PartialResult AST.Module)
 parseModuleFromFile fp content = fmap (convertModule fp) <$> parseModule (lex content)
 
@@ -73,6 +86,15 @@ handleParserError
   -> m (k, a)
 handleParserError toFilePath (k, res) =
   (k,) <$> unwrapParserError (toFilePath k) res
+
+handleParserError'
+  :: forall m k a c
+   . MonadError E.MultipleErrors m
+  => (k -> FilePath)
+  -> (k, Either (NE.NonEmpty ParserError) a, c)
+  -> m (k, a,c)
+handleParserError' toFilePath (k, res, c) =
+  fmap (\b -> (k, b, c)) $ unwrapParserError (toFilePath k) res
 
 unwrapParserError
   :: forall m a
@@ -93,3 +115,6 @@ toPositionedError name perr =
 
 inParallel :: [(k, Either (NE.NonEmpty ParserError) a)] -> [(k, Either (NE.NonEmpty ParserError) a)]
 inParallel = withStrategy (parList (evalTuple2 r0 rseq))
+
+inParallel' :: [(k, Either (NE.NonEmpty ParserError) a, c)] -> [(k, Either (NE.NonEmpty ParserError) a, c)]
+inParallel' = withStrategy (parList (evalTuple3 r0 rseq rseq))
