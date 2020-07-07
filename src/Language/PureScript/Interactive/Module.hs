@@ -7,7 +7,7 @@ import qualified Language.PureScript.CST as CST
 import           Language.PureScript.Interactive.Types
 import           System.Directory (getCurrentDirectory)
 import           System.FilePath (pathSeparator, makeRelative)
-import           System.IO.UTF8 (readUTF8FileT, readUTF8FilesT)
+import           System.IO.UTF8 (readUTF8FileT, readUTF8FilesT, readUTF8FilesT')
 
 -- * Support Module
 
@@ -36,6 +36,12 @@ loadAllModules files = do
   pwd <- getCurrentDirectory
   filesAndContent <- readUTF8FilesT files
   return $ CST.parseFromFiles (makeRelative pwd) filesAndContent
+
+loadAllModules' :: [(FilePath, Bool)] -> IO (Either P.MultipleErrors [(FilePath, P.Module, Bool)])
+loadAllModules' files = do
+  pwd <- getCurrentDirectory
+  filesAndContent <- readUTF8FilesT' files
+  return $ CST.parseFromFiles' (makeRelative pwd) filesAndContent
 
 -- |
 -- Makes a volatile module to execute the current expression.

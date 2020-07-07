@@ -47,7 +47,7 @@ import           Control.Monad.Writer.Strict (runWriterT)
 -- These configuration values do not change during execution.
 --
 data PSCiConfig = PSCiConfig
-  { psciFileGlobs :: [String]
+  { psciFileGlobs :: [(String, Bool)]
   , moduleDirs :: FilePath
   } deriving Show
 
@@ -180,11 +180,11 @@ setInteractivePrint iprint (PSCiState a b c _ d e v) =
 
 
 setVal :: (String, String) -> PSCiState -> PSCiState
-setVal (s1,s2) (PSCiState a b c k d e v) =
+setVal (_,s2) (PSCiState a b c k d e _) =
   PSCiState a b c k d e s2
 
 getVal :: PSCiState -> String
-getVal (PSCiState a b c k d e v) = v 
+getVal (PSCiState _ _ _ _ _ _ v) = v 
 
 -- * Commands
 
