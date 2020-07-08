@@ -54,7 +54,10 @@ data SourceSpan = SourceSpan
     -- ^ Start of the span
   , spanEnd :: SourcePos
     -- ^ End of the span
-  } deriving (Show, Eq, Ord, Generic)
+  } deriving (Eq, Ord, Generic)
+
+instance Show SourceSpan where
+  show (SourceSpan _ (SourcePos l c) (SourcePos ll cc)) = "(" <> show l <> "," <> show c <> ")~(" <> show ll <> "," <> show cc <> ")"
 
 instance NFData SourceSpan
 
