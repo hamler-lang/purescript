@@ -87,7 +87,7 @@ parseDirective = listToMaybe . directivesFor
 help :: [(Directive, String, String)]
 help =
   [ (Help,     "",          "Show this help menu")
-  , (Quit,     "",          "Quit PSCi")
+  , (Quit,     "",          "Quit REPL")
   , (Reload,   "",          "Reload all imported modules while discarding bindings")
   , (Clear,    "",          "Discard all imported modules and declared bindings")
   , (Browse,   "<module>",  "See all functions in <module>")
