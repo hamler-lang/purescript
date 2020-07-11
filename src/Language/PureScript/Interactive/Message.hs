@@ -12,7 +12,7 @@ import           Language.PureScript.Interactive.Types
 
 -- | The guide URL
 guideURL :: String
-guideURL = "https://github.com/purescript/documentation/blob/master/guides/PSCi.md"
+guideURL = "https://www.hamler-lang.org/"
 
 -- | The help message.
 helpMessage :: String
@@ -37,20 +37,20 @@ helpMessage = "The following commands are available:\n\n    " ++
 -- | The welcome prologue.
 prologueMessage :: String
 prologueMessage = unlines
-  [ "PSCi, version " ++ showVersion Paths.version
+  [ "Hamler REPL, version " ++ "0.2"
   , "Type :? for help"
   ]
 
 noInputMessage :: String
 noInputMessage = unlines
-  [ "purs repl: No input files; try running `pulp psci` instead."
+  [ "hamler repl: No input files."
   , "For help getting started, visit " ++ guideURL
   , "Usage: For basic information, try the `--help' option."
   ]
 
 supportModuleMessage :: String
 supportModuleMessage = unlines
-  [ "purs repl: PSCi requires the psci-support package."
+  [ "hamler repl: repl requires the repl-support."
   , "For help getting started, visit " ++ guideURL
   ]
 
