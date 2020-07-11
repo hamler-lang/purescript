@@ -52,7 +52,8 @@ createTemporaryModule exec st val =
     imports       = psciImportedModules st
     lets          = psciLetBindings st
     moduleName    = P.ModuleName [P.ProperName "$PSCI"]
-    itDecl        = P.ValueDecl (internalSpan, []) (P.Ident "it") P.Public [] [P.MkUnguarded val]
+    itDecl        = P.ValueDecl (internalSpan, []) (P.Ident "it") P.Public [] 
+                         [P.MkUnguarded $ P.App (P.Var internalSpan (P.Qualified Nothing (P.Ident "replApply"))) val]
     decls         =  [itDecl]
   in
     P.Module internalSpan
