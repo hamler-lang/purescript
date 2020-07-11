@@ -50,8 +50,7 @@ noInputMessage = unlines
 
 supportModuleMessage :: String
 supportModuleMessage = unlines
-  [ "hamler repl: repl requires the repl-support."
-  , "For help getting started, visit " ++ guideURL
+  [  "For help getting started, visit " ++ guideURL
   ]
 
 -- | The quit message.
