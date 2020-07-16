@@ -30,12 +30,12 @@ findNodeProcess = onFirstFileMatching findExecutable names
 --
 getHistoryFilename :: IO FilePath
 getHistoryFilename = do
-  appuserdata <- getAppUserDataDirectory "purescript"
-  olddirbool <- doesFileExist (appuserdata </> "psci_history")
+  appuserdata <- getAppUserDataDirectory "hamler"
+  olddirbool <- doesFileExist (appuserdata </> "repl_history")
   if olddirbool
-      then return (appuserdata </> "psci_history")
+      then return (appuserdata </> "repl_history")
       else do
-        datadir <- getXdgDirectory XdgData "purescript"
-        let filename = datadir </> "psci_history"
+        datadir <- getXdgDirectory XdgData "hamler"
+        let filename = datadir </> "repl_history"
         mkdirp filename
         return filename

@@ -210,4 +210,4 @@ parseFullyQualifiedIdent = join $ CST.Parser $ \st _ ksucc ->
     _ ->
       ksucc st $ do
         tok <- CSTM.munch
-        CSTM.parseFail tok $ CST.ErrCustom "Expected a fully-qualified name (eg: PSCI.Support.eval)"
+        CSTM.parseFail tok $ CST.ErrCustom "Expected a fully-qualified name "

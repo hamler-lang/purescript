@@ -98,7 +98,7 @@ preludeModule = (P.ModuleName [P.ProperName "Prelude"], P.Implicit, Nothing)
 
 -- | The default interactive print function.
 initialInteractivePrint :: (P.ModuleName, P.Ident)
-initialInteractivePrint = (P.moduleNameFromString "PSCI.Support", P.Ident "eval")
+initialInteractivePrint = (P.moduleNameFromString "REPL.Support", P.Ident "eval")
 
 psciEnvironment :: PSCiState -> P.Environment
 psciEnvironment st = foldl' (flip P.applyExternsFileToEnvironment) P.initEnvironment externs
@@ -141,7 +141,7 @@ updateImportExports st@(PSCiState modules lets externs iprint _ _ v) =
   createEnv = runExceptT =<< fmap fst . runWriterT . foldM P.externsEnv P.primEnv
 
   temporaryName :: P.ModuleName
-  temporaryName = P.ModuleName [P.ProperName "$PSCI"]
+  temporaryName = P.ModuleName [P.ProperName "$REPL"]
 
   temporaryModule :: P.Module
   temporaryModule =
