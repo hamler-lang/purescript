@@ -20,7 +20,7 @@ import qualified Language.PureScript.CST.Monad as CSTM
 import qualified Language.PureScript.CST.Positions as CST
 import qualified Language.PureScript.Interactive.Directive as D
 import           Language.PureScript.Interactive.Types
-
+import Control.Applicative ((<|>))
 -- |
 -- Parses a limited set of commands from from .purs-repl
 --
@@ -45,13 +45,12 @@ parseCommand :: String -> Either String [Command]
 parseCommand cmdString =
   case cmdString of
     (':' : cmd) -> pure <$> parseDirective cmd
-    _ -> case parseRest (mergeDecls <$> parseMany psciCommand) cmdString of
-           Right a -> Right a
-           Left _ -> case parseRest1 (mergeDecls <$> psciTopBinding) cmdString of
-                       Right a -> Right a
-                       Left _ -> case parseRest (mergeDecls <$> parseMany psciCommand) (removeLetPrefix cmdString) of
-                         Right a -> Right a
-                         Left _ -> parseRest1 (mergeDecls <$> psciTopBinding) (removeLetPrefix cmdString)
+    _ ->  (parseRest (mergeDecls <$> parseMany psciCommand) cmdString)
+           <|>  (parseRest1 (mergeDecls <$> psciTopBinding) cmdString)
+           <|>  (parseRest (mergeDecls <$> parseMany psciCommand) (removeLetPrefix cmdString))
+           <|>  (parseRest1 (mergeDecls <$> psciTopBinding) (removeLetPrefix cmdString))
+           <|>  (parseRest (mergeDecls <$> parseMany psciCommand) (removeLeftArrow cmdString))
+           <|>  (parseRest1 (mergeDecls <$> psciTopBinding) (removeLeftArrow cmdString))
   where
   mergeDecls (Decls as : bs) =
     case mergeDecls bs of
@@ -66,6 +65,12 @@ parseCommand cmdString =
 removeLetPrefix :: String -> String
 removeLetPrefix s = case ws of
                       ("let":xs) -> unwords xs
+                      _ -> s
+  where ws = words s
+
+removeLeftArrow :: String -> String
+removeLeftArrow s = case ws of
+                      (v : "<-":xs) -> unwords (v:" = unsafePerformIO ": "(" : xs  ++ [")"])
                       _ -> s
   where ws = words s
 
