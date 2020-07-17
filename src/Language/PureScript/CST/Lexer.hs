@@ -23,6 +23,7 @@ import Language.PureScript.CST.Monad hiding (token)
 import Language.PureScript.CST.Layout
 import Language.PureScript.CST.Positions
 import Language.PureScript.CST.Types
+import Language.PureScript.PSString (decodeStringWithReplacement)
 
 -- | Stops at the first lexing error and replaces it with TokEof. Otherwise,
 -- the parser will fail when it attempts to draw a lookahead token.
@@ -304,9 +305,11 @@ token = peek >>= maybe (pure TokEof) k0
             ksucc inp2 $ pure tok2
       Just (ch2', inp2) | isSymbolChar ch2' ->
         ksucc inp2 $ operator [] [ch1, ch2']
-      Just (ch2', _) | (ch2' /= '\r') && (ch2' /= '\n') && (ch2' /= ' ') && (not $ Char.isDigit ch2') && (not $ Char.isUpper ch2') ->
+      Just (ch2', inp2) | (ch2' /= '\r') && (ch2' /= '\n') && (ch2' /= ' ') &&  (ch2' /= '"')
+                         && (not $ Char.isDigit ch2') && (not $ Char.isUpper ch2') ->
                           let (a,b) = Text.span isAtomElem inp
                           in ksucc b $ pure $ TokAtom a
+                        | ch2' == '"' -> ksucc inp2 (fmap strToAtom string) 
       _ ->
         ksucc inp $ pure tok1
         -- ksucc inp $ error $ show tok1
@@ -744,3 +747,8 @@ isUnquotedKey t =
 
 isAtomElem :: Char -> Bool
 isAtomElem c = Char.isDigit c || Char.isUpper c || Char.isLower c || (c=='_')
+
+strToAtom :: Token -> Token
+strToAtom (TokRawString t) = TokAtom t
+strToAtom (TokString _ p) = TokAtom (Text.pack $ decodeStringWithReplacement p)
+strToAtom _  = error "strange happened!!"
