@@ -11,7 +11,7 @@ import Language.PureScript.AST.Literals
 import Language.PureScript.CoreFn.Binders
 import Language.PureScript.Names
 import Language.PureScript.PSString (PSString)
-
+import GHC.Stack
 -- |
 -- Data type for expressions and terms
 --
@@ -48,6 +48,9 @@ data Expr a
   -- A case expression
   --
   | Case a [Expr a] [CaseAlternative a]
+  -- | A case expression
+  --
+  | Receive a (Expr a) (Expr a) [CaseAlternative a]
   -- |
   -- A let binding
   --
@@ -96,7 +99,7 @@ instance Functor CaseAlternative where
 -- |
 -- Extract the annotation from a term
 --
-extractAnn :: Expr a -> a
+extractAnn :: HasCallStack => Expr a -> a
 extractAnn (Literal a _) = a
 extractAnn (Constructor a _ _ _) = a
 extractAnn (Accessor a _ _) = a
@@ -105,6 +108,7 @@ extractAnn (Abs a _ _) = a
 extractAnn (App a _ _) = a
 extractAnn (Var a _) = a
 extractAnn (Case a _ _) = a
+extractAnn (Receive a _ _ _) = a
 extractAnn (List a _ _) = a
 extractAnn (Let a _ _) = a
 
@@ -121,5 +125,6 @@ modifyAnn f (Abs a b c)           = Abs (f a) b c
 modifyAnn f (App a b c)           = App (f a) b c
 modifyAnn f (Var a b)             = Var (f a) b
 modifyAnn f (Case a b c)          = Case (f a) b c
+modifyAnn f (Receive a b c d)     = Receive (f a) b c d
 modifyAnn f (List a b c)          = List (f a) b c
 modifyAnn f (Let a b c)           = Let (f a) b c

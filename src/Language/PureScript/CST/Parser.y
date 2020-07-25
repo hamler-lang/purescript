@@ -35,7 +35,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 115
+%expect 116
 
 %name parseKind kind
 %name parseType type
@@ -104,6 +104,7 @@ import Language.PureScript.PSString (PSString)
   'ado'           { SourceToken _ (TokLowerName _ "ado") }
   'as'            { SourceToken _ (TokLowerName [] "as") }
   'case'          { SourceToken _ (TokLowerName [] "case") }
+  'receive'       { SourceToken _ (TokLowerName [] "receive") }
   'class'         { SourceToken _ (TokLowerName [] "class") }
   'data'          { SourceToken _ (TokLowerName [] "data") }
   'derive'        { SourceToken _ (TokLowerName [] "derive") }
@@ -236,6 +237,7 @@ label :: { Label }
   | 'ado' { toLabel $1 }
   | 'as' { toLabel $1 }
   | 'case' { toLabel $1 }
+  | 'receive' { toLabel $1 }
   | 'class' { toLabel $1 }
   | 'data' { toLabel $1 }
   | 'derive' { toLabel $1 }
@@ -411,6 +413,18 @@ expr5 :: { Expr () }
       { ExprCase () (CaseOf $1 $2 $3 (pure ($5, Unconditional $6 $8))) }
   | 'case' sep(expr, ',') 'of' '\{' sep(binder1, ',') '\}' guardedCase
       { ExprCase () (CaseOf $1 $2 $3 (pure ($5, $7))) }
+
+  | 'receive' expr ',' expr 'of' '\{' manySep(caseBranch, '\;') '\}'
+                       { ExprReceive () (Receive $1 ($2, $4) $7) }
+
+  | 'receive' expr ',' expr 'of' '\{' sep(binder1, ',') '->' '\}' exprWhere
+                       { ExprReceive () (Receive $1 ($2, $4) (pure ($7, Unconditional $8 $10))) }
+
+
+  | 'receive' expr ',' expr 'of' '\{' sep(binder1, ',') '\}' guardedCase
+                       { ExprReceive () (Receive $1 ($2, $4) (pure ($7, $9))) }
+
+
 
 expr6 :: { Expr () }
   : expr7 { $1 }

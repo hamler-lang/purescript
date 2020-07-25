@@ -788,6 +788,8 @@ data Expr
   -- desugared into case expressions, hence the need for guards and multiple binders per branch here.
   --
   | Case [Expr] [CaseAlternative]
+  -- | A receive expression. During the case expansion phase of desugaring, top-level binders will get
+  | Receive Expr Expr [CaseAlternative]
   -- |
   -- A value with a type annotation
   --

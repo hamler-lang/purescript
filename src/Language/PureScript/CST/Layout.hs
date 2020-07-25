@@ -166,6 +166,9 @@ insertLayout src@(SourceToken tokAnn tok) nextPos stack =
     TokLowerName [] "case" ->
       state & insertKwProperty (pushStack tokPos LytCase)
 
+    TokLowerName [] "receive" ->
+      state & insertKwProperty (pushStack tokPos LytCase)
+
     TokLowerName [] "of" ->
       case collapse indentedP state of
         -- When `of` is matched with a `case`, we are in a case block, and we
