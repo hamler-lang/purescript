@@ -346,6 +346,7 @@ data Expr a
   | ExprLambda a (Lambda a)
   | ExprIf a (IfThenElse a)
   | ExprCase a (CaseOf a)
+  | ExprReceive a (Receive a)
   | ExprLet a (LetIn a)
   | ExprDo a (DoBlock a)
   | ExprListComp a (ListComp a)
@@ -392,6 +393,13 @@ data CaseOf a = CaseOf
   , caseOf :: SourceToken
   , caseBranches :: NonEmpty (Separated (Binder a), Guarded a)
   } deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+
+data Receive a = Receive
+  { recKeyword :: SourceToken  -- receive
+  , recE :: (Integer, Expr a) -- two expres timeout handle
+  , recBranches :: NonEmpty (Separated (Binder a), Guarded a) -- all branch
+  } deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
+
 
 data LetIn a = LetIn
   { letKeyword :: SourceToken

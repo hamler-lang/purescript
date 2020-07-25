@@ -93,6 +93,9 @@ data Type a
 
 instance NFData a => NFData (Type a)
 
+srcIOType :: SourceType
+srcIOType = srcTypeConstructor (Qualified Nothing (ProperName "IO"))
+
 srcTUnknown :: Int -> SourceType
 srcTUnknown = TUnknown NullSourceAnn
 

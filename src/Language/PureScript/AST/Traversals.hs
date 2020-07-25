@@ -75,6 +75,7 @@ everywhereOnValues f g h = (f', g', h')
     g' (Unused v) = g (Unused (g' v))
     g' (IfThenElse v1 v2 v3) = g (IfThenElse (g' v1) (g' v2) (g' v3))
     g' (Case vs alts) = g (Case (fmap g' vs) (fmap handleCaseAlternative alts))
+    g' (Receive e1 e2 alts) = g (Receive e1 (g' e2) (fmap handleCaseAlternative alts))
     g' (List exprs expr) = g (List (fmap g' exprs) (g' expr))
     g' (TypedValue check v ty) = g (TypedValue check (g' v) ty)
     g' (Let w ds v) = g (Let w (fmap f' ds) (g' v))
@@ -147,6 +148,7 @@ everywhereOnValuesTopDownM f g h = (f' <=< f, g' <=< g, h' <=< h)
     g' (Unused v) = Unused <$> (g v >>= g')
     g' (IfThenElse v1 v2 v3) = IfThenElse <$> (g v1 >>= g') <*> (g v2 >>= g') <*> (g v3 >>= g')
     g' (Case vs alts) = Case <$> traverse (g' <=< g) vs <*> traverse handleCaseAlternative alts
+    g' (Receive e1 e2 alts) = Receive e1 <$> (g' <=< g $ e2) <*> traverse handleCaseAlternative alts
     g' (List exprs expr) = List <$> traverse (g' <=< g) exprs <*> (g' <=< g $ expr)
     g' (TypedValue check v ty) = TypedValue check <$> (g v >>= g') <*> pure ty
     g' (Let w ds v) = Let w <$> traverse (f' <=< f) ds <*> (g v >>= g')
@@ -217,6 +219,7 @@ everywhereOnValuesM f g h = (f', g', h')
     g' (Unused v) = (Unused <$> g' v) >>= g
     g' (IfThenElse v1 v2 v3) = (IfThenElse <$> g' v1 <*> g' v2 <*> g' v3) >>= g
     g' (Case vs alts) = (Case <$> traverse g' vs <*> traverse handleCaseAlternative alts) >>= g
+    g' (Receive e1 e2 alts) = (Receive e1 <$> g' e2 <*> traverse handleCaseAlternative alts) >>= g
     g' (List exprs expr) = (List <$> traverse g' exprs <*> g' expr) >>= g
     g' (TypedValue check v ty) = (TypedValue check <$> g' v <*> pure ty) >>= g
     g' (Let w ds v) = (Let w <$> traverse f' ds <*> g' v) >>= g
@@ -290,6 +293,7 @@ everythingOnValues (<>.) f g h i j = (f', g', h', i', j')
     g' v@(Unused v1) = g v <>. g' v1
     g' v@(IfThenElse v1 v2 v3) = g v <>. g' v1 <>. g' v2 <>. g' v3
     g' v@(Case vs alts) = foldl (<>.) (foldl (<>.) (g v) (fmap g' vs)) (fmap i' alts)
+    g' v@(Receive _ e2 alts) = foldl (<>.) (foldl (<>.) (g v) (fmap g' [e2])) (fmap i' alts)
     g' v@(List vs alts) = foldl (<>.) (foldl (<>.) (g v) (fmap g' vs)) [g' alts]
     g' v@(TypedValue _ v1 _) = g v <>. g' v1
     g' v@(Let _ ds v1) = foldl (<>.) (g v) (fmap f' ds) <>. g' v1
@@ -367,6 +371,7 @@ everythingWithContextOnValues s0 r0 (<>.) f g h i j = (f'' s0, g'' s0, h'' s0, i
     g' s (Unused v) = g'' s v
     g' s (IfThenElse v1 v2 v3) = g'' s v1 <>. g'' s v2 <>. g'' s v3
     g' s (Case vs alts) = foldl (<>.) (foldl (<>.) r0 (fmap (g'' s) vs)) (fmap (i'' s) alts)
+    g' s (Receive _ e2 alts) = foldl (<>.) (foldl (<>.) r0 (fmap (g'' s) [e2])) (fmap (i'' s) alts)
     g' s (List vs alts) = foldl (<>.) (foldl (<>.) r0 (fmap (g'' s) vs)) [(g'' s) alts]
     g' s (TypedValue _ v1 _) = g'' s v1
     g' s (Let _ ds v1) = foldl (<>.) r0 (fmap (f'' s) ds) <>. g'' s v1
@@ -445,6 +450,7 @@ everywhereWithContextOnValuesM s0 f g h i j = (f'' s0, g'' s0, h'' s0, i'' s0, j
     g' s (Unused v) = Unused <$> g'' s v
     g' s (IfThenElse v1 v2 v3) = IfThenElse <$> g'' s v1 <*> g'' s v2 <*> g'' s v3
     g' s (Case vs alts) = Case <$> traverse (g'' s) vs <*> traverse (i'' s) alts
+    g' s (Receive e1 e2 alts) = Receive e1 <$> g'' s e2 <*> traverse (i'' s) alts
     g' s (List vs alts) = List <$> traverse (g'' s) vs <*> g'' s alts
     g' s (TypedValue check v ty) = TypedValue check <$> g'' s v <*> pure ty
     g' s (Let w ds v) = Let w <$> traverse (f'' s) ds <*> g'' s v
@@ -537,6 +543,7 @@ everythingWithScope f g h i j = (f'', g'', h'', i'', \s -> snd . j'' s)
     g' s (Unused v) = g'' s v
     g' s (IfThenElse v1 v2 v3) = g'' s v1 <> g'' s v2 <> g'' s v3
     g' s (Case vs alts) = foldMap (g'' s) vs <> foldMap (i'' s) alts
+    g' s (Receive _ e2 alts) = foldMap (g'' s) [e2] <> foldMap (i'' s) alts
     g' s (List vs alts) = foldMap (g'' s) vs <> foldMap (g'' s) [alts]
     g' s (TypedValue _ v1 _) = g'' s v1
     g' s (Let _ ds v1) =
