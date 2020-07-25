@@ -36,6 +36,8 @@ data LayoutDelim
   | LytTopDeclHead
   | LytDeclGuard
   | LytCase
+  | LytReceive
+  | LytAfter
   | LytCaseBinders
   | LytCaseGuard
   | LytLambdaBinders
@@ -165,6 +167,9 @@ insertLayout src@(SourceToken tokAnn tok) nextPos stack =
     -- `case` heads need masking due to commas.
     TokLowerName [] "case" ->
       state & insertKwProperty (pushStack tokPos LytCase)
+
+    TokLowerName [] "receive" ->
+      state & insertToken src & insertStart LytOf & pushStack nextPos LytCaseBinders
 
     TokLowerName [] "of" ->
       case collapse indentedP state of

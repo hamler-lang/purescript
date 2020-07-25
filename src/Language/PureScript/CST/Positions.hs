@@ -315,6 +315,7 @@ exprRange = \case
   ExprLambda _ (Lambda a _ _ b) -> (a, snd $ exprRange b)
   ExprIf _ (IfThenElse a _ _ _ _ b) -> (a, snd $ exprRange b)
   ExprCase _ (CaseOf a _ _ c) -> (a, snd . guardedRange . snd $ NE.last c)
+  ExprReceive _ (Receive a _ c) -> (a, snd . guardedRange . snd $ NE.last c)
   ExprLet _ (LetIn a _ _ b) -> (a, snd $ exprRange b)
   ExprDo _ (DoBlock a b) -> (a,  snd . doStatementRange $ NE.last b)
   ExprListComp _ (ListComp a b _) -> (a,  snd . doStatementRange $ NE.last b)

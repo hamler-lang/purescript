@@ -437,6 +437,10 @@ infer' (Case vals binders) = do
   ret <- freshType
   binders' <- checkBinders ts ret binders
   return $ TypedValue' True (Case vals' binders') ret
+infer' (Receive e1 e2 binders) = do
+  ret <- freshType
+  binders' <- checkBinders' ret binders
+  return $ TypedValue' True (Receive e1 e2 binders') ret
 infer' (IfThenElse cond th el) = do
   cond' <- tvToExpr <$> check cond tyBoolean
   th'@(TypedValue' _ _ thTy) <- infer th
@@ -673,6 +677,23 @@ checkBinders nvals ret (CaseAlternative binders result : bs) = do
   rs <- checkBinders nvals ret bs
   return $ r : rs
 
+checkBinders' ::
+  (MonadSupply m, MonadState CheckState m, MonadError MultipleErrors m, MonadWriter MultipleErrors m) =>
+  SourceType ->
+  [CaseAlternative] ->
+  m [CaseAlternative]
+checkBinders' _ [] = return []
+checkBinders' ret (CaseAlternative binders result : bs) = do
+  guardWith (errorMessage $ OverlappingArgNames Nothing) $
+    let ns = concatMap binderNames binders in length (ordNub ns) == length ns
+  tys <- sequence $ replicate (length $ concatMap binderNames binders) freshType
+  m1 <- M.unions <$> zipWithM inferBinder tys binders
+  r <-
+    bindLocalVariables [(name, ty, Defined) | (name, ty) <- M.toList m1] $
+      CaseAlternative binders <$> forM result (\ge -> checkGuardedRhs ge ret)
+  rs <- checkBinders' ret bs
+  return $ r : rs
+
 checkGuardedRhs ::
   (MonadSupply m, MonadState CheckState m, MonadError MultipleErrors m, MonadWriter MultipleErrors m) =>
   GuardedExpr ->
@@ -811,6 +832,14 @@ check' (Case vals binders) ret = do
   (vals', ts) <- instantiateForBinders vals binders
   binders' <- checkBinders ts ret binders
   return $ TypedValue' True (Case vals' binders') ret
+check' (Receive e1 e2 binders) ret = do
+  TypedValue' _ _ st <- infer e2
+  case st of
+    TypeApp _ (TypeConstructor _ (Qualified _ (ProperName "IO"))) _ -> do
+       binders' <- checkBinders' ret binders
+       return $ TypedValue' True (Receive e1 e2 binders') ret
+    x -> withErrorMessageHint (ErrorUnifyingTypes srcIOType st) $
+       throwError . errorMessage $ TypesDoNotUnify srcIOType st
 check' (IfThenElse cond th el) ty = do
   cond' <- tvToExpr <$> check cond tyBoolean
   th' <- tvToExpr <$> check th ty
