@@ -74,6 +74,7 @@ data SimpleErrorMessage
   | UnnecessaryFFIModule ModuleName FilePath
   | MissingFFIImplementations ModuleName [Ident]
   | UnusedFFIImplementations ModuleName [Ident]
+  | FFIFunSameNameWithModule ModuleName [Ident]
   | InvalidFFIIdentifier ModuleName Text
   | FileIOError Text IOError -- ^ A description of what we were trying to do, and the error which occurred
   | InfiniteType SourceType

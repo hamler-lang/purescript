@@ -85,6 +85,7 @@ errorCode em = case unwrapErrorMessage em of
   UnnecessaryFFIModule{} -> "UnnecessaryFFIModule"
   MissingFFIImplementations{} -> "MissingFFIImplementations"
   UnusedFFIImplementations{} -> "UnusedFFIImplementations"
+  FFIFunSameNameWithModule{} -> "FFIFunSameNameWithModule"
   InvalidFFIIdentifier{} -> "InvalidFFIIdentifier"
   FileIOError{} -> "FileIOError"
   InfiniteType{} -> "InfiniteType"
@@ -494,6 +495,10 @@ prettyPrintSingleError (PPEOptions codeColor full level showDocs relPath) e = fl
             ]
     renderSimpleErrorMessage (UnusedFFIImplementations mn idents) =
       paras [ line $ "The following definitions in the foreign module for module " <> markCode (runModuleName mn) <> " are unused: "
+            , indent . paras $ map (line . runIdent) idents
+            ]
+    renderSimpleErrorMessage (FFIFunSameNameWithModule mn idents) =
+      paras [ line $ "The following definitions in the foreign module for module " <> markCode (runModuleName mn) <> " is the same name with a module function: "
             , indent . paras $ map (line . runIdent) idents
             ]
     renderSimpleErrorMessage (InvalidFFIIdentifier mn ident) =
