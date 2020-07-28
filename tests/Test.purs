@@ -1,21 +1,10 @@
 module Test where
 
-foreign import data IO :: Type -> Type
+t1 = {name="nice", age=23, pos= {x=10, y=20}}
 
-foreign import tt :: IO String
+t3 x = x
 
-data T = A Integer
-       | B Integer
-       | C Integer
+f x y = y
 
-t2 :: Integer -> Integer
-t2 a | false = 0
-     | true = 1
-
-t4 :: String
-t4  = receive
-        A a -> "233"
-        C 2 -> "great"
-      after 2333 -> tt
-
+t2 = f 2 t3 t1{name="000", pos={x=41}}
 
