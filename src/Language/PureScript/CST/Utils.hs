@@ -3,7 +3,7 @@ module Language.PureScript.CST.Utils where
 
 import Prelude
 
-import Control.Monad (when)
+import Control.Monad (foldM, when)
 import Data.Coerce (coerce)
 import Data.Foldable (for_)
 import Data.Functor (($>))
@@ -187,11 +187,26 @@ toBinderConstructor = \case
   a NE.:| [] -> pure a
   a NE.:| _ -> unexpectedToks binderRange (unexpectedBinder) ErrExprInBinder a
 
+getExprSpace :: Show a => Expr a -> Maybe Int
+getExprSpace (ExprIdent _ (QualifiedName (SourceToken (TokenAnn _ _ ls) _) _ _ ))
+  = case ls of
+   [] -> Nothing
+   xs -> let f :: Int ->  Comment l -> Maybe Int
+             f acc (Space i) = Just $ acc + i
+             f _ _ = Nothing
+         in foldM f 0 xs
+getExprSpace _ = Just 1
+
 toRecordFields
   :: (Monoid a, Show a)
-  => Separated (Either (RecordLabeled (Expr a)) (RecordUpdate a))
+  => Expr a
+  -> Separated (Either (RecordLabeled (Expr a)) (RecordUpdate a))
   -> Parser (Either (Separated (RecordLabeled (Expr a))) (Separated (RecordUpdate a)))
-toRecordFields = \case
+toRecordFields expr v =
+  let v' = case getExprSpace expr of
+                Nothing -> v
+                Just _ -> fmap upToRec v
+  in case v' of
   Separated (Left a) as ->
     Left . Separated a <$> traverse (traverse unLeft) as
   Separated (Right a) as ->
@@ -208,6 +223,10 @@ toRecordFields = \case
   unRight (Left (RecordField _ tok _)) = do
     addFailure [tok] ErrRecordCtrInUpdate
     pure $ unexpectedRecordUpdate [tok]
+
+upToRec :: Show a => (Either (RecordLabeled (Expr a)) (RecordUpdate a)) -> (Either (RecordLabeled (Expr a)) (RecordUpdate a))
+upToRec (Right (RecordUpdateLeaf l s e)) = Left $ RecordField l s e
+upToRec x = error $ show x
 
 checkFundeps :: ClassHead a -> Parser ()
 checkFundeps (ClassHead _ _ _ _ Nothing) = pure ()

@@ -433,7 +433,7 @@ expr6 :: { Expr () }
   : expr7 { $1 }
   | expr7 '{' '}' { ExprApp () $1 (ExprRecord () (Wrapped $2 Nothing $3)) }
   | expr7 '{' sep(recordUpdateOrLabel, ',') '}'
-      {% toRecordFields $3 >>= \case
+      {% toRecordFields $1 $3 >>= \case
           Left xs -> pure $ ExprApp () $1 (ExprRecord () (Wrapped $2 (Just xs) $4))
           Right xs -> pure $ ExprRecordUpdate () $1 (Wrapped $2 xs $4)
       }
