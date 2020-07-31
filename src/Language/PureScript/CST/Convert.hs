@@ -421,12 +421,19 @@ convertExpr fileName = go
         bs' = uncurry AST.CaseAlternative . bimap (map (convertBinder fileName) . toList) (convertGuarded fileName) <$> NE.toList bs
       positioned ann $ AST.Case as' bs'
 
-    expr@(ExprReceive _ (Receive _ (exp1, exp2) bs)) -> do
+    expr@(ExprReceive _ (Receive _ (Just (exp1, exp2)) bs)) -> do
       let
         ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
         exp2'= go exp2
         bs' = uncurry AST.CaseAlternative . bimap (map (convertBinder fileName) . toList) (convertGuarded fileName) <$> NE.toList bs
-      positioned ann $ AST.Receive exp1 exp2' bs'
+      positioned ann $ AST.Receive (Just (exp1, exp2')) bs'
+
+    expr@(ExprReceive _ (Receive _ Nothing bs)) -> do
+      let
+        ann = uncurry (sourceAnnCommented fileName) $ exprRange expr
+        bs' = uncurry AST.CaseAlternative . bimap (map (convertBinder fileName) . toList) (convertGuarded fileName) <$> NE.toList bs
+      positioned ann $ AST.Receive Nothing bs'
+
 
     expr@(ExprLet _ (LetIn _ as _ b)) -> do
       let ann = uncurry (sourceAnnCommented fileName) $ exprRange expr

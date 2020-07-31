@@ -50,7 +50,7 @@ data Expr a
   | Case a [Expr a] [CaseAlternative a]
   -- | A case expression
   --
-  | Receive a Integer (Expr a) [CaseAlternative a]
+  | Receive a (Maybe (Integer, (Expr a))) [CaseAlternative a]
   -- |
   -- A let binding
   --
@@ -108,7 +108,7 @@ extractAnn (Abs a _ _) = a
 extractAnn (App a _ _) = a
 extractAnn (Var a _) = a
 extractAnn (Case a _ _) = a
-extractAnn (Receive a _ _ _) = a
+extractAnn (Receive a _ _) = a
 extractAnn (List a _ _) = a
 extractAnn (Let a _ _) = a
 
@@ -125,6 +125,6 @@ modifyAnn f (Abs a b c)           = Abs (f a) b c
 modifyAnn f (App a b c)           = App (f a) b c
 modifyAnn f (Var a b)             = Var (f a) b
 modifyAnn f (Case a b c)          = Case (f a) b c
-modifyAnn f (Receive a b c d)     = Receive (f a) b c d
+modifyAnn f (Receive a b c )     = Receive (f a) b c 
 modifyAnn f (List a b c)          = List (f a) b c
 modifyAnn f (Let a b c)           = Let (f a) b c

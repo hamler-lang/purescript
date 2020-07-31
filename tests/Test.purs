@@ -1,10 +1,22 @@
 module Test where
 
-t1 = {name="nice", age=23, pos= {x=10, y=20}}
+data T = T Integer
 
-t3 x = x
+foreign import data IO :: Type -> Type
 
-f x y = y
+foreign import return :: forall a. a -> IO a
 
-t2 = f 2 t3 t1{name="000", pos={x=41}}
+
+t = receive
+      T x -> return x
+      1   -> return 23
+      2   -> return 24
+    after 1000 -> return 3
+
+t1 = receive
+      T x -> return x
+      1   -> return 23
+      2   -> return 24
+
+t2 = 100
 
