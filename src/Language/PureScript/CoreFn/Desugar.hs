@@ -102,8 +102,10 @@ moduleToCoreFn env (A.Module modSS coms mn decls (Just exps)) =
     Var (ss, com, ty, Just $ getConstructorMeta name) $ fmap properToIdent name
   exprToCoreFn ss com ty (A.Case vs alts) =
     Case (ss, com, ty, Nothing) (fmap (exprToCoreFn ss [] Nothing) vs) (fmap (altToCoreFn ss) alts)
-  exprToCoreFn ss com ty (A.Receive e1 e2 alts) =
-    Receive (ss, com, ty, Nothing) e1 (exprToCoreFn ss [] Nothing e2) (fmap (altToCoreFn ss) alts)
+  exprToCoreFn ss com ty (A.Receive (Just (e1, e2)) alts) =
+    Receive (ss, com, ty, Nothing) (Just (e1, (exprToCoreFn ss [] Nothing e2))) (fmap (altToCoreFn ss) alts)
+  exprToCoreFn ss com ty (A.Receive Nothing alts) =
+    Receive (ss, com, ty, Nothing) Nothing (fmap (altToCoreFn ss) alts)
   exprToCoreFn ss com ty (A.List exprs expr) =
     List (ss, com, ty, Nothing) (fmap (exprToCoreFn ss [] Nothing) exprs) (exprToCoreFn ss [] Nothing expr)
   exprToCoreFn ss com _ (A.TypedValue _ v ty) =

@@ -148,8 +148,10 @@ renameInValue (Var ann (Qualified Nothing name)) =
 renameInValue v@Var {} = return v
 renameInValue (Case ann vs alts) =
   newScope $ Case ann <$> traverse renameInValue vs <*> traverse renameInCaseAlternative alts
-renameInValue (Receive ann e1 e2 alts) =
-  newScope $ Receive ann e1 <$> renameInValue e2 <*> traverse renameInCaseAlternative alts
+renameInValue (Receive ann (Just (e1, e2)) alts) =
+  newScope $ Receive ann  <$> (fmap (\x -> Just (e1, x)) $ renameInValue e2) <*> traverse renameInCaseAlternative alts
+renameInValue (Receive ann Nothing alts) =
+  newScope $ Receive ann Nothing <$> traverse renameInCaseAlternative alts
 renameInValue (List ann exprs expr) =
   newScope $ List ann <$> traverse renameInValue exprs <*> renameInValue expr
 renameInValue (Let ann ds v) =

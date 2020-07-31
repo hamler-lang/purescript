@@ -35,7 +35,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 116
+%expect 119
 
 %name parseKind kind
 %name parseType type
@@ -417,14 +417,22 @@ expr5 :: { Expr () }
       { ExprCase () (CaseOf $1 $2 $3 (pure ($5, $7))) }
 
   | 'receive' '\{' manySep(caseBranch, '\;') '\}' 'after' int '->' expr
-                                       { ExprReceive () (Receive $1 (snd $6, $8) $3) }
+                     { ExprReceive () (Receive $1 (Just (snd $6, $8)) $3) }
 
   | 'receive' '\{' sep(binder1, ',') '->' '\}' exprWhere 'after' int '->' expr
-                                                 { ExprReceive () (Receive $1 (snd $8, $10) (pure ($3, Unconditional $4 $6))) }
+                                                 { ExprReceive () (Receive $1 (Just (snd $8, $10)) (pure ($3, Unconditional $4 $6))) }
 
   | 'receive' '\{' sep(binder1, ',') '\}' guardedCase 'after' int '->' expr
-                     { ExprReceive () (Receive $1 (snd $7, $9) (pure ($3, $5))) }
+                     { ExprReceive () (Receive $1 (Just (snd $7, $9)) (pure ($3, $5))) }
 
+  | 'receive' '\{' manySep(caseBranch, '\;') '\}'
+                     { ExprReceive () (Receive $1 Nothing $3) }
+
+  | 'receive' '\{' sep(binder1, ',') '->' '\}' exprWhere
+                                                 { ExprReceive () (Receive $1 Nothing (pure ($3, Unconditional $4 $6))) }
+
+  | 'receive' '\{' sep(binder1, ',') '\}' guardedCase
+                     { ExprReceive () (Receive $1 Nothing (pure ($3, $5))) }
 
 
 

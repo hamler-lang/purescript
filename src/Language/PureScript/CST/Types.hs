@@ -396,7 +396,7 @@ data CaseOf a = CaseOf
 
 data Receive a = Receive
   { recKeyword :: SourceToken  -- receive
-  , recE :: (Integer, Expr a) -- two expres timeout handle
+  , recE :: Maybe (Integer, Expr a) -- two expres timeout handle
   , recBranches :: NonEmpty (Separated (Binder a), Guarded a) -- all branch
   } deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
 

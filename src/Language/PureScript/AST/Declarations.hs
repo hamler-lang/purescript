@@ -790,7 +790,7 @@ data Expr
   --
   | Case [Expr] [CaseAlternative]
   -- | A receive expression. During the case expansion phase of desugaring, top-level binders will get
-  | Receive Integer Expr [CaseAlternative]
+  | Receive (Maybe (Integer, Expr)) [CaseAlternative]
   -- |
   -- A value with a type annotation
   --
