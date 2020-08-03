@@ -485,8 +485,7 @@ recordLabel :: { RecordLabeled (Expr ()) }
   | label '=' expr { RecordField $1 $2 $3 }
 
 recordUpdateOrLabel :: { Either (RecordLabeled (Expr ())) (RecordUpdate ()) }
-  : label ':' expr { Left (RecordField $1 $2 $3) }
-  | label {% fmap (Left . RecordPun) . toName Ident $ lblTok $1 }
+  : label {% fmap (Left . RecordPun) . toName Ident $ lblTok $1 }
   | label '=' expr { Right (RecordUpdateLeaf $1 $2 $3) }
   | label '{' sep(recordUpdate, ',') '}' { Right (RecordUpdateBranch $1 (Wrapped $2 $3 $4)) }
 
