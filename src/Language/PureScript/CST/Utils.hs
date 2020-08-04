@@ -304,6 +304,8 @@ reservedNames :: Set Text
 reservedNames = Set.fromList
   [ "ado"
   , "case"
+  , "receive"
+  , "after"
   , "class"
   , "data"
   , "derive"

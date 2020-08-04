@@ -169,7 +169,7 @@ insertLayout src@(SourceToken tokAnn tok) nextPos stack =
       state & insertKwProperty (pushStack tokPos LytCase)
 
     TokLowerName [] "receive" ->
-      state & insertToken src & insertStart LytOf & pushStack nextPos LytCaseBinders
+      state & insertSep & insertToken src & insertStart LytOf & pushStack nextPos LytCaseBinders
 
     TokLowerName [] "of" ->
       case collapse indentedP state of
