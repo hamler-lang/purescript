@@ -1,22 +1,14 @@
 module Test where
 
-data T = T Integer
+t2 = do
+   return 1 
+   fun1
+   receive
+        1 -> return 12
+        2 -> return 23
 
-foreign import data IO :: Type -> Type
 
-foreign import return :: forall a. a -> IO a
-
-
-t = receive
-      T x -> return x
-      1   -> return 23
-      2   -> return 24
-    after 1000 -> return 3
-
-t1 = receive
-      T x -> return x
-      1   -> return 23
-      2   -> return 24
-
-t2 = 100
-
+-- t3 = receive
+--         1 -> return 12
+--         2 -> return 23
+--      after 1000 -> nn
