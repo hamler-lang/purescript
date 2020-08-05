@@ -6,6 +6,18 @@ t2 = do
    receive
         1 -> return 12
         2 -> return 23
+   receive
+        1 -> return 12
+        2 -> return 23
+   receive
+        1 -> return 12
+        2 -> return 23
+   receive
+        1 -> return 12
+        2 -> return 23
+
+
+
 
 
 -- t3 = receive
