@@ -279,8 +279,9 @@ moduleToJs (Module _ coms mn _ imps exps foreigns decls) foreign_ =
   literalToValueJS ss (BooleanLiteral b) = return $ AST.BooleanLiteral (Just ss) b
   literalToValueJS ss (ListLiteral xs) = AST.ListLiteral (Just ss) <$> mapM valueToJs xs
   literalToValueJS ss (TupleLiteral xs) = AST.ListLiteral (Just ss) <$> mapM valueToJs xs 
+  literalToValueJS ss (Tuple2Literal a b) = AST.ListLiteral (Just ss) <$> mapM valueToJs [a, b] 
   literalToValueJS ss (ObjectLiteral ps) = AST.ObjectLiteral (Just ss) <$> mapM (sndM valueToJs) ps
-
+  literalToValueJS _ v = error $ show v
   -- | Shallow copy an object.
   extendObj :: AST -> [(PSString, AST)] -> m AST
   extendObj obj sts = do

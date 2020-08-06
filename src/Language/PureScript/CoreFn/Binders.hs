@@ -46,3 +46,4 @@ extractBinderAnn (ConstructorBinder a _ _ _) = a
 extractBinderAnn (NamedBinder a _ _) = a
 extractBinderAnn (MapBinder a _) = a
 extractBinderAnn (BinaryBinder a _) = a
+extractBinderAnn (ListBinder a _ _) = a

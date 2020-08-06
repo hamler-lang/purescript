@@ -15,13 +15,12 @@ import Control.Applicative
 import Control.Arrow (first, second)
 import Control.Monad (unless)
 import Control.Monad.Writer.Class
-import Control.Monad.Supply.Class (MonadSupply, fresh, freshName)
+import Control.Monad.Supply.Class (MonadSupply)
 
 import Data.Function (on)
 import Data.List (foldl', sortBy)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map as M
-import Data.Text (Text)
 import qualified Data.Text as T
 
 import Language.PureScript.AST.Binders
@@ -36,7 +35,6 @@ import Language.PureScript.Pretty.Values (prettyPrintBinderAtom)
 import Language.PureScript.Traversals
 import Language.PureScript.Types as P
 import qualified Language.PureScript.Constants as C
-import qualified Data.List as L
 
 -- | There are two modes of failure for the redundancy check:
 --
@@ -135,7 +133,14 @@ missingCasesSingle env mn (LiteralBinder _ (TupleLiteral xs0)) (LiteralBinder ss
   where (bs1,pr1) = missingCasesMultiple env mn xs0 xs
         bs2 = map (\s -> (LiteralBinder ss (TupleLiteral s))) bs1
 
-missingCasesSingle env mn NullBinder (LiteralBinder ss (ListLiteral [])) = (bs1,pr1)
+missingCasesSingle env mn NullBinder (LiteralBinder ss (Tuple2Literal a b)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn (initialize 2) [a, b]
+        bs2 = map (\[va, vb] -> (LiteralBinder ss (Tuple2Literal va vb))) bs1
+missingCasesSingle env mn (LiteralBinder _ (Tuple2Literal a0 b0)) (LiteralBinder ss (Tuple2Literal va vb)) = (bs2,pr1)
+  where (bs1,pr1) = missingCasesMultiple env mn [a0, b0] [va, vb]
+        bs2 = map (\[a, b] -> (LiteralBinder ss (Tuple2Literal a b))) bs1
+
+missingCasesSingle _ _ NullBinder (LiteralBinder _ (ListLiteral [])) = (bs1,pr1)
   where (bs1,pr1) = ([ListBinder [NullBinder] NullBinder], return True)
 
 missingCasesSingle env mn NullBinder (ListBinder [xs0] xs) = (n:bs2,pr1)
@@ -143,7 +148,7 @@ missingCasesSingle env mn NullBinder (ListBinder [xs0] xs) = (n:bs2,pr1)
         bs2 = map (\[k1,k2] -> ListBinder [k1] k2) bs1
         n = LiteralBinder undefined (ListLiteral [])
 
-missingCasesSingle env mn (LiteralBinder ss0 (ListLiteral [])) (LiteralBinder ss (ListLiteral [])) = ([],return True)
+missingCasesSingle _ _ (LiteralBinder _ (ListLiteral [])) (LiteralBinder _ (ListLiteral [])) = ([],return True)
 missingCasesSingle env mn (ListBinder [xs0] ys0) (ListBinder [xs] ys) = (bs2,pr1)
   where (bs1,pr1) = missingCasesMultiple env mn [xs0,ys0] [xs,ys]
         bs2 = map (\[k1,k2] -> ListBinder [k1] k2) bs1
@@ -342,6 +347,7 @@ checkExhaustiveExpr initSS env mn = onExpr initSS
   onExpr _ (UnaryMinus ss e) = UnaryMinus ss <$> onExpr ss e
   onExpr _ (Literal ss (ListLiteral es)) = Literal ss . ListLiteral <$> mapM (onExpr ss) es
   onExpr _ (Literal ss (TupleLiteral xs)) = Literal ss . TupleLiteral  <$> mapM (onExpr ss) xs
+  onExpr _ (Literal ss (Tuple2Literal a b)) = Literal ss <$> (Tuple2Literal  <$>  (onExpr ss a) <*> (onExpr ss b))
   onExpr _ (Literal ss (ObjectLiteral es)) = Literal ss . ObjectLiteral <$> mapM (sndM (onExpr ss)) es
   onExpr ss (TypeClassDictionaryConstructorApp x e) = TypeClassDictionaryConstructorApp x <$> onExpr ss e
   onExpr ss (Accessor x e) = Accessor x <$> onExpr ss e

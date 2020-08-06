@@ -186,6 +186,7 @@ errorCode em = case unwrapErrorMessage em of
   CannotDefinePrimModules{} -> "CannotDefinePrimModules"
   MixedAssociativityError{} -> "MixedAssociativityError"
   NonAssociativeError{} -> "NonAssociativeError"
+  TupleLengthDifferent{} -> "TupleLengthDifferent"
 
 -- | A stack trace for an error
 newtype MultipleErrors = MultipleErrors

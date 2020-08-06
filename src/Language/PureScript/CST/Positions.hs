@@ -269,6 +269,7 @@ typeRange = \case
   TypeOpName _ a -> qualRange a
   TypeArr _ a _ b -> (fst $ typeRange a, snd $ typeRange b)
   TypeTuple _ (Wrapped _ (Just (Separated x _)) _ ) -> typeRange x
+  TypeTuple _ (Wrapped _ Nothing _ ) -> error "error input"
   TypeList _ a -> typeRange a
   TypeArrName _ a -> (a, a)
   TypeConstrained _ a _ b -> (fst $ constraintRange a, snd $ typeRange b)
@@ -298,7 +299,7 @@ exprRange = \case
   ExprAtom _ a _ -> (a, a)
   ExprNumber _ a _ -> (a, a)
   ExprArray _ a -> wrappedRange a
-  ExprList _ a b -> wrappedRange a
+  ExprList _ a _ -> wrappedRange a
   ExprMapSuger _ a -> wrappedRange a
   ExprBinary _ a -> wrappedRange a
   ExprTuple _ a -> wrappedRange a
@@ -352,7 +353,7 @@ binderRange = \case
   BinderArray _ a -> wrappedRange a
   BinderMap _ a -> wrappedRange a
   BinderList _ a _ -> wrappedRange a
-  BinderBinary _ a -> (placeholder1,placeholder1)
+  BinderBinary _ _ -> (placeholder1,placeholder1)
   BinderTuple _ a -> wrappedRange a
   BinderRecord _ a -> wrappedRange a
   BinderParens _ a -> wrappedRange a

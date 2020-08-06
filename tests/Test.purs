@@ -1,26 +1,12 @@
 module Test where
 
-t2 = do
-   return 1 
-   fun1
-   receive
-        1 -> return 12
-        2 -> return 23
-   receive
-        1 -> return 12
-        2 -> return 23
-   receive
-        1 -> return 12
-        2 -> return 23
-   receive
-        1 -> return 12
-        2 -> return 23
+t = (1,2)
 
+k (x,y) = (y,x)
 
+class Eq a where
+ eq :: a -> a -> Boolean
 
+instance (Eq a, Eq b) =>  Eq (a , b) where
+ eq (a, b) (c, d) = eq a c
 
-
--- t3 = receive
---         1 -> return 12
---         2 -> return 23
---      after 1000 -> nn

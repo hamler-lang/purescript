@@ -343,7 +343,7 @@ isLeftFatArrow str = str == "<=" || str == "⇐"
 
 myUpper1 :: SourceToken -> Parser Text
 myUpper1 tok = case tokValue tok of
-  TokUpperName q a -> return a
+  TokUpperName _ a -> return a
   _                -> internalError $ "Invalid  name " <> show tok
 
 myTres ::Separated (BinaryE a) -> [(Binder a, Maybe Integer, Maybe [Text])]

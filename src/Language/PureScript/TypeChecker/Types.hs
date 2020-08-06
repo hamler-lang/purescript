@@ -358,7 +358,7 @@ infer' (List vals list ) = do
     unifyTypes (srcTypeApp tyList els) t'
     return (TypedValue ch val' t')
   return $ TypedValue' True (List ts' (head tb')) (srcTypeApp tyList els)
-infer' v@(Literal ss (BinaryLiteral vals )) = return $ TypedValue' True v tyBinary
+infer' v@(Literal _ (BinaryLiteral _ )) = return $ TypedValue' True v tyBinary
 infer' (Literal ss (TupleLiteral xs)) = do
   let inferPro val = do
         TypedValue' _ val' ty <- infer val
@@ -367,6 +367,20 @@ infer' (Literal ss (TupleLiteral xs)) = do
   fields <- forM xs inferPro
   let ty = srcTypeApp tyTuple $ tupleFromList (fmap toTupleItem fields, srcREmpty)
   return  $ TypedValue' True (Literal ss (TupleLiteral (fmap (uncurry (TypedValue True)) fields))) ty
+infer' (Literal ss (Tuple2Literal a b)) = do
+  a' <- infer a
+  els1 <- freshType
+  ta' <- forM [a'] $ \(TypedValue' ch val t) -> do
+    (val', t') <- instantiatePolyTypeWithUnknowns val t
+    unifyTypes els1 t'
+    return (TypedValue ch val' t')
+  b' <- infer b
+  els2 <- freshType
+  tb' <- forM [b'] $ \(TypedValue' ch val t) -> do
+    (val', t') <- instantiatePolyTypeWithUnknowns val t
+    unifyTypes els2 t'
+    return (TypedValue ch val' t')
+  return $ TypedValue' True (Literal ss (Tuple2Literal (head ta') (head tb'))) (srcTypeApp (srcTypeApp tyTuple2 els1) els2)
 infer' (Literal ss (ObjectLiteral ps)) = do
   ensureNoDuplicateProperties ps
   -- We make a special case for Vars in record labels, since these are the
@@ -599,7 +613,18 @@ inferBinder val (LiteralBinder _ (TupleLiteral props)) = do
       tt =(srcTypeApp tyTuple nt)
   unifyTypes val tt
   return s'
-
+inferBinder val (LiteralBinder _ (Tuple2Literal a b)) = do
+  el1 <- freshType
+  a' <- do
+    at <- inferBinder el1 a
+    return at
+  el2 <- freshType
+  b' <- do
+    att <- inferBinder el2 b
+    return att
+  unifyTypes val (srcTypeApp (srcTypeApp tyTuple2 el1) el2)
+  let m1 = M.unions [a', b']
+  return m1
 inferBinder val (BinaryBinder xs) = do
   m1 <-
     M.unions
@@ -624,6 +649,8 @@ inferBinder val (TypedBinder ty binder) = do
   ty1 <- introduceSkolemScope <=< replaceAllTypeSynonyms <=< replaceTypeWildcards $ ty
   unifyTypes val ty1
   inferBinder ty1 binder
+inferBinder _ (LiteralBinder _ (BinaryLiteral _)) = 
+  internalError "We needn't to renfer BinaryLteral"
 inferBinder _ OpBinder {} =
   internalError "OpBinder should have been desugared before inferBinder"
 inferBinder _ BinaryNoParensBinder {} =
@@ -781,7 +808,7 @@ check' (Literal ss (ListLiteral vals)) t@(TypeApp _ a ty) = do
   unifyTypes a tyList
   array <- Literal ss . ListLiteral . map tvToExpr <$> forM vals (`check` ty)
   return $ TypedValue' True array t
-check' (Literal ss (TupleLiteral xs)) t@(TypeApp _ tyTuple tys) = do
+check' (Literal ss (TupleLiteral xs)) t@(TypeApp _ _ tys) = do
   let tys' = tupleToList tys
   if length xs /= length tys'
     then throwError (MultipleErrors [ (ErrorMessage [] $ TupleLengthDifferent (length xs) (length tys') )] )
@@ -790,6 +817,12 @@ check' (Literal ss (TupleLiteral xs)) t@(TypeApp _ tyTuple tys) = do
         tx <- fmap tvToExpr $ x `check` (tupleType ty)
         return tx
      return $ TypedValue' True (Literal ss (TupleLiteral xs')) t
+check' (Literal ss (Tuple2Literal m n)) t@(TypeApp _ (TypeApp _ _ argTy) retTy) = do
+  array <- do
+    m' <- fmap tvToExpr $ m `check` argTy
+    n' <- fmap tvToExpr $ n `check` retTy
+    return $ Literal ss $ Tuple2Literal m' n'
+  return $ TypedValue' True array t
 check' (Abs binder ret) ty@(TypeApp _ (TypeApp _ t argTy) retTy)
   | VarBinder ss arg <- binder = do
     unifyTypes t tyFunction
@@ -842,7 +875,7 @@ check' (Receive (Just(e1, e2)) binders) ret = do
     TypeApp _ (TypeConstructor _ (Qualified _ (ProperName "IO"))) _ -> do
        binders' <- checkBinders' ret binders
        return $ TypedValue' True (Receive (Just(e1, e2)) binders') ret
-    x -> withErrorMessageHint (ErrorUnifyingTypes srcIOType st) $
+    _ -> withErrorMessageHint (ErrorUnifyingTypes srcIOType st) $
        throwError . errorMessage $ TypesDoNotUnify srcIOType st
 check' (Receive Nothing binders) ret = do
   binders' <- checkBinders' ret binders

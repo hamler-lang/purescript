@@ -11,7 +11,6 @@ import Data.Function (on)
 
 import Language.PureScript.AST
 import Language.PureScript.Crash
-import Language.PureScript.Names
 
 -- | Replace every @BoundValueDeclaration@ in @Let@ expressions with @Case@
 -- expressions.

@@ -40,6 +40,7 @@ litM :: Monad m => (a -> m a) -> Literal a -> m (Literal a)
 litM go (ObjectLiteral as) = ObjectLiteral <$> traverse (sndM go) as
 litM go (ListLiteral as) = ListLiteral <$> traverse go as
 litM go (TupleLiteral xs) = TupleLiteral <$> traverse go xs
+litM go (Tuple2Literal a b) = Tuple2Literal <$>  go a <*> go b
 litM _ other = pure other
 
 everywhereOnValues ::
@@ -97,6 +98,7 @@ everywhereOnValues f g h = (f', g', h')
     lit :: (a -> a) -> Literal a -> Literal a
     lit go (ListLiteral as) = ListLiteral (fmap go as)
     lit go (TupleLiteral xs) = TupleLiteral (fmap go xs) 
+    lit go (Tuple2Literal a b) = Tuple2Literal (go a) (go b)
     lit go (ObjectLiteral as) = ObjectLiteral (fmap (fmap go) as)
     lit _ other = other
     handleCaseAlternative :: CaseAlternative -> CaseAlternative
@@ -318,6 +320,7 @@ everythingOnValues (<>.) f g h i j = (f', g', h', i', j')
     lit :: r -> (a -> r) -> Literal a -> r
     lit r go (ListLiteral as) = foldl (<>.) r (fmap go as)
     lit r go (TupleLiteral xs) = foldl (<>.) r (fmap go xs)
+    lit r go (Tuple2Literal a b) = foldl (<>.) r (fmap go [a,b])
     lit r go (ObjectLiteral as) = foldl (<>.) r (fmap (go . snd) as)
     lit r _ _ = r
     i' :: CaseAlternative -> r
@@ -399,6 +402,7 @@ everythingWithContextOnValues s0 r0 (<>.) f g h i j = (f'' s0, g'' s0, h'' s0, i
     lit :: (s -> a -> r) -> s -> Literal a -> r
     lit go s (ListLiteral as) = foldl (<>.) r0 (fmap (go s) as)
     lit go s (TupleLiteral xs) = foldl (<>.) r0 (fmap (go s) xs)
+    lit go s (Tuple2Literal a b) = foldl (<>.) r0 (fmap (go s) [a,b])
     lit go s (ObjectLiteral as) = foldl (<>.) r0 (fmap (go s . snd) as)
     lit _ _ _ = r0
     i'' :: s -> CaseAlternative -> r
@@ -481,6 +485,7 @@ everywhereWithContextOnValuesM s0 f g h i j = (f'' s0, g'' s0, h'' s0, i'' s0, j
     lit :: (s -> a -> m a) -> s -> Literal a -> m (Literal a)
     lit go s (ListLiteral as) = ListLiteral <$> traverse (go s) as
     lit go s (TupleLiteral xs) = TupleLiteral <$> traverse (go s) xs
+    lit go s (Tuple2Literal a b) = Tuple2Literal <$> (go s a) <*> (go s b)
     lit go s (ObjectLiteral as) = ObjectLiteral <$> traverse (sndM (go s)) as
     lit _ _ other = return other
     i'' s = uncurry i' <=< i s
@@ -577,6 +582,7 @@ everythingWithScope f g h i j = (f'', g'', h'', i'', \s -> snd . j'' s)
     lit :: (S.Set ScopedIdent -> a -> r) -> S.Set ScopedIdent -> Literal a -> r
     lit go s (ListLiteral as) = foldMap (go s) as
     lit go s (TupleLiteral xs) = foldMap (go s) xs
+    lit go s (Tuple2Literal a b) = foldMap (go s) [a,b]
     lit go s (ObjectLiteral as) = foldMap (go s . snd) as
     lit _ _ _ = mempty
     i'' :: S.Set ScopedIdent -> CaseAlternative -> r

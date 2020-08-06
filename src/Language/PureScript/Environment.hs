@@ -346,8 +346,8 @@ tyBoolean = primTy "Boolean"
 tyList :: SourceType
 tyList = primTy "List"
 
--- tyTuple :: SourceType
--- tyTuple = primTy "Tuple"
+tyTuple2 :: SourceType
+tyTuple2 = primTy "Tuple2"
 
 tyTuple :: SourceType
 tyTuple = primTy "Tuple"
@@ -429,6 +429,7 @@ primTypes :: M.Map (Qualified (ProperName 'TypeName)) (SourceKind, TypeKind)
 primTypes = M.fromList
   [ (primName "Function", (kindType -:> kindType -:> kindType, ExternData))
   , (primName "List",    (kindType -:> kindType, ExternData))
+  , (primName "Tuple2",  (kindType -:> kindType -:> kindType, ExternData))
   , (primName "Tuple",  (kindRow kindType -:> kindType, ExternData))
   , (primName "Record",  (kindRow kindType -:> kindType, ExternData))
   , (primName "String",  (kindType, ExternData))

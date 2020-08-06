@@ -79,6 +79,9 @@ literalFromJSON t = withObject "Literal" literalFromObj
       "CharLiteral"    -> CharLiteral <$> o .: "value"
       "ListLiteral"    -> parseListLiteral o
       "ObjectLiteral"  -> parseObjectLiteral o
+      "BinaryLiteral"  -> BinaryLiteral <$> o .: "value"
+      "Tuple2Literal"  -> parseTuple2Literal o
+      "TupleLiteral"   -> parseTupleLiteral o
       _                -> fail ("error parsing Literal: " ++ show o)
 
   parseListLiteral o = do
@@ -89,6 +92,14 @@ literalFromJSON t = withObject "Literal" literalFromObj
   parseObjectLiteral o = do
     val <- o .: "value"
     ObjectLiteral <$> recordFromJSON t val
+
+  parseTuple2Literal o = do
+    (a, b) <- o .: "value"
+    Tuple2Literal <$> t a <*> t b
+
+  parseTupleLiteral o = do
+    a <- o .: "value"
+    TupleLiteral <$> mapM t a 
 
 identFromJSON :: Value -> Parser Ident
 identFromJSON = withText "Ident" (return . Ident)
@@ -176,7 +187,28 @@ exprFromJSON modulePath = withObject "Expr" exprFromObj
       "App"           -> appFromObj o
       "Case"          -> caseFromObj o
       "Let"           -> letFromObj o
+      "ReceiveJust"   -> receiveJustFromObj o
+      "ReceiveNothing"-> receiveNothingFromObj o
+      "List"          -> listFromObj o
       _               -> fail ("not recognized expression type: \"" ++ T.unpack type_ ++ "\"")
+
+  receiveJustFromObj o = do
+    ann <- o .: "annotation" >>= annFromJSON modulePath
+    justA <- o .: "justA"
+    justB <- o .: "justB" >>= exprFromJSON modulePath
+    cas <- o .: "caseAlternatives" >>= listParser (caseAlternativeFromJSON modulePath)
+    return $ Receive ann (Just (justA, justB)) cas
+
+  receiveNothingFromObj o = do
+    ann <- o .: "annotation" >>= annFromJSON modulePath
+    cas <- o .: "caseAlternatives" >>= listParser (caseAlternativeFromJSON modulePath)
+    return $ Receive ann Nothing cas
+
+  listFromObj o = do
+    ann <- o .: "annotation" >>= annFromJSON modulePath
+    listA <- o .: "listA" >>= listParser (exprFromJSON modulePath)
+    listB <- o .: "listB" >>= exprFromJSON modulePath
+    return $ List ann listA listB
 
   varFromObj o = do
     ann <- o .: "annotation" >>= annFromJSON modulePath
@@ -263,8 +295,27 @@ binderFromJSON modulePath = withObject "Binder" binderFromObj
       "LiteralBinder"     -> literalBinderFromObj o
       "ConstructorBinder" -> constructorBinderFromObj o
       "NamedBinder"       -> namedBinderFromObj o
+      "MapBinder"         -> mapBinderFromObj o
+      "BinaryBinder"      -> binaryBinderFromObj o
+      "ListBinder"        -> listBinderFromObj o
       _                   -> fail ("not recognized binder: \"" ++ T.unpack type_ ++ "\"")
 
+  mapBinderFromObj o = do
+    ann <- o .: "annotation" >>= annFromJSON modulePath
+    vb <- o .: "mapBinder" >>=  mapM (\(a, b) ->(,) <$> 
+                         binderFromJSON modulePath a <*> binderFromJSON modulePath b )
+    return $ MapBinder ann vb
+
+  binaryBinderFromObj o = do
+    ann <- o .: "annotation" >>= annFromJSON modulePath
+    vb <- o .: "binaryBinder" >>=  mapM (\(a, b, c) ->(, b, c) <$> binderFromJSON modulePath a )
+    return $ BinaryBinder ann vb
+
+  listBinderFromObj o = do
+    ann <- o .: "annotation" >>= annFromJSON modulePath
+    va <- o .: "listBinderA" >>=  mapM (binderFromJSON modulePath)
+    vb <- o .: "listBinderB" >>=  binderFromJSON modulePath
+    return $ ListBinder ann va vb 
 
   nullBinderFromObj o = do
     ann <- o .: "annotation" >>= annFromJSON modulePath
