@@ -37,6 +37,7 @@ data Literal a
   | AtomLiteral PSString
   | ObjectLiteral [(PSString, a)]
   | BinaryLiteral [(Integer,Integer)]
+  | Tuple2Literal a a
   | TupleLiteral [a]
   deriving (Eq, Ord, Functor)
 
@@ -51,3 +52,4 @@ instance Show a => Show (Literal a) where
   show (ObjectLiteral xs) = "Object " <> show xs
   show (BinaryLiteral xs) = "Binary " <> show xs
   show (TupleLiteral xs) = "(" <> show xs <> ")"
+  show (Tuple2Literal a b) = "(" <> show a <> "," <> show b <> ")"

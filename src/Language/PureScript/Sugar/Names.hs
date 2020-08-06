@@ -286,7 +286,7 @@ renameInModule imports (Module modSS coms mn decls exps) =
     :: (SourceSpan, [Ident])
     -> Binder
     -> m ((SourceSpan, [Ident]), Binder)
-  updateBinder (_, bound) v@(PositionedBinder pos _ c) = do
+  updateBinder (_, bound) (PositionedBinder pos _ c) = do
     (_,v) <- updateBinder (pos,bound) c
     return ((pos, bound), v)
   updateBinder (_, bound) (ConstructorBinder ss name b) =

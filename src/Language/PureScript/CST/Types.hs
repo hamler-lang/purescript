@@ -492,6 +492,8 @@ extraBinder (BinderParens a _) = a
 extraBinder (BinderTyped a _ _ _) = a
 extraBinder (BinderBinary a _) = a
 extraBinder (BinderOp a _ _ _) = a
+extraBinder (BinderMap a _) = a
+extraBinder (BinderList a _ _) = a
 
 data BinaryVal a = IntVal Integer (Maybe Integer)
   deriving (Show, Eq, Ord, Functor, Foldable, Traversable, Generic)
@@ -509,5 +511,5 @@ binderToNames = go []
     go ns (BinderParens _ (Wrapped _ b _)) = go ns b
     go ns (BinderTyped _ a _ _) = go ns a
     go ns (BinderOp _ a _ b) =foldl go ns [a,b]
-    go ns (BinderBinary _ xs) = foldl go ns (fmap (\(a,b,c) -> a) xs)
+    go ns (BinderBinary _ xs) = foldl go ns (fmap (\(a,_,_) -> a) xs)
     go ns _ = ns

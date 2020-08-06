@@ -91,6 +91,21 @@ literalToJSON t (ObjectLiteral xs)
     [ T.pack "literalType"    .= "ObjectLiteral"
     , T.pack "value"          .= recordToJSON t xs
     ]
+literalToJSON _ (BinaryLiteral xs)
+  = object
+    [ T.pack "literalType"    .= "BinaryLiteral"
+    , T.pack "value"          .= xs
+    ]
+literalToJSON t (Tuple2Literal a b)
+  = object
+    [ T.pack "literalType"    .= "Tuple2Literal"
+    , T.pack "value"          .= (t a, t b)
+    ]
+literalToJSON t (TupleLiteral xs)
+  = object
+    [ T.pack "literalType"    .= "TupleLiteral"
+    , T.pack "value"          .= map t xs
+    ]
 
 identToJSON :: Ident -> Value
 identToJSON = toJSON . runIdent
@@ -195,6 +210,29 @@ exprToJSON (Let ann bs e)           = object [ T.pack "type"        .= "Let"
                                              , T.pack "binds"       .= map bindToJSON bs
                                              , T.pack "expression"  .= exprToJSON e
                                              ]
+exprToJSON (Receive ann (Just(va, vb)) cs) = object [ T.pack "type" .= "ReceiveJust"
+                                             , T.pack "annotation"  .= annToJSON ann
+                                             , T.pack "justA"
+                                                                    .= va
+                                             , T.pack "justB"
+                                                                    .= exprToJSON vb
+                                             , T.pack "caseAlternatives"
+                                                                    .= map caseAlternativeToJSON cs
+                                             ]
+exprToJSON (Receive ann Nothing cs) = object [ T.pack "type"        .= "ReceiveNothing"
+                                             , T.pack "annotation"  .= annToJSON ann
+                                             , T.pack "caseAlternatives"
+                                                                    .= map caseAlternativeToJSON cs
+                                             ]
+exprToJSON (List ann a b)           = object [ T.pack "type"        .= "List"
+                                             , T.pack "annotation"  .= annToJSON ann
+                                             , T.pack "listA"
+                                                                    .= map exprToJSON a
+                                             , T.pack "listB"
+                                                                    .= exprToJSON b
+                                             ]
+
+
 
 caseAlternativeToJSON :: CaseAlternative Ann -> Value
 caseAlternativeToJSON (CaseAlternative bs r') =
@@ -231,4 +269,17 @@ binderToJSON (NamedBinder ann n b)          = object [ T.pack "binderType"  .= "
                                                      , T.pack "annotation"  .= annToJSON ann
                                                      , T.pack "identifier"  .= identToJSON n
                                                      , T.pack "binder"      .= binderToJSON b
+                                                     ]
+binderToJSON (MapBinder ann vb)             = object [ T.pack "binderType"  .= "MapBinder"
+                                                     , T.pack "annotation"  .= annToJSON ann
+                                                     , T.pack "mapBiner"    .= map (\(a,b) -> (binderToJSON a, binderToJSON b)) vb
+                                                     ]
+binderToJSON (BinaryBinder ann vb)          = object [ T.pack "binderType"  .= "BinaryBinder"
+                                                     , T.pack "annotation"  .= annToJSON ann
+                                                     , T.pack "binaryBinder".= map (\(a,b,c) -> (binderToJSON a, b, c)) vb
+                                                     ]
+binderToJSON (ListBinder ann va vb)         = object [ T.pack "binderType"  .= "ListBinder"
+                                                     , T.pack "annotation"  .= annToJSON ann
+                                                     , T.pack "listBinderA" .= map binderToJSON va
+                                                     , T.pack "listBinderB" .= binderToJSON vb
                                                      ]

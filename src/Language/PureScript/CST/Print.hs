@@ -24,6 +24,7 @@ printToken = \case
   TokAtom raw              -> ":" <> raw
   TokRightBrace            -> "}"
   TokLeftSquare            -> "["
+  TokMapLeftBrace          -> "#{"
   TokRightSquare           -> "]"
   TokLeftArrow ASCII       -> "<-"
   TokLeftArrow Unicode     -> "←"

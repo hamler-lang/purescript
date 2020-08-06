@@ -47,7 +47,7 @@ loadAllModules' files = do
 -- Makes a volatile module to execute the current expression.
 --
 createTemporaryModule :: Bool -> PSCiState -> P.Expr -> P.Module
-createTemporaryModule exec st val =
+createTemporaryModule _ st val =
   let
     imports       = psciImportedModules st
     lets          = psciLetBindings st

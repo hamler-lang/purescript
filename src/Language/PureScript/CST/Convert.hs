@@ -210,7 +210,9 @@ convertType fileName = go
         ann = sourceAnnCommented fileName a b
       case bs of
           Nothing -> error $ show bs
-          Just v -> T.TypeApp ann (Env.tyTuple) (goTuple v)
+          Just v -> case v of
+                   Separated ta [(_, tb)] -> T.TypeApp ann (T.TypeApp ann Env.tyTuple2 (go ta)) (go tb)
+                   _ -> T.TypeApp ann (Env.tyTuple) (goTuple v)
 
     TypeList _ a -> do
       let
@@ -329,7 +331,7 @@ convertExpr fileName = go
                        Just (Separated x xs) -> go x : (go . snd <$> xs)
                        Nothing -> []
           positioned ann $ AST.List vals (go b)
-    ExprBinary t (Wrapped a bs c) -> do
+    ExprBinary _ (Wrapped a bs c) -> do
           let ann = sourceAnnCommented fileName a c
               vals = case bs of
                        Nothing -> []
@@ -350,6 +352,7 @@ convertExpr fileName = go
       case res of
         [] -> error $ show bs
         [_] -> error $ show bs
+        [va, vb] -> positioned ann . AST.Literal (fst ann) $ AST.Tuple2Literal va vb
         xs -> positioned ann . AST.Literal (fst ann) $ AST.TupleLiteral xs
     ExprRecord z (Wrapped a bs c) -> do
       let
@@ -537,6 +540,7 @@ convertBinder fileName = go
       case res of
         [] -> error $ show bs
         [_] -> error $ show bs
+        [va, vb] -> positioned ann . AST.LiteralBinder (fst ann) $ AST.Tuple2Literal va vb
         xs  -> positioned ann . AST.LiteralBinder (fst ann) $ AST.TupleLiteral xs
     BinderRecord z (Wrapped a bs c) -> do
       let
@@ -782,6 +786,8 @@ tT (TypeVar _ (Name _ (Ident x))) = x
 tT (TypeParens _ (Wrapped _ a _)) = tT a
 tT (TypeArr _ ta _ tb ) = tT ta <> "To" <> tT tb
 tT (TypeList _ a) = "list" <> tT a
+tT (TypeTuple _  (Wrapped _ (Just (Separated a [(_,b)])) _)) = "tuple2" <> tT a <> tT b
+tT (TypeTuple _  (Wrapped _ (Just (Separated a xs)) _)) = "tuple" <> tT a <> TT.concat (fmap (tT.snd) xs)
 tT x = error $ show x
 
 intValToBinaryLit :: BinaryVal a -> (Integer,Integer)
