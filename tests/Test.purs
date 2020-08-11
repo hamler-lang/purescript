@@ -1,12 +1,9 @@
 module Test where
 
-t = (1,2)
+data Maybe a = Nothing | Just a
 
-k (x,y) = (y,x)
+getA :: Binary -> Maybe (Integer, Binary, Binary)
+getA << a:24/big-integer , b:4/binary-little , c:3/binary >> = Just (a,b,c)
+getA _                                                       = Nothing
 
-class Eq a where
- eq :: a -> a -> Boolean
-
-instance (Eq a, Eq b) =>  Eq (a , b) where
- eq (a, b) (c, d) = eq a c
 
