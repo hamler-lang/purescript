@@ -679,10 +679,10 @@ myPSString :: { MyList () }
   :  sep(myUpper,'-')  { MyList () $1 }
 
 binderBinayE :: { BinaryE () }
-  : binder {BinaryE () $1 Nothing Nothing }
-  |  binder  ':'  int  {BinaryE () $1 (Just $3) Nothing }
-  |  binder  ':' myPSString {BinaryE () $1 Nothing (Just $3) }
-  |  binder  ':'  int  '/' myPSString {BinaryE () $1 (Just $3) (Just $5) }
+  :  binderAtom {BinaryE () $1 Nothing Nothing }
+  |  binderAtom  ':'  int  {BinaryE () $1 (Just $3) Nothing }
+  |  binderAtom  '/' myPSString {BinaryE () $1 Nothing (Just $3) }
+  |  binderAtom  ':'  int  '/' myPSString {BinaryE () $1 (Just $3) (Just $5) }
 
 recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }
