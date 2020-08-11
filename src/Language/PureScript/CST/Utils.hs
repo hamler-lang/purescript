@@ -343,7 +343,7 @@ isLeftFatArrow str = str == "<=" || str == "⇐"
 
 myUpper1 :: SourceToken -> Parser Text
 myUpper1 tok = case tokValue tok of
-  TokUpperName _ a -> return a
+  TokLowerName _ a -> return a
   _                -> internalError $ "Invalid  name " <> show tok
 
 myTres ::Separated (BinaryE a) -> [(Binder a, Maybe Integer, Maybe [Text])]
@@ -366,9 +366,9 @@ myt1 :: MyList a -> [Text]
 myt1 (MyList _ (Separated x xs)) = x : fmap snd xs
 
 dType :: Binder a -> Maybe [Text] -> Binder a
-dType b (Just xs) = if "Integer" `elem` xs
+dType b (Just xs) = if "integer" `elem` xs
              then t "Prim" "Integer"
-             else if "Binary" `elem` xs
+             else if "binary" `elem` xs
                   then t "Prim" "Binary"
                   else t "Prim" "Integer"
   where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)

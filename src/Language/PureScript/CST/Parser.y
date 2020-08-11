@@ -35,7 +35,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 119
+%expect 121
 
 %name parseKind kind
 %name parseType type
@@ -100,6 +100,7 @@ import Language.PureScript.PSString (PSString)
   '-'             { SourceToken _ (TokOperator [] "-") }
   '@'             { SourceToken _ (TokOperator [] "@") }
   '#'             { SourceToken _ (TokOperator [] "#") }
+  '/'             { SourceToken _ (TokOperator [] "/") }
   'myAtom'        { SourceToken _ (TokAtom _ ) }
   'ado'           { SourceToken _ (TokLowerName _ "ado") }
   'as'            { SourceToken _ (TokLowerName [] "as") }
@@ -213,6 +214,7 @@ qualOp :: { QualifiedName (N.OpName a) }
   | QUAL_OPERATOR {% toQualifiedName N.OpName $1 }
   | '<=' {% toQualifiedName N.OpName $1 }
   | '-' {% toQualifiedName N.OpName $1 }
+  | '/' {% toQualifiedName N.OpName $1 }
   | '#' {% toQualifiedName N.OpName $1 }
 
 op :: { Name (N.OpName a) }
@@ -220,6 +222,7 @@ op :: { Name (N.OpName a) }
   | '<=' {% toName N.OpName $1 }
   | '-' {% toName N.OpName $1 }
   | '#' {% toName N.OpName $1 }
+  | '/' {% toName N.OpName $1 }
   | ':' {% toName N.OpName $1 }
 
 qualSymbol :: { QualifiedName (N.OpName a) }
@@ -670,7 +673,7 @@ kvPatPair :: {(Binder (), Binder ())}
  : binder ':=' binder { ( $1, $3 ) }
 
 myUpper :: { Text }
-  : UPPER {% myUpper1 $1}
+  : LOWER {% myUpper1 $1}
 
 myPSString :: { MyList () }
   :  sep(myUpper,'-')  { MyList () $1 }
@@ -679,7 +682,7 @@ binderBinayE :: { BinaryE () }
   : binder {BinaryE () $1 Nothing Nothing }
   |  binder  ':'  int  {BinaryE () $1 (Just $3) Nothing }
   |  binder  ':' myPSString {BinaryE () $1 Nothing (Just $3) }
-  |  binder  ':'  int  ':' myPSString {BinaryE () $1 (Just $3) (Just $5) }
+  |  binder  ':'  int  '/' myPSString {BinaryE () $1 (Just $3) (Just $5) }
 
 recordBinder :: { RecordLabeled (Binder ()) }
   : label {% fmap RecordPun . toName Ident $ lblTok $1 }
