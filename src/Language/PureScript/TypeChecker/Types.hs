@@ -870,11 +870,12 @@ check' (Case vals binders) ret = do
   binders' <- checkBinders ts ret binders
   return $ TypedValue' True (Case vals' binders') ret
 check' (Receive (Just(e1, e2)) binders) ret = do
+  e2' <- tvToExpr <$> check e2 ret
   TypedValue' _ _ st <- infer e2
   case st of
     TypeApp _ (TypeConstructor _ (Qualified _ (ProperName "IO"))) _ -> do
        binders' <- checkBinders' ret binders
-       return $ TypedValue' True (Receive (Just(e1, e2)) binders') ret
+       return $ TypedValue' True (Receive (Just(e1, e2')) binders') ret
     _ -> withErrorMessageHint (ErrorUnifyingTypes srcIOType st) $
        throwError . errorMessage $ TypesDoNotUnify srcIOType st
 check' (Receive Nothing binders) ret = do
