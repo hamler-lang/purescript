@@ -62,6 +62,7 @@ isIndented = \case
   LytLet     -> True
   LytLetStmt -> True
   LytWhere   -> True
+  LytAfter   -> True
   LytOf      -> True
   LytDo      -> True
   LytAdo     -> True
@@ -194,6 +195,9 @@ insertLayout src@(SourceToken tokAnn tok) nextPos stack =
     TokLowerName [] "if" ->
       state & insertKwProperty (pushStack tokPos LytIf)
 
+    TokLowerName [] "after" ->
+      state & collapse offsideP & insertToken src & pushStack tokPos LytAfter
+
     TokLowerName [] "then" ->
       case state & collapse indentedP of
         ((_, LytIf) : stk', acc') ->
@@ -234,6 +238,7 @@ insertLayout src@(SourceToken tokAnn tok) nextPos stack =
       guardP LytCaseBinders   = True
       guardP LytCaseGuard     = True
       guardP LytLambdaBinders = True
+      guardP LytAfter         = True
       guardP _                = False
 
     TokEquals ->

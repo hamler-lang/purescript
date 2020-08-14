@@ -1,9 +1,20 @@
 module Test where
 
-data Maybe a = Nothing | Just a
+t = do
+  println "start"
+  receive
+     1 -> println "1"
+     2 -> println "2"
+  after 100 -> println "timeout"
+  v <- receive
+           1 -> return 1
+           2 -> return 2
+       after 100 -> return 3
+  println $ "receive .. " showAny v
 
-getB :: Binary -> Maybe (Integer, Binary, Binary)
-getB << a:4/big-integer , b:4/binary-little , c/binary >> = Just (a,b,c)
-getB _                                                       = Nothing
+k = receive
+      1 -> println "1"
+      2 -> println "2"
+    after 1000 -> println "timeout"
 
 
