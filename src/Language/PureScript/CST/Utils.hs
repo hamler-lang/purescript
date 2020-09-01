@@ -346,21 +346,26 @@ myUpper1 tok = case tokValue tok of
   TokLowerName _ a -> return a
   _                -> internalError $ "Invalid  name " <> show tok
 
-myTres ::Separated (BinaryE a) -> [(Binder a, Maybe Integer, Maybe [Text])]
-myTres (Separated b0 bs ) =fmap be2t $ b0 : fmap snd bs
+myTres :: Show a => Separated (BinaryE a) -> [(Binder a, Maybe Integer, Maybe [Text])]
+myTres (Separated b0 bs ) = concat $ fmap be2t $ b0 : fmap snd bs
 
-
-myTres1 :: Delimited (BinaryE a) -> [(Binder a, Maybe Integer, Maybe [Text])]
+myTres1 :: Show a => Delimited (BinaryE a) -> [(Binder a, Maybe Integer, Maybe [Text])]
 myTres1 (Wrapped _ (Nothing) _) = []
-myTres1 (Wrapped _ (Just (Separated b0 bs ) ) _) = fmap be2t $ b0 : fmap snd bs
+myTres1 (Wrapped _ (Just (Separated b0 bs ) ) _) = concat $ fmap be2t $ b0 : fmap snd bs
 
 
-be2t :: BinaryE a -> (Binder a, Maybe Integer, Maybe [Text])
+be2t :: Show a => BinaryE a -> [(Binder a, Maybe Integer, Maybe [Text])]
+be2t (BinaryE _ v0@(BinderString _ _ _) b d) =
+                         let temp = fmap myt1 d
+                             b1 = case b of
+                                    Nothing -> Nothing
+                                    Just (_,b') -> Just b'
+                         in  map (\a -> (dType a temp,b1,temp)) (tot1 v0)
 be2t (BinaryE _ a b d) = let temp =fmap myt1 d
                              b1 = case b of
                                     Nothing -> Nothing
                                     Just (_,b') -> Just b'
-                         in  (dType a temp,b1,temp)
+                         in  [(dType a temp,b1,temp)]
 
 myt1 :: MyList a -> [Text]
 myt1 (MyList _ (Separated x xs)) = x : fmap snd xs
@@ -376,7 +381,6 @@ dType b (Just xs) = if "integer" `elem` xs
 dType b Nothing = t "Prim" "Integer"
   where t m n = BinderTyped (extraBinder b) b placeholder (TypeConstructor (extraBinder b)
                                                          (QualifiedName placeholder (Just $ N.moduleNameFromString m) (N.ProperName n)) )
-
 
 ptoExpr :: SourceToken -> Expr ()
 ptoExpr s@(SourceToken _ (TokAtom t)) =
@@ -396,6 +400,10 @@ pssToTuple ps = IntVal r (Just $ 8 * (toInteger $ length t))
   where t = toUTF16CodeUnits ps
         r = foldl (\b a -> b * 256 + a) 0 $ fmap deals t
 
+tot1 :: Binder a -> [Binder a]
+tot1 (BinderString a s pss) = map (\a0 -> BinderNumber a Nothing s (Left $ deals a0)) t
+  where t = toUTF16CodeUnits pss
+tot1 _ = error $ "strange happen"
 
 
 deals :: Word16 -> Integer
