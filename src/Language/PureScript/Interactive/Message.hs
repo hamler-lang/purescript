@@ -35,7 +35,7 @@ helpMessage = "The following commands are available:\n\n    " ++
 -- | The welcome prologue.
 prologueMessage :: String
 prologueMessage = unlines
-  [ "Hamler REPL, version " ++ "0.2.1"
+  [ "Hamler REPL, version " ++ "0.2.2"
   , "Type :? for help"
   ]
 
