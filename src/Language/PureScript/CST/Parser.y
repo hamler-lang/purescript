@@ -35,7 +35,7 @@ import qualified Language.PureScript.Names as N
 import Language.PureScript.PSString (PSString)
 }
 
-%expect 121
+%expect 122
 
 %name parseKind kind
 %name parseType type
@@ -491,6 +491,7 @@ recordUpdateOrLabel :: { Either (RecordLabeled (Expr ())) (RecordUpdate ()) }
   : label {% fmap (Left . RecordPun) . toName Ident $ lblTok $1 }
   | label '=' expr { Right (RecordUpdateLeaf $1 $2 $3) }
   | label '{' sep(recordUpdate, ',') '}' { Right (RecordUpdateBranch $1 (Wrapped $2 $3 $4)) }
+  | sep(label, '.') '=' expr {Right $ buildRecUpdate $1 $3 }
 
 recordUpdate :: { RecordUpdate () }
   : label '=' expr { RecordUpdateLeaf $1 $2 $3 }

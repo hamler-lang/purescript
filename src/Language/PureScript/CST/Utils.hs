@@ -412,3 +412,11 @@ deals w =let t= toInteger w
             then error "input too large. "
             else t
 
+addWrap :: SourceToken -> a -> DelimitedNonEmpty a 
+addWrap st a = Wrapped st (Separated a []) st
+
+buildRecUpdate :: Separated Label -> Expr a -> RecordUpdate a 
+buildRecUpdate (Separated h xs) expr = RecordUpdateBranch h $ addWrap placeholder (go xs) 
+  where go [] = error "error happend"
+        go [(st,x)] = RecordUpdateLeaf x st expr
+        go ((st, x):ys) = RecordUpdateBranch x $ addWrap st (go ys)
