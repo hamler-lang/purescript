@@ -969,8 +969,8 @@ library
       src
   default-extensions: ConstraintKinds DataKinds DeriveFunctor DeriveFoldable DeriveTraversable DeriveGeneric DerivingStrategies EmptyDataDecls FlexibleContexts KindSignatures LambdaCase MultiParamTypeClasses NoImplicitPrelude PatternGuards PatternSynonyms RankNTypes RecordWildCards OverloadedStrings ScopedTypeVariables TupleSections ViewPatterns
   ghc-options: -Wall
-  build-tools:
-      happy ==1.19.9
+  -- build-tools:
+  --     happy ==1.19.9
   build-depends:
       Cabal >=2.2
     , Glob >=0.9 && <0.10
@@ -1049,8 +1049,8 @@ executable purs
   hs-source-dirs:
       app
   ghc-options: -Wall -fno-warn-unused-do-bind -threaded -rtsopts -with-rtsopts=-N
-  build-tools:
-      happy ==1.19.9
+  -- build-tools:
+  --     happy ==1.19.9
   build-depends:
       Cabal >=2.2
     , Glob >=0.9 && <0.10
@@ -1162,8 +1162,8 @@ test-suite tests
       tests
   default-extensions: NoImplicitPrelude LambdaCase OverloadedStrings
   ghc-options: -Wall
-  build-tools:
-      happy ==1.19.9
+  -- build-tools:
+  --     happy ==1.19.9
   build-depends:
       Cabal >=2.2
     , Glob >=0.9 && <0.10
