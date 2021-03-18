@@ -32,4 +32,5 @@ TAGS
 *.ps
 *.svg
 tests/purs/make/
+tests/data
 stack.yaml.lock
