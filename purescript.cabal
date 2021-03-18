@@ -783,7 +783,6 @@ extra-source-files:
     tests/support/pscide/src/RebuildSpecWithForeign.js
     tests/support/pscide/src/RebuildSpecSingleModule.fail
     tests/support/pscide/src/RebuildSpecWithMissingForeign.fail
-    stack.yaml
     README.md
     INSTALL.md
     CONTRIBUTORS.md
