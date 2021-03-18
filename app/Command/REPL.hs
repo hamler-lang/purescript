@@ -22,7 +22,7 @@ import           Control.Concurrent.STM (TVar, atomically, newTVarIO, writeTVar,
                                         readTVarIO,
                                         TChan, newBroadcastTChanIO, dupTChan,
                                         readTChan, writeTChan)
-import           Control.Exception (fromException)
+import           Control.Exception
 import           Control.Monad
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Trans.Class
@@ -54,6 +54,8 @@ import           System.FilePath ((</>))
 import           System.FilePath.Glob (glob)
 import           System.Process (readProcessWithExitCode)
 import qualified Data.ByteString.Lazy.UTF8 as U
+import Control.Monad.IO.Class
+import Control.Monad.Catch
 
 -- | Command line options
 data PSCiOptions = PSCiOptions
@@ -97,7 +99,7 @@ psciOptions = PSCiOptions <$> many inputFile
                           <*> backend
 
 -- | Parses the input and returns either a command, or an error as a 'String'.
-getCommand :: forall m. MonadException m => InputT m (Either String [Command])
+getCommand :: forall m. (MonadMask m, MonadIO m) => InputT m (Either String [Command])
 getCommand = handleInterrupt (return (Right [])) $ do
   line <- withInterrupt $ getInputLine "> "
   case line of
@@ -105,7 +107,7 @@ getCommand = handleInterrupt (return (Right [])) $ do
     Just "" -> return (Right [])
     Just s  -> return (parseCommand s)
 
-pasteMode :: forall m. MonadException m => InputT m (Either String [Command])
+pasteMode :: forall m. (MonadMask m, MonadIO m) => InputT m (Either String [Command])
 pasteMode =
     parseCommand <$> go []
   where

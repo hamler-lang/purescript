@@ -203,7 +203,7 @@ convertFundepsToStrings args fundeps =
   argsVec = V.fromList (map fst args)
   getArg i =
     fromMaybe
-      (P.internalError $ unlines
+      (P.internalError $ Prelude.unlines
         [ "convertDeclaration: Functional dependency index"
         , show i
         , "is bigger than arguments list"
